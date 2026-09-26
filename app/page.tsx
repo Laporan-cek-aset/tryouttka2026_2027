@@ -9,7 +9,6 @@ export default function Page() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Mencegah login ulang jika sesi masih aktif saat direload
   useEffect(() => {
     const savedUser = localStorage.getItem('cbt_user');
     if (savedUser) {
@@ -52,6 +51,19 @@ export default function Page() {
       <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
+      {/* Custom CSS untuk efek denyut */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes pulseEffect {
+          0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(21, 128, 61, 0.4); }
+          50% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(21, 128, 61, 0); }
+          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(21, 128, 61, 0); }
+        }
+        .pulse-box {
+          animation: pulseEffect 2s infinite;
+          border: 2px solid #15803d !important;
+        }
+      `}} />
+
       <div style={{
         fontFamily: "'Poppins', sans-serif",
         minHeight: '100vh',
@@ -69,9 +81,9 @@ export default function Page() {
             
             {/* --- BAGIAN KIRI (INFO) --- */}
             <div className="col-lg-7 text-white pe-lg-4 mb-4 mb-lg-0">
-              <h2 className="fw-bold mb-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>Tryout TKA KKGMI Surabaya 10</h2>
+              <h2 className="fw-bold mb-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>CATBCKS - Kab. Tangerang</h2>
               <p className="lead mb-4" style={{ fontSize: '1.1rem', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>
-                Selamat datang di Aplikasi Computer Based Test (CBT) resmi Kelompok Kerja Guru Madrasah Ibtidaiyah (KKGMI) Kota Surabaya 10.
+                Selamat datang di Aplikasi Computer Based Test (CBT) resmi Kabupaten Tangerang.
               </p>
               
               {/* --- KOTAK ATURAN --- */}
@@ -85,47 +97,21 @@ export default function Page() {
                 </ol>
               </div>
 
-              {/* --- KOTAK JADWAL --- */}
+              {/* --- KOTAK JADWAL 1 HARI (BERDENYUT) --- */}
               <div className="bg-white text-dark p-4 rounded-4 shadow-sm" style={{ opacity: 0.95 }}>
                 <h5 className="fw-bold text-success mb-3"><i className="fas fa-calendar-alt me-2"></i>Jadwal Pelaksanaan</h5>
                 
-                <div className="row g-3 mb-3">
-                  {/* Blok Tryout 1 */}
-                  <div className="col-md-6">
-                    <div className="p-3 bg-light rounded-3 border h-100 shadow-sm">
-                      <h6 className="fw-bold text-primary mb-2 border-bottom pb-2">
-                        Tryout 1 <br/>
-                        <small className="text-muted fw-normal" style={{fontSize: '12px'}}>14 - 17 Des 2026</small>
-                      </h6>
-                      <div className="small text-muted" style={{ lineHeight: '1.6' }}>
-                        <div className="mb-2"><strong className="text-dark"><i className="fas fa-angle-right text-success me-1"></i>Gelombang 1:</strong><br/>14 - 15 Desember 2026</div>
-                        <div><strong className="text-dark"><i className="fas fa-angle-right text-success me-1"></i>Gelombang 2:</strong><br/>16 - 17 Desember 2026</div>
-                      </div>
-                    </div>
+                <div className="p-3 bg-light rounded-4 h-100 shadow-sm pulse-box mb-3">
+                  <h6 className="fw-bold text-primary mb-2 border-bottom pb-2 text-center fs-5">
+                    PELAKSANAAN UJIAN (1 HARI)
+                  </h6>
+                  <div className="text-center mt-3 mb-2 small text-muted">
+                      <strong>Rundown Sesi Ujian:</strong>
                   </div>
-                  
-                  {/* Blok Tryout 2 */}
-                  <div className="col-md-6">
-                    <div className="p-3 bg-light rounded-3 border h-100 shadow-sm">
-                      <h6 className="fw-bold text-primary mb-2 border-bottom pb-2">
-                        Tryout 2 <br/>
-                        <small className="text-muted fw-normal" style={{fontSize: '12px'}}>25 - 28 Jan 2027</small>
-                      </h6>
-                      <div className="small text-muted" style={{ lineHeight: '1.6' }}>
-                        <div className="mb-2"><strong className="text-dark"><i className="fas fa-angle-right text-success me-1"></i>Gelombang 1:</strong><br/>25 - 26 Januari 2027</div>
-                        <div><strong className="text-dark"><i className="fas fa-angle-right text-success me-1"></i>Gelombang 2:</strong><br/>27 - 28 Januari 2027</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Blok Sesi */}
-                <div className="p-3 rounded-3 border" style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }}>
-                  <div className="fw-bold text-success mb-2 small"><i className="fas fa-clock me-1"></i> Waktu Sesi (Berlaku Semua Gelombang):</div>
-                  <div className="d-flex flex-wrap gap-2 small">
-                    <span className="badge bg-white text-success border border-success px-3 py-2 shadow-sm" style={{ fontSize: '13px' }}>Sesi 1: 07.30 - 09.00</span>
-                    <span className="badge bg-white text-success border border-success px-3 py-2 shadow-sm" style={{ fontSize: '13px' }}>Sesi 2: 09.30 - 11.00</span>
-                    <span className="badge bg-white text-success border border-success px-3 py-2 shadow-sm" style={{ fontSize: '13px' }}>Sesi 3: 11.30 - 13.00</span>
+                  <div className="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                    <span className="badge bg-success text-white px-3 py-2 shadow-sm fs-6">Sesi 1: 07.30 - 09.00</span>
+                    <span className="badge bg-success text-white px-3 py-2 shadow-sm fs-6">Sesi 2: 09.30 - 11.00</span>
+                    <span className="badge bg-success text-white px-3 py-2 shadow-sm fs-6">Sesi 3: 11.30 - 13.00</span>
                   </div>
                 </div>
               </div>
@@ -147,10 +133,10 @@ export default function Page() {
                 
                 <div className="text-center mb-4">
                   <img 
-                    src="https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq" 
+                    src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" 
                     className="mx-auto d-block mb-3 rounded" 
                     width="90" 
-                    alt="Logo KKGMI" 
+                    alt="Logo CATBCKS" 
                   />
                   <h4 className="fw-bold text-center" style={{ color: '#064e3b', fontSize: '22px' }}>
                     MASUK UJIAN
@@ -208,7 +194,7 @@ export default function Page() {
                 </form>
 
                 <div className="text-center mt-4 small text-muted">
-                  © 2026 KKGMI SURABAYA 10<br/>@support by Belajar Inovasi
+                  © 2026 CATBCKS - KAB. TANGERANG<br/>@support by Belajar Inovasi
                 </div>
               </div>
             </div>
