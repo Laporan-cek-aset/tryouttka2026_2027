@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
 import { turso } from '../../../lib/turso';
 
-// In-Memory Cache untuk menampung bank soal di RAM server Vercel
-// Ini mencegah 10.000 request baca ke database Turso saat ujian dimulai
 let cacheStore = {
   examPack: {},
   lastFetchTime: 0
 };
-const CACHE_TTL = 5 * 60 * 1000; // Cache bertahan 5 menit (300.000 ms)
+const CACHE_TTL = 5 * 60 * 1000;
 
 export async function POST(req) {
   try {
@@ -25,7 +23,7 @@ export async function POST(req) {
         users = await turso.execute("SELECT * FROM Users WHERE Role = 'siswa'");
       }
       
-      let output = { logo: 'https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq' };
+      let output = { logo: 'https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9' };
       
       if (role === 'admin' || role === 'guru') {
         output.exams = exams.rows;
@@ -72,6 +70,10 @@ export async function POST(req) {
           args: [userId] 
         });
         output.history = history.rows;
+        
+        // Ambil status kelulusan siswa
+        const userStatusQ = await turso.execute({ sql: "SELECT Status FROM Users WHERE ID = ?", args: [userId] });
+        output.userStatus = userStatusQ.rows.length > 0 ? userStatusQ.rows[0].Status : '';
       }
       return NextResponse.json({ status: 'success', data: output });
     }
@@ -86,7 +88,7 @@ export async function POST(req) {
         exams = await turso.execute("SELECT * FROM Exams");
         users = await turso.execute("SELECT * FROM Users WHERE Role = 'siswa'");
       }
-      return NextResponse.json({ status: 'success', exams: exams.rows, users: users.rows, logo: 'https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq' });
+      return NextResponse.json({ status: 'success', exams: exams.rows, users: users.rows, logo: 'https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9' });
     }
 
     if (action === 'getUserList') {
@@ -111,6 +113,15 @@ export async function POST(req) {
         await turso.execute({ sql: "DELETE FROM Users WHERE ID = ?", args: [d.id] });
       }
       return NextResponse.json({ status: 'success', msg: 'Data User berhasil disimpan!' });
+    }
+    
+    // FUNGSI BARU: Mengatur status kelulusan secara massal
+    if (action === 'adminSetKelulusan') {
+      const [userIds, statusVal] = args;
+      for (let uid of userIds) {
+          await turso.execute({ sql: "UPDATE Users SET Status=? WHERE ID=?", args: [statusVal, uid] });
+      }
+      return NextResponse.json({ status: 'success', msg: `Berhasil mengatur status ${statusVal} untuk ${userIds.length} peserta!` });
     }
 
     if (action === 'adminSaveExam') {
@@ -185,10 +196,7 @@ export async function POST(req) {
     }
 
     if (action === 'submitSurveyResponse') {
-        // Tambahkan parameter waktuSubmit (args[3])
         const uid = args[0]; const sid = args[1]; const answers = args[2]; const waktuSubmit = args[3];
-        
-        // Tambahkan kolom WaktuSubmit pada query SQL
         await turso.execute({ 
            sql: "INSERT INTO Results (ResultID, SiswaID, ExamID, TotalNilai, Detail, Pelanggaran, WaktuSubmit) VALUES (?, ?, ?, 0, ?, 'Survey Response', ?)", 
            args: ['SRES' + Date.now(), uid, sid, JSON.stringify(answers), waktuSubmit] 
@@ -201,13 +209,10 @@ export async function POST(req) {
     if (action === 'getExamPack') {
       const eid = args[0]; const uid = args[1];
       
-      // Validasi history tetap dari database (spesifik per siswa)
       const history = await turso.execute({ sql: "SELECT * FROM Results WHERE ExamID=? AND SiswaID=?", args: [eid, uid]});
       if(history.rows.length > 0) return NextResponse.json({status: 'error', msg: 'Ujian sudah dikerjakan.'});
       
       const now = Date.now();
-      
-      // Mengambil dari Turso HANYA jika data cache kosong atau sudah kedaluwarsa (> 5 menit)
       if (!cacheStore.examPack[eid] || (now - cacheStore.lastFetchTime > CACHE_TTL)) {
           const examInfo = await turso.execute({ sql: "SELECT * FROM Exams WHERE ExamID=?", args:[eid] });
           const qs = await turso.execute({ sql: "SELECT * FROM Questions WHERE ExamID=?", args:[eid] });
@@ -223,7 +228,6 @@ export async function POST(req) {
           cacheStore.lastFetchTime = now;
       }
 
-      // Kirim respons langsung dari memori Cache
       const cachedExam = cacheStore.examPack[eid];
       return NextResponse.json({ 
           status: 'success', 
@@ -235,7 +239,6 @@ export async function POST(req) {
     }
 
     if (action === 'submitExam') {
-       // Tambahkan parameter waktuSubmit (args[4])
        const uid = args[0]; const eid = args[1]; const answers = args[2]; const violations = args[3]; const waktuSubmit = args[4];
        
        let rawTotalScore = 0; 
@@ -295,7 +298,6 @@ export async function POST(req) {
        let finalScore100 = maxPossibleTotalScore > 0 ? (rawTotalScore / maxPossibleTotalScore) * 100 : 0;
        finalScore100 = Math.round(finalScore100 * 100) / 100;
 
-       // Tambahkan kolom WaktuSubmit pada query SQL
        await turso.execute({ 
            sql: "INSERT INTO Results (ResultID, SiswaID, ExamID, TotalNilai, Detail, Pelanggaran, WaktuSubmit) VALUES (?, ?, ?, ?, ?, ?, ?)", 
            args: ['RES' + Date.now(), uid, eid, finalScore100, JSON.stringify(detailLog), violations > 0 ? `Pelanggaran: ${violations}x` : "-", waktuSubmit] 
@@ -353,9 +355,6 @@ export async function POST(req) {
     }
 
     if (action === 'updateClientProgress') {
-        // Blok ini telah dinonaktifkan sepenuhnya (tidak melakukan eksekusi ke Turso).
-        // Fungsi ini akan mengembalikan status sukses agar frontend tidak error,
-        // namun menghentikan lonjakan kuota write ke database.
         return NextResponse.json({ status: 'success' });
     }
 
