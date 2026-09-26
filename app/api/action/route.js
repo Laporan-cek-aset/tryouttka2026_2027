@@ -46,7 +46,7 @@ export async function POST(req) {
 
         if (role === 'guru') {
             const studentRankQuery = await turso.execute({
-                sql: `SELECT u.Nama, u.Kelas, e.Mapel, AVG(r.TotalNilai) as RataRata 
+                sql: `SELECT u.Nama, e.Mapel, AVG(r.TotalNilai) as RataRata 
                       FROM Results r 
                       JOIN Users u ON r.SiswaID = u.ID 
                       JOIN Exams e ON r.ExamID = e.ExamID 
@@ -71,7 +71,6 @@ export async function POST(req) {
         });
         output.history = history.rows;
         
-        // Ambil status kelulusan siswa
         const userStatusQ = await turso.execute({ sql: "SELECT Status FROM Users WHERE ID = ?", args: [userId] });
         output.userStatus = userStatusQ.rows.length > 0 ? userStatusQ.rows[0].Status : '';
       }
@@ -115,7 +114,6 @@ export async function POST(req) {
       return NextResponse.json({ status: 'success', msg: 'Data User berhasil disimpan!' });
     }
     
-    // FUNGSI BARU: Mengatur status kelulusan secara massal
     if (action === 'adminSetKelulusan') {
       const [userIds, statusVal] = args;
       for (let uid of userIds) {
@@ -148,11 +146,13 @@ export async function POST(req) {
 
     if (action === 'adminSaveSingleQuestion') {
       const eid = args[0]; const d = args[1]; const userId = args[2]; const id = d.id || ('Q' + Date.now());
+      const kategori = d.kategori || 'Profesional';
       const cek = await turso.execute({ sql: "SELECT QID FROM Questions WHERE QID = ?", args: [id] });
+      
       if (cek.rows.length > 0) {
-        await turso.execute({ sql: "UPDATE Questions SET Tipe=?, Pertanyaan=?, Options=?, Key=?, Skor=?, Nomor=? WHERE QID=?", args: [d.type, d.text, JSON.stringify(d.options), JSON.stringify(d.key), d.score, d.num, id] });
+        await turso.execute({ sql: "UPDATE Questions SET Tipe=?, Pertanyaan=?, Options=?, Key=?, Skor=?, Nomor=?, Kategori=? WHERE QID=?", args: [d.type, d.text, JSON.stringify(d.options), JSON.stringify(d.key), d.score, d.num, kategori, id] });
       } else {
-        await turso.execute({ sql: "INSERT INTO Questions (QID, ExamID, Tipe, Pertanyaan, Options, Key, Skor, Nomor, PembuatID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", args: [id, eid, d.type, d.text, JSON.stringify(d.options), JSON.stringify(d.key), d.score, d.num, userId] });
+        await turso.execute({ sql: "INSERT INTO Questions (QID, ExamID, Tipe, Pertanyaan, Options, Key, Skor, Nomor, PembuatID, Kategori) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", args: [id, eid, d.type, d.text, JSON.stringify(d.options), JSON.stringify(d.key), d.score, d.num, userId, kategori] });
       }
       return NextResponse.json({ status: 'success', id: id, msg: 'Soal/Pernyataan tersimpan!' });
     }
@@ -166,7 +166,8 @@ export async function POST(req) {
       const eid = args[0]; const qArr = args[1]; const userId = args[2];
       for(let q of qArr) {
          const id = 'Q' + Date.now() + Math.floor(Math.random()*1000);
-         await turso.execute({ sql: "INSERT INTO Questions (QID, ExamID, Tipe, Pertanyaan, Options, Key, Skor, Nomor, PembuatID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", args: [id, eid, q.type, q.text, JSON.stringify(q.options), JSON.stringify(q.key), q.score, q.num, userId] });
+         const kategori = q.kategori || 'Profesional';
+         await turso.execute({ sql: "INSERT INTO Questions (QID, ExamID, Tipe, Pertanyaan, Options, Key, Skor, Nomor, PembuatID, Kategori) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", args: [id, eid, q.type, q.text, JSON.stringify(q.options), JSON.stringify(q.key), q.score, q.num, userId, kategori] });
       }
       return NextResponse.json({ status: 'success', msg: `${qArr.length} soal diupload!` });
     }
@@ -217,13 +218,14 @@ export async function POST(req) {
           const examInfo = await turso.execute({ sql: "SELECT * FROM Exams WHERE ExamID=?", args:[eid] });
           const qs = await turso.execute({ sql: "SELECT * FROM Questions WHERE ExamID=?", args:[eid] });
           
-          const cleanQ = qs.rows.map(q => ({ QID: q.QID, Tipe: q.Tipe, Pertanyaan: q.Pertanyaan, Options: q.Options, Nomor: q.Nomor, Extra: [] }));
+          const cleanQ = qs.rows.map(q => ({ QID: q.QID, Tipe: q.Tipe, Pertanyaan: q.Pertanyaan, Options: q.Options, Nomor: q.Nomor, Kategori: q.Kategori || 'Profesional', Extra: [] }));
           
           cacheStore.examPack[eid] = {
               data: cleanQ, 
               duration: examInfo.rows[0].Durasi, 
               judul: examInfo.rows[0].Judul, 
-              token: examInfo.rows[0].Token
+              token: examInfo.rows[0].Token,
+              randomQ: examInfo.rows[0].RandomQ
           };
           cacheStore.lastFetchTime = now;
       }
@@ -234,7 +236,8 @@ export async function POST(req) {
           data: cachedExam.data, 
           duration: cachedExam.duration, 
           judul: cachedExam.judul, 
-          token: cachedExam.token 
+          token: cachedExam.token,
+          randomQ: cachedExam.randomQ
       });
     }
 
@@ -243,11 +246,8 @@ export async function POST(req) {
        
        let rawTotalScore = 0; 
        let detailLog = [];
-       let maxPossibleTotalScore = 0;
 
        const qs = await turso.execute({ sql: "SELECT * FROM Questions WHERE ExamID=?", args:[eid] });
-       
-       qs.rows.forEach(q => { maxPossibleTotalScore += Number(q.Skor) || 0; });
 
        answers.forEach(ans => {
           const q = qs.rows.find(x => x.QID === ans.qid);
@@ -261,7 +261,6 @@ export async function POST(req) {
                      const correct_selected = ans.answer.filter(val => keys.includes(val)).length;
                      const wrong_selected = ans.answer.filter(val => !keys.includes(val)).length;
                      const total_correct_keys = keys.length;
-                     
                      if (total_correct_keys > 0) {
                          let partial = (correct_selected - wrong_selected) / total_correct_keys;
                          if (partial < 0) partial = 0; 
@@ -291,21 +290,22 @@ export async function POST(req) {
              
              scoreEarned = Math.round(scoreEarned * 100) / 100;
              rawTotalScore += scoreEarned;
-             detailLog.push({ i: q.Nomor, s: scoreEarned, m: maxSkor, t: q.Tipe, a: ans.answer });
+             // Simpan kategori soal ke dalam log untuk di-rekap nanti
+             detailLog.push({ i: q.Nomor, s: scoreEarned, m: maxSkor, t: q.Tipe, a: ans.answer, k: q.Kategori || 'Profesional' });
           }
        });
 
-       let finalScore100 = maxPossibleTotalScore > 0 ? (rawTotalScore / maxPossibleTotalScore) * 100 : 0;
-       finalScore100 = Math.round(finalScore100 * 100) / 100;
+       // Murni penjumlahan sesuai request, tidak dikalikan dan dibagi 100.
+       let finalScore = Math.round(rawTotalScore * 100) / 100;
 
        await turso.execute({ 
            sql: "INSERT INTO Results (ResultID, SiswaID, ExamID, TotalNilai, Detail, Pelanggaran, WaktuSubmit) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-           args: ['RES' + Date.now(), uid, eid, finalScore100, JSON.stringify(detailLog), violations > 0 ? `Pelanggaran: ${violations}x` : "-", waktuSubmit] 
+           args: ['RES' + Date.now(), uid, eid, finalScore, JSON.stringify(detailLog), violations > 0 ? `Pelanggaran: ${violations}x` : "-", waktuSubmit] 
        });
        
-       try { await turso.execute({ sql: "UPDATE Users SET Status='Selesai Ujian TKA', Terjawab=0 WHERE ID=?", args: [uid] }); } catch(e){}
+       try { await turso.execute({ sql: "UPDATE Users SET Status='Selesai CAT BCKS', Terjawab=0 WHERE ID=?", args: [uid] }); } catch(e){}
 
-       return NextResponse.json({ status: 'success', msg: 'Berhasil dikirim', data: { score: finalScore100 } });
+       return NextResponse.json({ status: 'success', msg: 'Berhasil dikirim', data: { score: finalScore } });
     }
 
     if (action === 'getRecapList') {
@@ -375,7 +375,6 @@ export async function POST(req) {
                data: users.rows.map(u => ({ 
                    id: u.ID, 
                    nama: u.Nama || 'Tanpa Nama', 
-                   kelas: u.Kelas || '-', 
                    terjawab: u.Terjawab != null ? u.Terjawab : 0, 
                    total: u.TotalSoal != null && u.TotalSoal > 0 ? u.TotalSoal : 10,
                    status: u.Status || 'Offline' 
