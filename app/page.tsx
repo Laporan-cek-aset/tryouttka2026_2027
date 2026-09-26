@@ -132,7 +132,7 @@ export default function Page() {
                 
                 <div className="p-3 bg-light rounded-4 h-100 shadow-sm pulse-box mb-3">
                   <h6 className="fw-bold text-primary mb-2 text-center fs-5">
-                    PELAKSANAAN UJIAN (1 HARI)
+                    PELAKSANAAN UJIAN (15 Oktober 2026)
                   </h6>
                   
                   {/* TAMPILAN HITUNG MUNDUR */}
@@ -156,7 +156,7 @@ export default function Page() {
                   </div>
 
                   <div className="text-center mt-3 mb-2 small text-muted border-top pt-3">
-                      <strong>Rundown Sesi Ujian:</strong>
+                      <strong>Sesi Ujian:</strong>
                   </div>
                   <div className="d-flex flex-wrap justify-content-center gap-2">
                     <span className="badge bg-success text-white px-3 py-2 shadow-sm fs-6">Sesi 1: 07.30 - 09.00</span>
