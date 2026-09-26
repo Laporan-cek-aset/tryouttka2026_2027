@@ -8,12 +8,38 @@ export default function Page() {
   const [tglLahir, setTglLahir] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // State untuk Hitung Mundur
+  const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
+  
+  // TENTUKAN TANGGAL PELAKSANAAN UJIAN DI SINI (Format: YYYY-MM-DDTHH:mm:ss)
+  const TARGET_DATE = new Date("2026-10-15T07:30:00").getTime();
 
   useEffect(() => {
+    // Redirect jika sudah login
     const savedUser = localStorage.getItem('cbt_user');
     if (savedUser) {
       window.location.href = '/index.html';
     }
+
+    // Logika Interval Hitung Mundur
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const difference = TARGET_DATE - now;
+
+      if (difference > 0) {
+        setTimeLeft({
+          d: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          h: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          m: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          s: Math.floor((difference % (1000 * 60)) / 1000)
+        });
+      } else {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -62,6 +88,9 @@ export default function Page() {
           animation: pulseEffect 2s infinite;
           border: 2px solid #15803d !important;
         }
+        .countdown-box {
+          background: linear-gradient(135deg, #15803d 0%, #064e3b 100%);
+        }
       `}} />
 
       <div style={{
@@ -97,18 +126,39 @@ export default function Page() {
                 </ol>
               </div>
 
-              {/* --- KOTAK JADWAL 1 HARI (BERDENYUT) --- */}
+              {/* --- KOTAK JADWAL & HITUNG MUNDUR --- */}
               <div className="bg-white text-dark p-4 rounded-4 shadow-sm" style={{ opacity: 0.95 }}>
                 <h5 className="fw-bold text-success mb-3"><i className="fas fa-calendar-alt me-2"></i>Jadwal Pelaksanaan</h5>
                 
                 <div className="p-3 bg-light rounded-4 h-100 shadow-sm pulse-box mb-3">
-                  <h6 className="fw-bold text-primary mb-2 border-bottom pb-2 text-center fs-5">
+                  <h6 className="fw-bold text-primary mb-2 text-center fs-5">
                     PELAKSANAAN UJIAN (1 HARI)
                   </h6>
-                  <div className="text-center mt-3 mb-2 small text-muted">
+                  
+                  {/* TAMPILAN HITUNG MUNDUR */}
+                  <div className="d-flex justify-content-center gap-2 gap-md-3 my-3">
+                    <div className="text-center">
+                        <div className="countdown-box text-white rounded-3 px-3 py-2 fs-3 fw-bold shadow-sm">{timeLeft.d}</div>
+                        <small className="text-muted fw-bold" style={{fontSize:'11px'}}>HARI</small>
+                    </div>
+                    <div className="text-center">
+                        <div className="countdown-box text-white rounded-3 px-3 py-2 fs-3 fw-bold shadow-sm">{timeLeft.h}</div>
+                        <small className="text-muted fw-bold" style={{fontSize:'11px'}}>JAM</small>
+                    </div>
+                    <div className="text-center">
+                        <div className="countdown-box text-white rounded-3 px-3 py-2 fs-3 fw-bold shadow-sm">{timeLeft.m}</div>
+                        <small className="text-muted fw-bold" style={{fontSize:'11px'}}>MENIT</small>
+                    </div>
+                    <div className="text-center">
+                        <div className="countdown-box text-white rounded-3 px-3 py-2 fs-3 fw-bold shadow-sm">{timeLeft.s}</div>
+                        <small className="text-muted fw-bold" style={{fontSize:'11px'}}>DETIK</small>
+                    </div>
+                  </div>
+
+                  <div className="text-center mt-3 mb-2 small text-muted border-top pt-3">
                       <strong>Rundown Sesi Ujian:</strong>
                   </div>
-                  <div className="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                  <div className="d-flex flex-wrap justify-content-center gap-2">
                     <span className="badge bg-success text-white px-3 py-2 shadow-sm fs-6">Sesi 1: 07.30 - 09.00</span>
                     <span className="badge bg-success text-white px-3 py-2 shadow-sm fs-6">Sesi 2: 09.30 - 11.00</span>
                     <span className="badge bg-success text-white px-3 py-2 shadow-sm fs-6">Sesi 3: 11.30 - 13.00</span>
