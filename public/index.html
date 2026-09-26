@@ -101,8 +101,7 @@
         <ul class="list-unstyled components hidden" id="menu-admin">
             <li><a onclick="loadPage('admin-home')" class="nav-link active"><i class="fas fa-home me-3"></i>Dashboard</a></li>
             <li><a onclick="loadPage('admin-users')" class="nav-link"><i class="fas fa-users me-3"></i>Data Peserta</a></li>
-            <li><a onclick="loadPage('admin-ujian')" class="nav-link"><i class="fas fa-calendar-alt me-3"></i>Bank Soal TKA</a></li>
-            <li><a onclick="loadPage('admin-survey')" class="nav-link"><i class="fas fa-clipboard-check me-3"></i>Manajemen Survei</a></li>
+            <li><a onclick="loadPage('admin-ujian')" class="nav-link"><i class="fas fa-calendar-alt me-3"></i>Bank Soal</a></li>
             <li><a onclick="loadPage('hasil-rekap')" class="nav-link"><i class="fas fa-chart-bar me-3"></i>Hasil Nilai</a></li>
             <li><a onclick="loadPage('admin-administrasi')" class="nav-link text-info"><i class="fas fa-print me-3"></i>Administrasi</a></li>
             <li><a onclick="handleResetCache()" class="nav-link text-warning"><i class="fas fa-bolt me-3"></i>Reset Cache</a></li>
@@ -110,7 +109,7 @@
         <ul class="list-unstyled components hidden" id="menu-guru">
             <li><a onclick="loadPage('admin-home')" class="nav-link active"><i class="fas fa-home me-3"></i>Dashboard</a></li>
             <li><a onclick="loadPage('admin-users')" class="nav-link"><i class="fas fa-users me-3"></i>Data Peserta</a></li>
-            <li><a onclick="loadPage('admin-ujian')" class="nav-link"><i class="fas fa-file-alt me-3"></i>Bank Soal TKA</a></li>
+            <li><a onclick="loadPage('admin-ujian')" class="nav-link"><i class="fas fa-file-alt me-3"></i>Bank Soal</a></li>
             <li><a onclick="loadPage('hasil-rekap')" class="nav-link"><i class="fas fa-poll me-3"></i>Hasil Nilai</a></li>
             <li><a onclick="loadPage('admin-administrasi')" class="nav-link text-info"><i class="fas fa-print me-3"></i>Administrasi</a></li>
         </ul>
@@ -135,7 +134,7 @@
     </div>
 </div>
 
-<!-- TAMPILAN UJIAN CBT TKA -->
+<!-- TAMPILAN UJIAN CAT BCKS -->
 <div id="view-exam" class="hidden">
     <div class="exam-header">
         <div class="d-flex align-items-center">
@@ -178,7 +177,7 @@
 <div id="view-countdown" class="hidden" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
     <div class="card border-0 shadow-lg rounded-4 p-5 text-center" style="max-width: 550px;">
         <i class="fas fa-check-circle text-success mb-3" style="font-size: 5rem;"></i>
-        <h3 class="fw-bold text-dark">Ujian TKA Terkirim!</h3>
+        <h3 class="fw-bold text-dark">Ujian BCKS Terkirim!</h3>
         <p class="text-muted mb-4 mt-3" style="font-size: 1.1rem;">Mohon tunggu sebentar, Anda diwajibkan untuk mengisi Survei Evaluasi. Layar akan beralih otomatis dalam:</p>
         <h1 class="display-1 fw-bold text-primary mb-4" id="countdown-number">30</h1>
         <div class="spinner-border text-primary mt-2" role="status"></div>
@@ -1472,7 +1471,7 @@ function renderContent(page) {
                         <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
                             <table class="table table-sm table-hover">
                                 <thead>
-                                    <tr class="table-light"><th>Mapel TKA</th><th>Nama</th><th>Kelas</th><th>Skor</th></tr>
+                                    <tr class="table-light"><th>Mapel BCKS</th><th>Nama</th><th>Kelas</th><th>Skor</th></tr>
                                 </thead>
                                 <tbody id="dash-student-tbody">
                                 </tbody>
