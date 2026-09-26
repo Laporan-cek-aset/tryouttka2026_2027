@@ -59,10 +59,13 @@
         .clickable-opt { cursor: pointer; transition: all 0.2s ease-in-out; margin-bottom: 0; }
         .clickable-opt:hover { background-color: #f1f5f9 !important; border-color: var(--secondary) !important; }
         
-        @keyframes fadeInDown {
-            0% { opacity: 0; transform: translateY(-20px); }
-            100% { opacity: 1; transform: translateY(0); }
+        /* Efek Denyut untuk Tombol Pengumuman */
+        @keyframes pulseBtn {
+            0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(25, 135, 84, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
         }
+        .btn-pulse { animation: pulseBtn 2s infinite; }
         
         @media (max-width: 768px) { 
             #sidebar { left: -260px; } 
@@ -510,6 +513,36 @@ function loadPage(page) {
     }).getDashboardData(user.Role, user.ID, user.Kelas, user.Sekolah);
 }
 
+// LOGIKA PENGUMUMAN SISWA
+function lihatPengumuman() {
+    const status = gData.userStatus || '';
+    if (status === 'LULUS') {
+        Swal.fire({
+            title: 'PENGUMUMAN HASIL',
+            html: `<div class="mb-4 mt-2"><i class="fas fa-check-circle text-success" style="font-size: 5rem; text-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);"></i></div>
+                   <h3 class="fw-bold text-success mb-3">SELAMAT! ANDA LULUS</h3>
+                   <p class="fs-6 text-muted">Berdasarkan hasil penilaian, Anda dinyatakan memenuhi kriteria kelulusan.<br>Terus pertahankan semangat belajarmu!</p>`,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#198754'
+        });
+    } else if (status === 'TIDAK LULUS') {
+        Swal.fire({
+            title: 'PENGUMUMAN HASIL',
+            html: `<div class="mb-4 mt-2"><i class="fas fa-times-circle text-danger" style="font-size: 5rem; text-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);"></i></div>
+                   <h3 class="fw-bold text-danger mb-3">MOHON MAAF</h3>
+                   <p class="fs-6 text-muted">Berdasarkan hasil penilaian, Anda dinyatakan <b>BELUM LULUS</b>.<br>Jangan menyerah, jadikan ini sebagai motivasi untuk belajar lebih giat lagi!</p>`,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#dc3545'
+        });
+    } else {
+        Swal.fire({
+            title: 'BELUM TERSEDIA',
+            text: 'Status kelulusan Anda saat ini sedang dalam proses atau belum dirilis oleh panitia.',
+            icon: 'info'
+        });
+    }
+}
+
 function encodeImageFileAsURL(element) { let file = element.files[0]; let reader = new FileReader(); reader.onloadend = function() { $('#mu-foto-b64').val(reader.result); }; if(file) reader.readAsDataURL(file); }
 function fetchLiveMonitor(isSilent = false) {
     if(!isSilent) {
@@ -779,7 +812,6 @@ function toggleBulkDeleteUsersBtn() {
     }
 }
 
-// LOGIKA SET KELULUSAN MASSAL
 function setKelulusan(statusVal) {
     const checked = $('.check-user:checked');
     if(checked.length === 0) return;
@@ -1577,31 +1609,7 @@ function renderContent(page) {
         h += '</div>';
     }
     else if (page === 'siswa-home') {
-        // PENAMBAHAN PENGUMUMAN KELULUSAN
-        let announcement = '';
-        if (gData.userStatus === 'LULUS' || gData.userStatus === 'TIDAK LULUS') {
-            if (gData.userStatus === 'LULUS') {
-                announcement = `
-                <div class="card mb-4 border-0 shadow-lg rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; animation: fadeInDown 0.8s;">
-                    <div class="card-body p-4 text-center">
-                        <i class="fas fa-check-circle fa-4x mb-3 text-white"></i>
-                        <h2 class="fw-bold mb-2">SELAMAT! ANDA LULUS UJIAN</h2>
-                        <p class="fs-5 mb-0">Kerja keras Anda membuahkan hasil. Tetap semangat dan persiapkan langkah selanjutnya dengan baik!</p>
-                    </div>
-                </div>`;
-            } else {
-                announcement = `
-                <div class="card mb-4 border-0 shadow-lg rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); color: white; animation: fadeInDown 0.8s;">
-                    <div class="card-body p-4 text-center">
-                        <i class="fas fa-hand-holding-heart fa-4x mb-3 text-white"></i>
-                        <h2 class="fw-bold mb-2">MOHON MAAF, ANDA BELUM LULUS</h2>
-                        <p class="fs-5 mb-0">Jangan berkecil hati. Kegagalan adalah keberhasilan yang tertunda. Tetap semangat belajar dan coba lagi di kesempatan berikutnya!</p>
-                    </div>
-                </div>`;
-            }
-        }
-        
-        h = `${announcement}
+        h = `
         <div class="card mb-4 border-0 shadow-sm rounded-4 text-white overflow-hidden" style="background: linear-gradient(135deg, #0f5132, #d4af37);">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center">
@@ -1624,25 +1632,26 @@ function renderContent(page) {
                 h += `<div class="col-md-6 col-lg-4"><div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden transition-hover"><div class="card-body p-4 text-center"><span class="badge bg-light text-primary border border-primary px-3 py-2 rounded-pill mb-3 fw-bold">${e.Mapel}</span><h5 class="fw-bold text-dark mb-3">${e.Judul}</h5><p class="small text-muted mb-4"><i class="fas fa-stopwatch me-1"></i> Waktu TKA: <b>${e.Durasi} Menit</b></p><button class="btn ${btnClass} w-100 py-2 fw-bold rounded-pill shadow-sm" onclick="startExam('${e.ExamID}')" ${btnState}>${btnText}</button></div></div></div>`;
             });
         }
-        h += '</div><h5 class="fw-bold mb-3 border-bottom pb-2 mt-5 text-primary"><i class="fas fa-history me-2"></i>Riwayat & Unduhan</h5>';
+        h += '</div><h5 class="fw-bold mb-3 border-bottom pb-2 mt-5 text-primary"><i class="fas fa-history me-2"></i>Riwayat Ujian & Pengumuman</h5>';
         if(!gData.history || gData.history.length === 0) { h += '<p class="text-muted fst-italic ms-2">Anda belum menyelesaikan ujian TKA apa pun.</p>'; } 
         else {
-            h += `<div class="table-responsive bg-white rounded-4 shadow-sm p-3 border"><table class="table table-hover align-middle mb-0"><thead><tr><th>Tanggal & Waktu</th><th>Nama Ujian</th><th>Nilai Akhir</th><th>Status / Aksi Lanjutan</th></tr></thead><tbody>`;
+            h += `<div class="table-responsive bg-white rounded-4 shadow-sm p-3 border"><table class="table table-hover align-middle mb-0"><thead><tr><th>Tanggal & Waktu</th><th>Nama Ujian</th><th>Pengumuman Hasil</th><th>Aksi Lanjutan</th></tr></thead><tbody>`;
             gData.history.forEach(r => { 
-                let displayNilai = (r.ShowStats === 'Yes') ? `<span class="badge bg-success fs-6 shadow-sm px-3 rounded-pill">${r.Nilai}</span>` : `<span class="badge bg-secondary fs-6 shadow-sm px-3 rounded-pill"><i class="fas fa-lock"></i> Rahasia</span>`;
-                                let actions = '';
+                
+                // LOGIKA PENGUMUMAN POPUP
+                let displayNilai = (r.ShowStats === 'Yes' || r.ShowStats === 'Aktif') 
+                    ? `<button class="btn btn-sm btn-success rounded-pill px-4 py-2 shadow-sm fw-bold btn-pulse" onclick="lihatPengumuman()"><i class="fas fa-envelope-open-text me-2"></i> Buka Pengumuman</button>` 
+                    : `<span class="badge bg-secondary fs-6 shadow-sm px-3 rounded-pill"><i class="fas fa-lock"></i> Belum Diumumkan</span>`;
+                
+                let actions = '';
                 
                 if(r.AllowDownloadQ === 'Yes') {
                     actions += `<button class="btn btn-sm btn-outline-info me-2 mt-1 rounded-pill px-3 shadow-sm" onclick="dlSiswaSoal('${r.ExamID}')"><i class="fas fa-file-alt me-1"></i> Soal PDF</button>`;
                 }
                 
-                if(r.ShowStats !== 'No' && r.ShowStats !== 'Tidak') {
-                    actions += `<button class="btn btn-sm btn-success me-2 mt-1 rounded-pill px-3 shadow-sm" onclick="dlSiswaHasil('${r.ResultID}')"><i class="fas fa-file-pdf me-1"></i> Hasil PDF</button>`;
-                }
-                
                 actions += `<button class="btn btn-sm btn-outline-danger mt-1 rounded-pill px-3 shadow-sm" onclick="laporTrobel('${r.ResultID}')"><i class="fas fa-exclamation-triangle me-1"></i> Lapor Trobel</button>`;
 
-                h += `<tr><td class="text-muted small">${r.WaktuSubmit}</td><td><div class="fw-bold text-dark">${r.Judul}</div></td><td>${displayNilai}</td><td><div class="d-flex flex-wrap align-items-center"><span class="badge bg-primary px-3 py-2 rounded-pill me-3 shadow-sm"><i class="fas fa-check me-1"></i> Selesai TKA</span> ${actions}</div></td></tr>`; 
+                h += `<tr><td class="text-muted small">${r.WaktuSubmit}</td><td><div class="fw-bold text-dark">${r.Judul}</div></td><td>${displayNilai}</td><td><div class="d-flex flex-wrap align-items-center">${actions}</div></td></tr>`; 
             });
             h += `</tbody></table></div>`;
         }
@@ -2308,7 +2317,7 @@ function processSubmission(retryCount = 0) {
             google.script.run.withSuccessHandler(surveyRes => {
                 showLoad(false);
                 if(surveyRes.status === 'success' && surveyRes.data) {
-                    $('body').removeClass('exam-mode'); $('#view-exam').addClass('hidden');
+                    $('body').removeClass('exam-mode');$('#view-exam').addClass('hidden');
                     $('#view-countdown').removeClass('hidden');
                     window.activeSurveyData = surveyRes.data;
                     startCountdown();
@@ -2402,8 +2411,7 @@ function renderSurveyForm() {
 function navSurvey(dir) {
     let nextIdx = currentSurveyIdx + dir;
     if (nextIdx >= 0 && nextIdx < totalSurveyQ) {
-        $('.survey-slide').addClass('hidden');
-        $(`#surv-sl-${nextIdx}`).removeClass('hidden');
+        $('.survey-slide').addClass('hidden');$(`#surv-sl-${nextIdx}`).removeClass('hidden');
         currentSurveyIdx = nextIdx;
         updateSurveyNav();
         window.scrollTo({ top: 0, behavior: 'smooth' });
