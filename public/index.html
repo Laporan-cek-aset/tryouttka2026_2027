@@ -21,7 +21,6 @@
         .hidden { display: none !important; }
         .q-content img, .opt-content img, .survey-stimulus img { max-width: 100% !important; height: auto !important; border-radius: 6px; margin: 5px 0; }
         
-        /* Dashboard & Sidebar Styling */
         .wrapper { display: flex; width: 100%; align-items: stretch; position: relative; }
         #sidebar { min-width: 260px; max-width: 260px; background: #064e3b; color: #fff; min-height: 100vh; position: fixed; z-index: 1050; transition: all 0.3s; left: 0; top: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
         #sidebar.active { left: -260px; }
@@ -29,7 +28,6 @@
         #sidebar ul li a { padding: 15px 25px; display: block; color: #e2e8f0; text-decoration: none; border-left: 4px solid transparent; cursor: pointer; transition: 0.2s; }
         #sidebar ul li a:hover, #sidebar ul li a.active { background: rgba(212, 175, 55, 0.1); color: #fff; border-left-color: var(--secondary); }
         
-        /* Exam Layout */
         #view-exam { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; z-index: 9999; background: #f8fafc; overflow: hidden; display: flex; flex-direction: column; }
         .exam-header { flex-shrink: 0; height: 60px; background: #064e3b; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
         .exam-container-split { flex-grow: 1; display: flex; gap: 20px; padding: 20px; overflow: hidden; }
@@ -47,29 +45,9 @@
         .spinner { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         
-        .match-container { position: relative; width: 100%; min-height: 300px; display: flex; justify-content: space-between; padding: 10px; user-select: none; }
-        .match-col { width: 40%; display: flex; flex-direction: column; gap: 15px; z-index: 2; }
-        .match-item { background: #fff; border: 2px solid #e2e8f0; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s; position: relative; }
-        .match-item:hover { border-color: var(--secondary); }
-        .match-item.selected { border-color: var(--primary); background: #eff6ff; }
-        .match-item.matched { border-color: var(--accent); background: #f0fdf4; opacity: 0.8; }
-        .match-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .swal2-container { z-index: 20000 !important; }
-        #q-slides-container .form-check-input { width: 1.5em !important; height: 1.5em !important; cursor: pointer; margin-top: 0 !important; }
-        .clickable-opt { cursor: pointer; transition: all 0.2s ease-in-out; margin-bottom: 0; }
-        .clickable-opt:hover { background-color: #f1f5f9 !important; border-color: var(--secondary) !important; }
-        
-        @keyframes pulseBtn {
-            0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(25, 135, 84, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
-        }
+        @keyframes pulseBtn { 0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(25, 135, 84, 0); } 100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); } }
         .btn-pulse { animation: pulseBtn 2s infinite; }
-        
-        @keyframes fadeInDown {
-            0% { opacity: 0; transform: translateY(-20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeInDown { 0% { opacity: 0; transform: translateY(-20px); } 100% { opacity: 1; transform: translateY(0); } }
         
         @media (max-width: 768px) { 
             #sidebar { left: -260px; } 
@@ -81,8 +59,6 @@
             .exam-container-split { flex-direction: column; overflow-y: auto; padding: 10px; gap: 15px; }
             .q-main-area, .q-nav-area { height: auto; flex: none; overflow: visible; padding: 15px; }
             .q-grid { grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); }
-            .btn-nav-exam { width: 100%; margin-bottom: 10px; }
-            #btn-nav-container { flex-direction: column; }
         }
     </style>
 </head>
@@ -103,7 +79,6 @@
             <li><a onclick="loadPage('admin-ujian')" class="nav-link"><i class="fas fa-calendar-alt me-3"></i>Bank Soal CAT BCKS</a></li>
             <li><a onclick="loadPage('admin-survey')" class="nav-link"><i class="fas fa-clipboard-check me-3"></i>Manajemen Survei</a></li>
             <li><a onclick="loadPage('hasil-rekap')" class="nav-link"><i class="fas fa-chart-bar me-3"></i>Hasil Nilai</a></li>
-            <li><a onclick="loadPage('guru-monitoring')" class="nav-link"><i class="fas fa-tv me-3"></i>Live Monitor</a></li>
             <li><a onclick="loadPage('admin-administrasi')" class="nav-link text-info"><i class="fas fa-print me-3"></i>Administrasi</a></li>
             <li><a onclick="handleResetCache()" class="nav-link text-warning"><i class="fas fa-bolt me-3"></i>Reset Cache</a></li>
         </ul>        
@@ -112,12 +87,11 @@
             <li><a onclick="loadPage('admin-users')" class="nav-link"><i class="fas fa-users me-3"></i>Data Peserta</a></li>
             <li><a onclick="loadPage('admin-ujian')" class="nav-link"><i class="fas fa-file-alt me-3"></i>Bank Soal CAT BCKS</a></li>
             <li><a onclick="loadPage('hasil-rekap')" class="nav-link"><i class="fas fa-poll me-3"></i>Hasil Nilai</a></li>
-            <li><a onclick="loadPage('guru-monitoring')" class="nav-link"><i class="fas fa-desktop me-3"></i>Live Monitor</a></li>
             <li><a onclick="loadPage('admin-administrasi')" class="nav-link text-info"><i class="fas fa-print me-3"></i>Administrasi</a></li>
         </ul>
 
         <ul class="list-unstyled components hidden" id="menu-siswa">
-            <li><a onclick="loadPage('siswa-home')" class="nav-link active"><i class="fas fa-pencil-alt me-3"></i>Ujian Saya</a></li>
+            <li><a onclick="loadPage('peserta-home')" class="nav-link active"><i class="fas fa-pencil-alt me-3"></i>Ujian Saya</a></li>
         </ul>
         <div class="p-3 mt-auto border-top position-absolute bottom-0 w-100" style="border-color: rgba(255,255,255,0.1) !important;">
             <div class="mb-3 text-white small"><i class="fas fa-user-circle me-2"></i> <span id="u-name-disp" class="fw-bold">User</span></div>
@@ -170,7 +144,7 @@
         
         <div class="q-nav-area shadow-sm">
             <h6 class="fw-bold border-bottom pb-2 mb-3 text-center text-secondary">DAFTAR SOAL</h6>
-            <div id="nav-grid" class="q-grid"></div>
+            <div id="nav-grid"></div>
         </div>
     </div>
 </div>
@@ -186,28 +160,35 @@
     </div>
 </div>
 
-<!-- TAMPILAN FORM SURVEI -->
+<!-- TAMPILAN FORM SURVEI DENGAN UI CERIA -->
 <div id="view-survey" class="hidden" style="min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); padding-bottom: 50px;">
     <div class="bg-warning text-dark p-5 shadow-sm text-center" style="border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%) !important;">
         <i class="fas fa-smile-beam fa-3x mb-3 text-white"></i>
         <h3 class="fw-bold m-0 text-white" id="survey-title" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Judul Survey</h3>
         <p class="m-0 mt-2 text-white fw-medium" id="survey-desc" style="font-size: 1.1rem;">Deskripsi</p>
     </div>
-    
     <div class="container my-5" style="max-width: 900px;" id="survey-container"></div>
-    
     <div class="container" style="max-width: 900px;">
         <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded-4 shadow-sm border">
-            <button class="btn btn-secondary rounded-pill px-4 fw-bold shadow-sm hidden" id="btn-prev-survey" onclick="navSurvey(-1)">
-                <i class="fas fa-chevron-left me-2"></i> Sebelumnya
-            </button>
+            <button class="btn btn-secondary rounded-pill px-4 fw-bold shadow-sm hidden" id="btn-prev-survey" onclick="navSurvey(-1)"><i class="fas fa-chevron-left me-2"></i> Sebelumnya</button>
             <div class="flex-grow-1 text-center fw-bold text-muted" id="survey-progress-text"></div>
-            <button class="btn btn-info text-white rounded-pill px-4 fw-bold shadow-sm" id="btn-next-survey" onclick="navSurvey(1)">
-                Selanjutnya <i class="fas fa-chevron-right ms-2"></i>
-            </button>
-            <button class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-lg hidden" id="btn-submit-survey" onclick="submitSurvey()" style="background: #ff758c; border: none;">
-                <i class="fas fa-paper-plane me-2"></i> Kirim Survei
-            </button>
+            <button class="btn btn-info text-white rounded-pill px-4 fw-bold shadow-sm" id="btn-next-survey" onclick="navSurvey(1)">Selanjutnya <i class="fas fa-chevron-right ms-2"></i></button>
+            <button class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-lg hidden" id="btn-submit-survey" onclick="submitSurvey()" style="background: #ff758c; border: none;"><i class="fas fa-paper-plane me-2"></i> Kirim Survei</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL MANAJEMEN SESI (ADMIN) -->
+<div class="modal fade" id="modalSession" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold"><i class="fas fa-clock me-2"></i>Pengaturan Waktu Sesi</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body p-4">
+                <form id="frm-session" onsubmit="event.preventDefault(); saveSessions(); return false;" action="javascript:void(0);">
+                    <div id="session-container"></div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 mt-3 fw-bold rounded-3">SIMPAN WAKTU SESI</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -226,14 +207,10 @@
                         <div class="col-md-6"><label class="small fw-bold text-muted">Durasi (Menit)</label><input type="number" name="durasi" id="ex-durasi" class="form-control" required></div>
                     </div>
                     <div class="row g-3 mb-3">
-                        <div class="col-md-6"><label class="small fw-bold text-muted">Waktu Mulai</label><input type="datetime-local" name="start" id="ex-start" class="form-control" required></div>
-                        <div class="col-md-6"><label class="small fw-bold text-muted">Waktu Selesai</label><input type="datetime-local" name="end" id="ex-end" class="form-control" required></div>
+                        <div class="col-md-6"><label class="small fw-bold text-muted">Tanggal/Waktu Mulai Buka</label><input type="datetime-local" name="start" id="ex-start" class="form-control" required></div>
+                        <div class="col-md-6"><label class="small fw-bold text-muted">Tanggal/Waktu Terakhir Tutup</label><input type="datetime-local" name="end" id="ex-end" class="form-control" required></div>
                     </div>
                     <div class="row g-3 mb-3">
-                        <div class="col-md-4 d-none">
-                            <label class="small fw-bold text-muted">Target Kelas</label>
-                            <div id="kelas-container"><input type="text" name="targetKelas" id="ex-kelas" class="form-control" value="ALL" required></div>
-                        </div>
                         <div class="col-md-6"><label class="small fw-bold text-muted">Limit Mengerjakan</label><input type="number" name="limit" id="ex-limit" class="form-control" value="1"></div>
                         <div class="col-md-6"><label class="small fw-bold text-muted">Token Submit (Opsional)</label><input type="text" name="token" id="ex-token" class="form-control" placeholder="Kosongkan jika tak ada"></div>
                     </div>
@@ -269,7 +246,7 @@
                     <div class="mb-3 p-3 bg-light rounded border border-warning">
                         <label class="small fw-bold text-primary mb-2"><i class="fas fa-link"></i> Sambungkan dengan Ujian CAT BCKS</label>
                         <select name="linkedExam" id="srv-linked-exam" class="form-select fw-bold"></select>
-                        <small class="text-muted mt-2 d-block">Penting: Survei ini akan otomatis muncul hanya untuk peserta yang baru saja menekan tombol 'Selesai' pada ujian CAT BCKS yang dipilih di atas.</small>
+                        <small class="text-muted mt-2 d-block">Penting: Survei ini otomatis muncul hanya untuk peserta yang baru saja menekan tombol 'Selesai' pada ujian CAT BCKS yang dipilih di atas.</small>
                     </div>
                     <div class="mb-4">
                         <label class="small fw-bold text-muted">Status Aktif Survei</label>
@@ -285,7 +262,7 @@
     </div>
 </div>
 
-<!-- MODAL EDITOR SOAL TKA / SURVEI (DINAMIS) -->
+<!-- MODAL EDITOR SOAL -->
 <div class="modal fade" id="modalQ" tabindex="-1">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content bg-light">
@@ -320,8 +297,8 @@
                         <div class="col-sm-6"><label class="small fw-bold text-muted">Password</label><input type="text" id="mu-pass" class="form-control" required></div>
                     </div>
                     <div class="row g-2 mb-3">
-                        <div class="col-sm-12"><label class="small fw-bold text-muted">Akses (Role)</label><select id="mu-role" class="form-select"><option value="siswa">Peserta</option><option value="guru">Guru</option><option value="admin">Admin</option></select></div>
-                        <div class="col-sm-6 d-none"><label class="small fw-bold text-muted">Kelas</label><input type="text" id="mu-kelas" class="form-control" placeholder="Kosongkan jika Admin"></div>
+                        <div class="col-sm-6"><label class="small fw-bold text-muted">Akses (Role)</label><select id="mu-role" class="form-select"><option value="siswa">Peserta</option><option value="guru">Guru</option><option value="admin">Admin</option></select></div>
+                        <div class="col-sm-6"><label class="small fw-bold text-muted">Sesi Ujian</label><select id="mu-sesi" class="form-select"><option value="1">Sesi 1</option><option value="2">Sesi 2</option><option value="3">Sesi 3</option><option value="4">Sesi 4</option></select></div>
                     </div>
                     <div class="mb-3">
                         <label class="small fw-bold text-muted">Nama Sekolah / Instansi</label>
@@ -462,13 +439,12 @@ function initDash() {
     $('#u-name-disp').text(user.Nama);
     const role = String(user.Role || '').trim().toLowerCase();
     
-    // Perbaikan: Ubah kata "Siswa" menjadi "Peserta" di Sidebar Label
     let displayRole = role.toUpperCase();
     if (displayRole === 'SISWA') displayRole = 'PESERTA';
     $('#user-role-disp').text(displayRole);
     
     $('.components').addClass('hidden');
-    if(role === 'siswa') { $('#menu-siswa').removeClass('hidden'); loadPage('siswa-home'); } 
+    if(role === 'siswa') { $('#menu-siswa').removeClass('hidden'); loadPage('peserta-home'); } 
     else if(role === 'guru') { $('#menu-guru').removeClass('hidden'); loadPage('admin-home'); } 
     else if(role === 'admin') { $('#menu-admin').removeClass('hidden'); loadPage('admin-home'); } 
     else { Swal.fire('Akses Ditolak', 'Role akun Anda tidak dikenali sistem.', 'error'); }
@@ -479,25 +455,26 @@ function loadPage(page) {
     clearInterval(timerInt); clearInterval(monitorInterval); clearInterval(autosaveInterval); disableSecurity();
     $('#view-exam').addClass('hidden'); $('#view-dashboard').removeClass('hidden'); $('body').removeClass('exam-mode');
     
-    // Perbaikan UI Text "Siswa Home" menjadi "Peserta Home"
     let pageTitle = page.replace('-', ' ').toUpperCase();
-    if (pageTitle === 'SISWA HOME') pageTitle = 'PESERTA HOME';
+    if (pageTitle === 'PESERTA HOME') pageTitle = 'PESERTA HOME';
     $('#page-title').text(pageTitle);
     
     $('.nav-link').removeClass('active'); $(`a[onclick="loadPage('${page}')"]`).addClass('active');
     if(window.innerWidth <= 768) { $('#sidebar').removeClass('active'); $('#sidebar-overlay').removeClass('active'); }
     
-    if(page === 'admin-users') {
+    let routeArg = page === 'peserta-home' ? 'siswa-home' : page;
+    
+    if(routeArg === 'admin-users') {
         showLoad(true);
         google.script.run.withSuccessHandler(r => { showLoad(false); if(r.status === 'success') renderUsers(r.data); else Swal.fire('Error', r.msg, 'error'); }).getUserList(user.Role, user.ID, user.Sekolah);
         return;
     }
-    if(page === 'hasil-rekap') {
+    if(routeArg === 'hasil-rekap') {
         $('#content-area').html('<div class="text-center p-5"><div class="spinner"></div></div>');
         google.script.run.withSuccessHandler(r => { if(r.status === 'success') { recapAllData = r.data; renderRecapTable(); } else { $('#content-area').html(`<div class="alert alert-danger">${r.msg}</div>`); } }).getRecapList(user.Role, user.ID, user.Sekolah);
         return;
     }
-    if(page === 'admin-administrasi') {
+    if(routeArg === 'admin-administrasi') {
         showLoad(true);
         google.script.run.withSuccessHandler(r => { showLoad(false); if(r.status === 'success') { gAdminData = r; renderAdministrasi(); } else Swal.fire('Error', r.msg, 'error'); }).getAdminData(user.Role, user.ID, user.Kelas, user.Sekolah);
         return;
@@ -506,7 +483,7 @@ function loadPage(page) {
     showLoad(true);
     google.script.run.withSuccessHandler(res => {
         showLoad(false);
-        if (res.status === 'success') { gData = res.data; renderContent(page); applyMathJax(); } else Swal.fire('Error', res.msg, 'error');
+        if (res.status === 'success') { gData = res.data; renderContent(routeArg); applyMathJax(); } else Swal.fire('Error', res.msg, 'error');
     }).getDashboardData(user.Role, user.ID, user.Kelas, user.Sekolah);
 }
 
@@ -553,13 +530,14 @@ function renderUsers(users) {
     let h = `<div class="d-flex justify-content-between mb-3 flex-wrap gap-2 align-items-center">
         <div>
             ${isAdmin ? `
-            <button class="btn btn-success shadow-sm me-2 rounded-pill px-3 mb-2" onclick="$('#modalUser').modal('show');$('#modalUser form')[0].reset();$('#mu-id').val('');$('#mu-foto-b64').val('');"><i class="fas fa-plus me-1"></i> Tambah User</button>
+            <button class="btn btn-success shadow-sm me-2 rounded-pill px-3 mb-2" onclick="$('#modalUser').modal('show');$('#modalUser form')[0].reset();$('#mu-id').val('');$('#mu-foto-b64').val('');$('#mu-sesi').val('1');"><i class="fas fa-plus me-1"></i> Tambah User</button>
             <label class="btn btn-primary shadow-sm m-0 me-2 rounded-pill px-3 mb-2"><i class="fas fa-upload me-1"></i> Upload Excel <input type="file" hidden accept=".xlsx,.xls" onchange="handleUploadUsersExcel(event)"></label>
             <button class="btn btn-outline-success shadow-sm m-0 me-2 rounded-pill px-3 mb-2" onclick="downloadUserTemplate()"><i class="fas fa-download me-1"></i> Template Excel</button>
             <button class="btn btn-danger shadow-sm m-0 me-2 rounded-pill px-3 mb-2 fw-bold hidden" id="btn-bulk-delete-users" onclick="bulkDeleteUsers()"><i class="fas fa-trash me-1"></i> Hapus Terpilih</button>
             
             <button class="btn btn-success shadow-sm m-0 me-2 rounded-pill px-3 mb-2 hidden" id="btn-bulk-lulus" onclick="setKelulusan('LULUS')"><i class="fas fa-check-circle me-1"></i> Set Lulus</button>
             <button class="btn btn-warning shadow-sm m-0 rounded-pill px-3 mb-2 hidden text-dark" id="btn-bulk-gagal" onclick="setKelulusan('TIDAK LULUS')"><i class="fas fa-times-circle me-1"></i> Set Belum Lulus</button>
+            <button class="btn btn-outline-dark shadow-sm m-0 rounded-pill px-3 mb-2" onclick="openSessionModal()"><i class="fas fa-clock me-1"></i> Atur Jam Sesi</button>
             ` : `<h5 class="fw-bold text-primary mb-0"><i class="fas fa-users me-2"></i>Data Peserta Anda</h5>`}
             
             ${canEdit ? `
@@ -598,6 +576,7 @@ function renderUsers(users) {
                             <th>Status</th>
                             <th>Username</th>
                             <th>Role</th>
+                            <th>Sesi</th>
                             <th>Sekolah</th>
                             ${canEdit ? '<th>Aksi</th>' : ''}
                         </tr>
@@ -619,7 +598,7 @@ function renderUserRows(data) {
     let h = '';
     
     if(!data || data.length === 0) {
-        h = `<tr><td colspan="${isAdmin ? 7 : (canEdit ? 6 : 5)}" class="text-center text-muted py-4">Data peserta tidak ditemukan.</td></tr>`;
+        h = `<tr><td colspan="${isAdmin ? 8 : (canEdit ? 7 : 6)}" class="text-center text-muted py-4">Data peserta tidak ditemukan.</td></tr>`;
     } else {
         data.forEach(u => {
             const safeData = encodeURIComponent(JSON.stringify(u));
@@ -639,6 +618,7 @@ function renderUserRows(data) {
                 <td><span class="badge bg-${bgStatus}">${statusTampil}</span></td>
                 <td>${u.Username}</td>
                 <td><span class="badge bg-${String(u.Role).trim().toLowerCase()==='admin'?'danger':(String(u.Role).trim().toLowerCase()==='guru'?'warning text-dark':'primary')}">${u.Role}</span></td>
+                <td><span class="badge bg-secondary border shadow-sm">Sesi ${u.Sesi || '1'}</span></td>
                 <td>${u.Sekolah || '-'}</td>
                 ${canEdit ? `<td>
                     <button class="btn btn-sm btn-outline-dark me-1 rounded-circle" onclick="editUser('${safeData}')" title="Edit"><i class="fas fa-edit"></i></button>
@@ -651,6 +631,38 @@ function renderUserRows(data) {
     $('#users-tbody').html(h);
     $('#check-all-users').prop('checked', false);
     if(isAdmin) toggleBulkDeleteUsersBtn();
+}
+
+function openSessionModal() {
+    $('#modalSession').modal('show');
+    let h = '';
+    let sessions = gData.sessions || [
+        {SesiID: '1', JamMulai: '07:30', JamSelesai: '09:00'},
+        {SesiID: '2', JamMulai: '09:30', JamSelesai: '11:00'},
+        {SesiID: '3', JamMulai: '11:30', JamSelesai: '13:00'},
+        {SesiID: '4', JamMulai: '13:30', JamSelesai: '15:00'}
+    ];
+    
+    sessions.forEach(s => {
+        h += `<div class="row g-2 mb-3 bg-light p-2 rounded border">
+                <div class="col-12 fw-bold text-primary">Sesi ${s.SesiID}</div>
+                <div class="col-6"><label class="small text-muted">Jam Mulai</label><input type="time" id="sesi-m-${s.SesiID}" class="form-control" value="${s.JamMulai}"></div>
+                <div class="col-6"><label class="small text-muted">Jam Selesai</label><input type="time" id="sesi-s-${s.SesiID}" class="form-control" value="${s.JamSelesai}"></div>
+              </div>`;
+    });
+    $('#session-container').html(h);
+}
+
+function saveSessions() {
+    let payload = [];
+    for(let i=1; i<=4; i++) {
+        payload.push({ id: i.toString(), mulai: $(`#sesi-m-${i}`).val(), selesai: $(`#sesi-s-${i}`).val() });
+    }
+    showLoad(true);
+    google.script.run.withSuccessHandler(res => {
+        showLoad(false); $('#modalSession').modal('hide'); Swal.fire('Berhasil', res.msg, 'success');
+        loadPage('admin-users');
+    }).adminSaveSession(payload);
 }
 
 async function handleBulkPhotoUpload(event) {
@@ -671,47 +683,23 @@ async function handleBulkPhotoUpload(event) {
             });
             
             let updatedUser = {
-                id: matchedUser.ID,
-                nama: matchedUser.Nama,
-                tglLahir: matchedUser.TglLahir,
-                username: matchedUser.Username,
-                password: matchedUser.Password,
-                role: matchedUser.Role,
-                kelas: matchedUser.Kelas,
-                sekolah: matchedUser.Sekolah,
-                foto: base64str
+                id: matchedUser.ID, nama: matchedUser.Nama, tglLahir: matchedUser.TglLahir, username: matchedUser.Username,
+                password: matchedUser.Password, role: matchedUser.Role, sesi: matchedUser.Sesi || '1', sekolah: matchedUser.Sekolah, foto: base64str
             };
             uploadQueue.push(updatedUser);
         }
     }
-
     event.target.value = '';
 
-    if(uploadQueue.length === 0) {
-        return Swal.fire('Tidak Ada Kecocokan', 'Tidak ada nama file foto yang cocok dengan Username peserta.', 'info');
-    }
+    if(uploadQueue.length === 0) return Swal.fire('Tidak Ada Kecocokan', 'Tidak ada nama file foto yang cocok dengan Username peserta.', 'info');
 
     Swal.fire({
-        title: `Ditemukan ${uploadQueue.length} Foto Cocok!`,
-        text: "Mulai proses upload foto ke database?",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Ya, Upload Sekarang'
+        title: `Ditemukan ${uploadQueue.length} Foto Cocok!`, text: "Mulai proses upload foto ke database?", icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, Upload Sekarang'
     }).then(async (r) => {
         if(r.isConfirmed) {
-            showLoad(true);
-            let successCount = 0;
-            for(let data of uploadQueue) {
-                await new Promise(resolve => {
-                    google.script.run
-                        .withSuccessHandler(() => { successCount++; resolve(); })
-                        .withFailureHandler(() => resolve())
-                        .adminManageUser('save', data);
-                });
-            }
-            showLoad(false);
-            Swal.fire('Selesai', `Berhasil mengupload ${successCount} foto.`, 'success');
-            loadPage('admin-users');
+            showLoad(true); let successCount = 0;
+            for(let data of uploadQueue) { await new Promise(resolve => { google.script.run.withSuccessHandler(() => { successCount++; resolve(); }).withFailureHandler(() => resolve()).adminManageUser('save', data); }); }
+            showLoad(false); Swal.fire('Selesai', `Berhasil mengupload ${successCount} foto.`, 'success'); loadPage('admin-users');
         }
     });
 }
@@ -725,7 +713,6 @@ function applyFilterUsers() {
         let matchSekolah = sekolah === "" || u.Sekolah === sekolah;
         return matchNama && matchSekolah;
     });
-    
     renderUserRows(filtered);
 }
 
@@ -736,13 +723,9 @@ function toggleAllUsers(el) {
 
 function toggleBulkDeleteUsersBtn() {
     if($('.check-user:checked').length > 0) {
-        $('#btn-bulk-delete-users').removeClass('hidden');
-        $('#btn-bulk-lulus').removeClass('hidden');
-        $('#btn-bulk-gagal').removeClass('hidden');
+        $('#btn-bulk-delete-users').removeClass('hidden'); $('#btn-bulk-lulus').removeClass('hidden'); $('#btn-bulk-gagal').removeClass('hidden');
     } else {
-        $('#btn-bulk-delete-users').addClass('hidden');
-        $('#btn-bulk-lulus').addClass('hidden');
-        $('#btn-bulk-gagal').addClass('hidden');
+        $('#btn-bulk-delete-users').addClass('hidden'); $('#btn-bulk-lulus').addClass('hidden'); $('#btn-bulk-gagal').addClass('hidden');
     }
 }
 
@@ -753,21 +736,9 @@ function setKelulusan(statusVal) {
     let userIds = [];
     checked.each(function() { userIds.push($(this).val()); });
 
-    Swal.fire({
-        title: 'Atur Kelulusan?',
-        text: `Anda akan mengatur ${checked.length} peserta menjadi ${statusVal}.`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Ya, Terapkan'
+    Swal.fire({ title: 'Atur Kelulusan?', text: `Anda akan mengatur ${checked.length} peserta menjadi ${statusVal}.`, icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, Terapkan'
     }).then(r => {
-        if (r.isConfirmed) {
-            showLoad(true);
-            google.script.run.withSuccessHandler(res => {
-                showLoad(false);
-                Swal.fire('Berhasil', res.msg, 'success');
-                loadPage('admin-users');
-            }).adminSetKelulusan(userIds, statusVal);
-        }
+        if (r.isConfirmed) { showLoad(true); google.script.run.withSuccessHandler(res => { showLoad(false); Swal.fire('Berhasil', res.msg, 'success'); loadPage('admin-users'); }).adminSetKelulusan(userIds, statusVal); }
     });
 }
 
@@ -775,98 +746,29 @@ async function bulkDeleteUsers() {
     const checked = $('.check-user:checked');
     if(checked.length === 0) return;
     
-    const result = await Swal.fire({ 
-        title: `Hapus ${checked.length} Peserta?`, 
-        text: 'Akun peserta yang terpilih akan dihapus secara permanen!', 
-        icon: 'warning', 
-        showCancelButton: true, 
-        confirmButtonColor: '#d33' 
-    });
-    
+    const result = await Swal.fire({ title: `Hapus ${checked.length} Peserta?`, text: 'Akun peserta yang terpilih akan dihapus secara permanen!', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' });
     if(!result.isConfirmed) return;
 
-    showLoad(true);
-    let successCount = 0;
-    
+    showLoad(true); let successCount = 0;
     for(let i = 0; i < checked.length; i++) {
         const uid = $(checked[i]).val();
-        await new Promise(resolve => {
-            google.script.run
-                .withSuccessHandler(() => { successCount++; resolve(); })
-                .withFailureHandler(() => resolve())
-                .adminManageUser('delete', { id: uid });
-        });
+        await new Promise(resolve => { google.script.run.withSuccessHandler(() => { successCount++; resolve(); }).withFailureHandler(() => resolve()).adminManageUser('delete', { id: uid }); });
     }
-    
-    showLoad(false);
-    Swal.fire('Berhasil', `${successCount} akun peserta telah dihapus.`, 'success');
-    loadPage('admin-users');
+    showLoad(false); Swal.fire('Berhasil', `${successCount} akun peserta telah dihapus.`, 'success'); loadPage('admin-users');
 }
 
 function downloadUserTemplate() {
-    const wsData = [{
-        "Nama": "Peserta Contoh",
-        "Username": "peserta01",
-        "Password": "password123",
-        "Role": "siswa",
-        "Sekolah": "SD/MI Contoh",
-        "TglLahir": "2010-05-14"
-    }];
-    const ws = XLSX.utils.json_to_sheet(wsData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Template_Data_Peserta");
-    XLSX.writeFile(wb, "Template_Upload_Peserta.xlsx");
+    const wsData = [{ "Nama": "Peserta Contoh", "Username": "peserta01", "Password": "password123", "Role": "siswa", "Sesi": "1", "Sekolah": "SD/MI Contoh", "TglLahir": "2010-05-14" }];
+    const ws = XLSX.utils.json_to_sheet(wsData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Template_Data_Peserta"); XLSX.writeFile(wb, "Template_Upload_Peserta.xlsx");
 }
 
 function getKopHTML(title) {
-    return `
-    <div class="kop" style="display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #064e3b; padding-bottom: 20px; margin-bottom: 30px; position: relative; text-align: center;">
-        <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 100px; height: 100px; position: absolute; left: 10px; top: 0;">
-        <div style="width: 100%; padding-left: 90px;">
-            <h2 style="margin: 0; font-size: 26px; color: #064e3b; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">CATBCKS - KABUPATEN TANGERANG</h2>
-            <p style="margin: 0; color: #64748b; font-size: 14px; font-style: italic;">Aplikasi Computer Based Test (CBT) Inovasi - ${title}</p>
-        </div>
-    </div>`;
+    return `<div class="kop" style="display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #064e3b; padding-bottom: 20px; margin-bottom: 30px; position: relative; text-align: center;"><img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 100px; height: 100px; position: absolute; left: 10px; top: 0;"><div style="width: 100%; padding-left: 90px;"><h2 style="margin: 0; font-size: 26px; color: #064e3b; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">CATBCKS - KABUPATEN TANGERANG</h2><p style="margin: 0; color: #64748b; font-size: 14px; font-style: italic;">Aplikasi Computer Based Test (CBT) Inovasi - ${title}</p></div></div>`;
 }
 
 function downloadHTMLToPDF(filename, htmlContent) {
-    const html = `<!DOCTYPE html><html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <title>${filename}</title>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><\/script>
-        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"><\/script>
-        <style>
-            body { font-family: 'Poppins', Arial, sans-serif; background-color: #fff; padding: 20px; color: #1e293b; }
-            .container { max-width: 100%; margin: 0 auto; background: white; padding: 0; }
-            img { max-width: 100%; height: auto; border-radius: 6px; margin: 5px 0; }
-            .q-box { border-bottom: 1px solid #ccc; padding-bottom: 15px; margin-bottom: 15px; page-break-inside: avoid; }
-            @media print {
-                .no-print { display: none; }
-                @page { margin: 1cm; }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="no-print" style="text-align: right; margin-bottom: 20px;">
-            <button onclick="window.print()" style="padding: 12px 25px; background: #0f5132; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Poppins', sans-serif;">Cetak PDF / Print</button>
-        </div>
-        <div class="container">
-            ${getKopHTML(filename.replace(/_/g, ' '))}
-            ${htmlContent}
-        </div>
-        <script>
-            window.onload = function() {
-                if (window.MathJax) { MathJax.typesetPromise().then(() => { setTimeout(() => window.print(), 800); }); } 
-                else { setTimeout(() => window.print(), 1000); }
-            }
-        <\/script>
-    </body></html>`;
-    
-    const win = window.open('', '', 'width=900,height=800');
-    win.document.write(html);
-    win.document.close();
+    const html = `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>${filename}</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><\/script><script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"><\/script><style>body { font-family: 'Poppins', Arial, sans-serif; background-color: #fff; padding: 20px; color: #1e293b; }.container { max-width: 100%; margin: 0 auto; background: white; padding: 0; }img { max-width: 100%; height: auto; border-radius: 6px; margin: 5px 0; }.q-box { border-bottom: 1px solid #ccc; padding-bottom: 15px; margin-bottom: 15px; page-break-inside: avoid; }@media print { .no-print { display: none; } @page { margin: 1cm; } }</style></head><body><div class="no-print" style="text-align: right; margin-bottom: 20px;"><button onclick="window.print()" style="padding: 12px 25px; background: #0f5132; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Poppins', sans-serif;">Cetak PDF / Print</button></div><div class="container">${getKopHTML(filename.replace(/_/g, ' '))} ${htmlContent}</div><script>window.onload = function() { if (window.MathJax) { MathJax.typesetPromise().then(() => { setTimeout(() => window.print(), 800); }); } else { setTimeout(() => window.print(), 1000); } }<\/script></body></html>`;
+    const win = window.open('', '', 'width=900,height=800'); win.document.write(html); win.document.close();
 }
 
 function downloadAllQAdmin(eid) {
@@ -1390,6 +1292,7 @@ function printKartuLogin() {
                     <tr><td><strong>Tgl Lahir</strong></td><td>:</td><td>${u.TglLahir || '-'}</td></tr>
                     <tr><td><strong>Username</strong></td><td>:</td><td><strong>${u.Username}</strong></td></tr>
                     <tr><td><strong>Password</strong></td><td>:</td><td><strong>${u.Password}</strong></td></tr>
+                    <tr><td><strong>Sesi Ujian</strong></td><td>:</td><td>Sesi ${u.Sesi || '1'}</td></tr>
                 </table>
             </div>
         </div>`;
@@ -1425,7 +1328,7 @@ function printDaftarHadir() {
         <tr><td><strong>Waktu</strong></td><td>:</td><td colspan="4">......................................</td></tr>
     </table>
     <table class="data-table">
-        <thead><tr><th width="5%">No</th><th width="15%">Username</th><th width="40%">Nama Peserta</th><th width="25%" colspan="2">Tanda Tangan</th><th width="15%">Ket</th></tr></thead>
+        <thead><tr><th width="5%">No</th><th width="15%">Username</th><th width="30%">Nama Peserta</th><th width="10%">Sesi</th><th width="25%" colspan="2">Tanda Tangan</th><th width="15%">Ket</th></tr></thead>
         <tbody>`;
     usersToPrint.forEach((u, i) => {
         let ttdCol1 = (i % 2 === 0) ? `${i+1}.` : '';
@@ -1434,6 +1337,7 @@ function printDaftarHadir() {
             <td style="text-align:center">${i + 1}</td>
             <td style="text-align:center">${u.Username}</td>
             <td>${u.Nama}</td>
+            <td style="text-align:center">${u.Sesi || '1'}</td>
             <td class="ttd-box">${ttdCol1}</td><td class="ttd-box">${ttdCol2}</td>
             <td></td>
         </tr>`;
@@ -1622,7 +1526,7 @@ function renderContent(page) {
         });
         h += '</div>';
     }
-    else if (page === 'siswa-home') {
+    else if (page === 'peserta-home') {
         let announcement = '';
         if (gData.userStatus === 'LULUS' || gData.userStatus === 'TIDAK LULUS') {
             if (gData.userStatus === 'LULUS') {
@@ -1646,6 +1550,11 @@ function renderContent(page) {
             }
         }
         
+        let sessionInfo = '';
+        if(gData.mySession) {
+            sessionInfo = `<span class="badge bg-white text-dark shadow-sm px-3 py-2 ms-2"><i class="fas fa-clock me-1 text-success"></i> ${gData.mySession.NamaSesi} (${gData.mySession.JamMulai} - ${gData.mySession.JamSelesai})</span>`;
+        }
+
         h = `${announcement}
         <div class="card mb-4 border-0 shadow-sm rounded-4 text-white overflow-hidden" style="background: linear-gradient(135deg, #0f5132, #d4af37);">
             <div class="card-body p-4">
@@ -1653,7 +1562,7 @@ function renderContent(page) {
                     <img src="${user.Foto || 'https://via.placeholder.com/60'}" class="rounded-circle me-4 shadow" width="70" height="70" style="object-fit:cover; border:3px solid #fff;">
                     <div class="text-start">
                         <h4 class="fw-bold m-0 text-white">Assalamu'alaikum, ${user.Nama}</h4>
-                        <p class="m-0 text-white-50"><i class="fas fa-school me-1"></i> ${user.Sekolah}</p>
+                        <p class="m-0 text-white-50 mt-1"><i class="fas fa-school me-1"></i> ${user.Sekolah} ${sessionInfo}</p>
                     </div>
                 </div>
             </div>
@@ -1662,10 +1571,19 @@ function renderContent(page) {
         
         if(!gData.availableExams || gData.availableExams.length === 0) { h += '<div class="col-12"><div class="alert alert-light border border-secondary text-center py-5 rounded-4 shadow-sm text-muted"><i class="fas fa-box-open fa-3x mb-3 text-secondary opacity-50"></i><br>Belum ada jadwal ujian yang aktif untuk Anda saat ini.</div></div>'; } 
         else {
+            const now = new Date();
+            const currTimeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+            const sesiStart = gData.mySession ? gData.mySession.JamMulai : '00:00';
+            const sesiEnd = gData.mySession ? gData.mySession.JamSelesai : '23:59';
+
             gData.availableExams.forEach(e => {
                 let btnState = '', btnText = '<i class="fas fa-play-circle me-2"></i> MULAI UJIAN', btnClass = 'btn-primary';
+                
                 if (e.IsFinished) { btnState = 'disabled'; btnText = '<i class="fas fa-check me-2"></i> SUDAH DIKERJAKAN'; btnClass = 'btn-secondary'; }
                 else if (e.IsExpired) { btnState = 'disabled'; btnText = '<i class="fas fa-times me-2"></i> WAKTU HABIS'; btnClass = 'btn-danger'; }
+                else if (currTimeStr < sesiStart) { btnState = 'disabled'; btnText = `<i class="fas fa-clock me-2"></i> MULAI JAM ${sesiStart}`; btnClass = 'btn-secondary'; }
+                else if (currTimeStr > sesiEnd) { btnState = 'disabled'; btnText = `<i class="fas fa-times-circle me-2"></i> SESI BERAKHIR`; btnClass = 'btn-danger'; }
+
                 h += `<div class="col-md-6 col-lg-4"><div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden transition-hover"><div class="card-body p-4 text-center"><span class="badge bg-light text-primary border border-primary px-3 py-2 rounded-pill mb-3 fw-bold">${e.Mapel}</span><h5 class="fw-bold text-dark mb-3">${e.Judul}</h5><p class="small text-muted mb-4"><i class="fas fa-stopwatch me-1"></i> Waktu CAT BCKS: <b>${e.Durasi} Menit</b></p><button class="btn ${btnClass} w-100 py-2 fw-bold rounded-pill shadow-sm" onclick="startExam('${e.ExamID}')" ${btnState}>${btnText}</button></div></div></div>`;
             });
         }
@@ -2119,7 +2037,6 @@ function saveQBlock(uid) {
     const num = form.find('input[name="num"]').val();
     const id = form.find('input[name="id"]').val(); 
     
-    // Kategori
     const kategori = form.find('select[name="kategori"]').length ? form.find('select[name="kategori"]').val() : 'Profesional';
 
     let opts=[], keys=[], keyIndices=[];
@@ -2185,7 +2102,6 @@ function startExam(eid) {
                     localStorage.removeItem(`ANS_${user.ID}_${eid}`);
                     activeExamId = eid; 
                     
-                    // PENGELOMPOKAN DAN ACAK SOAL SESUAI KATEGORI
                     let qs = res.data;
                     let randomQ = res.randomQ === 'Yes';
                     let grouped = { 'Kepribadian': [], 'Profesional': [], 'Sosial': [] };
@@ -2240,6 +2156,10 @@ function changeFontSize(size) { $('.q-content').css('font-size', size + 'px'); }
 function runExam(qs, dur, isResume) {
     $('#view-dashboard').addClass('hidden'); $('#view-exam').removeClass('hidden'); $('body').addClass('exam-mode');
     const c = $('#q-slides-container'); const g = $('#nav-grid'); c.empty(); g.empty();
+    
+    let currentCat = null;
+    let navHtml = '';
+
     qs.forEach((q,i) => {
         let inp = '';
         if(q.Tipe==='PGKK') {
@@ -2258,14 +2178,34 @@ function runExam(qs, dur, isResume) {
         let katLabel = q.Kategori && !isSurveyMode ? `<span class="ms-2 badge bg-warning text-dark border border-warning">${q.Kategori}</span>` : '';
         
         c.append(`<div class="q-slide hidden" id="sl-${i}" data-qid="${q.QID}" data-type="${q.Tipe}"><div class="mb-5 q-content" style="font-size: 16px; line-height: 1.8;"><div style="background:#0f5132; color:white; display:inline-block; padding:5px 15px; border-radius:15px; font-size:13px; font-weight:bold; margin-bottom:15px;">Soal No. ${i+1}${katLabel}</div><br>${q.Pertanyaan}</div>${inp}</div>`);
-        g.append(`<button id="nb-${i}" class="q-nav-btn shadow-sm ${i===0?'active-q':''}" onclick="jump(${i})">${i+1}</button>`);
+        
+        let cat = q.Kategori || 'Profesional';
+        if(cat !== currentCat) {
+            if(currentCat !== null) navHtml += `</div></div>`;
+            navHtml += `<div class="w-100 mb-3"><div class="badge bg-success w-100 py-2 mb-2 text-uppercase shadow-sm" style="font-size:13px; text-align:left;"><i class="fas fa-folder me-2"></i>SOAL ${cat}</div><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px;">`;
+            currentCat = cat;
+        }
+        navHtml += `<button id="nb-${i}" class="q-nav-btn shadow-sm ${i===0?'active-q':''}" onclick="jump(${i})">${i+1}</button>`;
     });
+    if(currentCat !== null) navHtml += `</div></div>`;
+    g.append(navHtml);
+
     restoreAnswers(qs); jump(0);
     applyMathJax();
 
-        let startTime = Date.now();
+    let startTime = Date.now();
     if(isResume) { const storedState = JSON.parse(localStorage.getItem('cbt_active_exam') || '{}'); if(storedState && storedState.start) startTime = storedState.start; }
-    const endTime = startTime + (dur * 60000);
+    
+    let endTimeByDur = startTime + (dur * 60000);
+    let endTimeBySesi = endTimeByDur; 
+    
+    if(gData.mySession && gData.mySession.JamSelesai) {
+        const now = new Date();
+        const [h, m] = gData.mySession.JamSelesai.split(':');
+        endTimeBySesi = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(h), parseInt(m), 0).getTime();
+    }
+    
+    const endTime = Math.min(endTimeByDur, endTimeBySesi);
     
     clearInterval(timerInt);
     timerInt = setInterval(() => {
@@ -2273,7 +2213,7 @@ function runExam(qs, dur, isResume) {
         if(diff <= 0) { 
             clearInterval(timerInt);
             $('#timer-disp').text('HABIS');
-            const randomDelay = Math.floor(Math.random() * 30000);
+            const randomDelay = Math.floor(Math.random() * 15000);
             setTimeout(() => { submitExamButton(true); }, randomDelay);
         }
         else { 
@@ -2581,9 +2521,9 @@ function editUser(str) {
     $('#mu-user').val(d.Username);
     $('#mu-pass').val(d.Password);
     $('#mu-role').val(String(d.Role).toLowerCase());
-    $('#mu-kelas').val(d.Kelas || '');
     $('#mu-sekolah').val(d.Sekolah || '');
     $('#mu-foto-b64').val(d.Foto || ''); 
+    $('#mu-sesi').val(d.Sesi || '1');
     
     $('#mu-foto').val('');
     
@@ -2598,9 +2538,10 @@ function saveUser() {
         username: $('#mu-user').val(),
         password: $('#mu-pass').val(),
         role: $('#mu-role').val(),
-        kelas: $('#mu-kelas').val(),
+        kelas: '',
         sekolah: $('#mu-sekolah').val(),
-        foto: $('#mu-foto-b64').val()
+        foto: $('#mu-foto-b64').val(),
+        sesi: $('#mu-sesi').val()
     };
     
     if(!d.nama || !d.username || !d.password) {
