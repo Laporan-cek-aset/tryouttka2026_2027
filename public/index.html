@@ -101,7 +101,8 @@
         <ul class="list-unstyled components hidden" id="menu-admin">
             <li><a onclick="loadPage('admin-home')" class="nav-link active"><i class="fas fa-home me-3"></i>Dashboard</a></li>
             <li><a onclick="loadPage('admin-users')" class="nav-link"><i class="fas fa-users me-3"></i>Data Peserta</a></li>
-            <li><a onclick="loadPage('admin-BCKS')" class="nav-link"><i class="fas fa-calendar-alt me-3"></i>Bank Soal BCKS</a></li>
+            <li><a onclick="loadPage('admin-ujian')" class="nav-link"><i class="fas fa-calendar-alt me-3"></i>Bank Soal TKA</a></li>
+            <li><a onclick="loadPage('admin-survey')" class="nav-link"><i class="fas fa-clipboard-check me-3"></i>Manajemen Survei</a></li>
             <li><a onclick="loadPage('hasil-rekap')" class="nav-link"><i class="fas fa-chart-bar me-3"></i>Hasil Nilai</a></li>
             <li><a onclick="loadPage('admin-administrasi')" class="nav-link text-info"><i class="fas fa-print me-3"></i>Administrasi</a></li>
             <li><a onclick="handleResetCache()" class="nav-link text-warning"><i class="fas fa-bolt me-3"></i>Reset Cache</a></li>
@@ -109,13 +110,13 @@
         <ul class="list-unstyled components hidden" id="menu-guru">
             <li><a onclick="loadPage('admin-home')" class="nav-link active"><i class="fas fa-home me-3"></i>Dashboard</a></li>
             <li><a onclick="loadPage('admin-users')" class="nav-link"><i class="fas fa-users me-3"></i>Data Peserta</a></li>
-            <li><a onclick="loadPage('admin-BCKS')" class="nav-link"><i class="fas fa-file-alt me-3"></i>Bank Soal BCKS</a></li>
+            <li><a onclick="loadPage('admin-ujian')" class="nav-link"><i class="fas fa-file-alt me-3"></i>Bank Soal TKA</a></li>
             <li><a onclick="loadPage('hasil-rekap')" class="nav-link"><i class="fas fa-poll me-3"></i>Hasil Nilai</a></li>
             <li><a onclick="loadPage('admin-administrasi')" class="nav-link text-info"><i class="fas fa-print me-3"></i>Administrasi</a></li>
         </ul>
 
         <ul class="list-unstyled components hidden" id="menu-siswa">
-            <li><a onclick="loadPage('siswa-home')" class="nav-link active"><i class="fas fa-pencil-alt me-3"></i>BCKS Saya</a></li>
+            <li><a onclick="loadPage('siswa-home')" class="nav-link active"><i class="fas fa-pencil-alt me-3"></i>Ujian Saya</a></li>
         </ul>
         <div class="p-3 mt-auto border-top position-absolute bottom-0 w-100" style="border-color: rgba(255,255,255,0.1) !important;">
             <div class="mb-3 text-white small"><i class="fas fa-user-circle me-2"></i> <span id="u-name-disp" class="fw-bold">User</span></div>
@@ -134,12 +135,12 @@
     </div>
 </div>
 
-<!-- TAMPILAN BCKS CAT BCKS -->
+<!-- TAMPILAN UJIAN CBT TKA -->
 <div id="view-exam" class="hidden">
     <div class="exam-header">
         <div class="d-flex align-items-center">
             <i class="fas fa-graduation-cap me-2 fs-4 text-warning"></i>
-            <div class="d-none d-md-block"><h5 class="fw-bold m-0">Aplikasi CAT BCKS</h5></div>
+            <div class="d-none d-md-block"><h5 class="fw-bold m-0">Aplikasi CBT Ujian</h5></div>
         </div>
         <div class="d-flex align-items-center gap-2">
             <h6 class="fw-bold m-0 text-white" id="do-exam-title">User</h6>
@@ -162,7 +163,7 @@
                 <button class="btn btn-danger px-4 py-2 rounded-pill fw-bold shadow-sm btn-nav-exam" id="btn-prev" onclick="navSlide(-1)"><i class="fas fa-chevron-left me-2"></i> Sebelumnya</button>
                 <button class="btn btn-warning px-4 py-2 rounded-pill fw-bold shadow-sm text-dark btn-nav-exam" id="btn-ragu" onclick="toggleRagu()"><i class="fas fa-square me-2"></i> Ragu - Ragu</button>
                 <button class="btn btn-info px-4 py-2 rounded-pill fw-bold text-white shadow-sm btn-nav-exam" id="btn-next" onclick="navSlide(1)">Selanjutnya <i class="fas fa-chevron-right ms-2"></i></button>
-                <button class="btn btn-success px-5 py-2 rounded-pill fw-bold shadow text-white hidden btn-nav-exam" id="btn-finish" onclick="submitExamButton(false)"><i class="fas fa-check-circle me-2"></i> Selesai BCKS</button>
+                <button class="btn btn-success px-5 py-2 rounded-pill fw-bold shadow text-white hidden btn-nav-exam" id="btn-finish" onclick="submitExamButton(false)"><i class="fas fa-check-circle me-2"></i> Selesai Ujian</button>
             </div>
         </div>
         
@@ -177,7 +178,7 @@
 <div id="view-countdown" class="hidden" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
     <div class="card border-0 shadow-lg rounded-4 p-5 text-center" style="max-width: 550px;">
         <i class="fas fa-check-circle text-success mb-3" style="font-size: 5rem;"></i>
-        <h3 class="fw-bold text-dark">BCKS BCKS Terkirim!</h3>
+        <h3 class="fw-bold text-dark">Ujian TKA Terkirim!</h3>
         <p class="text-muted mb-4 mt-3" style="font-size: 1.1rem;">Mohon tunggu sebentar, Anda diwajibkan untuk mengisi Survei Evaluasi. Layar akan beralih otomatis dalam:</p>
         <h1 class="display-1 fw-bold text-primary mb-4" id="countdown-number">30</h1>
         <div class="spinner-border text-primary mt-2" role="status"></div>
@@ -213,15 +214,15 @@
     </div>
 </div>
 
-<!-- MODAL UNTUK ADMIN (BUAT JADWAL BCKS) -->
+<!-- MODAL UNTUK ADMIN (BUAT JADWAL UJIAN) -->
 <div class="modal fade" id="modalExam" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Konfigurasi Jadwal BCKS</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Konfigurasi Jadwal Ujian</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
             <div class="modal-body p-4">
                 <form id="frm-exam" onsubmit="event.preventDefault(); saveExam(); return false;" action="javascript:void(0);">
                     <input type="hidden" id="ex-id" name="examId">
-                    <div class="mb-3"><label class="small fw-bold text-muted">Judul BCKS</label><input type="text" name="judul" id="ex-judul" class="form-control" required></div>
+                    <div class="mb-3"><label class="small fw-bold text-muted">Judul Ujian</label><input type="text" name="judul" id="ex-judul" class="form-control" required></div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6"><label class="small fw-bold text-muted">Mata Pelajaran</label><input type="text" name="mapel" id="ex-mapel" class="form-control" required></div>
                         <div class="col-md-6"><label class="small fw-bold text-muted">Durasi (Menit)</label><input type="number" name="durasi" id="ex-durasi" class="form-control" required></div>
@@ -268,9 +269,9 @@
                         <textarea name="desc" id="srv-desc" class="form-control" rows="3" required></textarea>
                     </div>
                     <div class="mb-3 p-3 bg-light rounded border border-warning">
-                        <label class="small fw-bold text-primary mb-2"><i class="fas fa-link"></i> Sambungkan dengan BCKS BCKS</label>
+                        <label class="small fw-bold text-primary mb-2"><i class="fas fa-link"></i> Sambungkan dengan Ujian TKA</label>
                         <select name="linkedExam" id="srv-linked-exam" class="form-select fw-bold"></select>
-                        <small class="text-muted mt-2 d-block">Penting: Survei ini akan otomatis muncul hanya untuk siswa yang baru saja menekan tombol 'Selesai' pada BCKS BCKS yang dipilih di atas.</small>
+                        <small class="text-muted mt-2 d-block">Penting: Survei ini akan otomatis muncul hanya untuk siswa yang baru saja menekan tombol 'Selesai' pada ujian TKA yang dipilih di atas.</small>
                     </div>
                     <div class="mb-4">
                         <label class="small fw-bold text-muted">Status Aktif Survei</label>
@@ -286,7 +287,7 @@
     </div>
 </div>
 
-<!-- MODAL EDITOR SOAL BCKS / SURVEI (DINAMIS) -->
+<!-- MODAL EDITOR SOAL TKA / SURVEI (DINAMIS) -->
 <div class="modal fade" id="modalQ" tabindex="-1">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content bg-light">
@@ -359,7 +360,7 @@
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 
 <script>
-class CATRunner {
+class CBTRunner {
   constructor() { this.sCb = null; this.fCb = null; }
   withSuccessHandler(cb) { this.sCb = cb; return this; }
   withFailureHandler(cb) { this.fCb = cb; return this; }
@@ -367,7 +368,7 @@ class CATRunner {
 window.google = {
   script: {
     get run() {
-      const runner = new CATRunner();
+      const runner = new CBTRunner();
       return new Proxy(runner, {
         get: function(target, prop) {
           if (prop in target) return target[prop];
@@ -384,7 +385,7 @@ window.google = {
               try { return JSON.parse(text); } catch (e) { throw new Error("Respons bukan format JSON"); }
             })
             .then(data => { if(target.sCb) target.sCb(data); })
-            .catch(err => { console.error("DETAIL EROR CAT:", err); if(target.fCb) target.fCb(err); });
+            .catch(err => { console.error("DETAIL EROR CBT:", err); if(target.fCb) target.fCb(err); });
           }
         }
       });
@@ -435,7 +436,7 @@ const surveyScales = {
 };
 
 $(document).ready(() => {
-    const savedUser = localStorage.getItem('CAT_user');
+    const savedUser = localStorage.getItem('cbt_user');
     if(!savedUser) { window.location.href = '/'; return; }
     user = JSON.parse(savedUser);
     $('#logo-container img').attr('src', user.LogoUrl || 'https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9');
@@ -444,19 +445,19 @@ $(document).ready(() => {
 
 function applyMathJax() { if (window.MathJax && MathJax.typesetPromise) { MathJax.typesetPromise().catch((err) => console.log('MathJax Error:', err)); } }
 function checkResumeExam() {
-    const savedExam = localStorage.getItem('CAT_active_exam');
+    const savedExam = localStorage.getItem('cbt_active_exam');
     if(savedExam) {
         try {
             const examState = JSON.parse(savedExam);
             if(examState && examState.id) {
-                Swal.fire({ title: 'LanjuBCKSn BCKS?', text: 'Terdeteksi sesi BCKS yang belum selesai.', icon: 'info', confirmButtonText: 'LanjuBCKSn', allowOutsideClick: false }).then(() => {
+                Swal.fire({ title: 'Lanjutkan Ujian?', text: 'Terdeteksi sesi ujian yang belum selesai.', icon: 'info', confirmButtonText: 'Lanjutkan', allowOutsideClick: false }).then(() => {
                     activeExamId = examState.id; totalQ = examState.qs.length;
                     $('#do-exam-title').text(user.Nama);
                     if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch(()=>{}); }
                     runExam(examState.qs, examState.dur, true);
                 });
             }
-        } catch(e) { localStorage.removeItem('CAT_active_exam'); }
+        } catch(e) { localStorage.removeItem('cbt_active_exam'); }
     }
 }
 function toggleSidebar() { $('#sidebar').toggleClass('active'); $('#sidebar-overlay').toggleClass('active'); }
@@ -832,7 +833,7 @@ function getKopHTML(title) {
         <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 100px; height: 100px; position: absolute; left: 10px; top: 0;">
         <div style="width: 100%; padding-left: 90px;">
             <h2 style="margin: 0; font-size: 26px; color: #064e3b; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">CATBCKS - KABUPATEN TANGERANG</h2>
-            <p style="margin: 0; color: #64748b; font-size: 14px; font-style: italic;">Aplikasi Computer Based Test (CAT) Inovasi - ${title}</p>
+            <p style="margin: 0; color: #64748b; font-size: 14px; font-style: italic;">Aplikasi Computer Based Test (CBT) Inovasi - ${title}</p>
         </div>
     </div>`;
 }
@@ -886,7 +887,7 @@ function downloadAllQAdmin(eid) {
             res.data.forEach(q => { htmlContent += `<div class="q-box" style="border-bottom:1px dashed #ccc; padding-bottom:15px; margin-bottom:15px;">${generateQHTML(q)}</div>`; });
             const exam = gData.exams.find(e => e.ExamID === eid);
             const judul = exam ? exam.Judul : 'Arsip_Soal_Guru';
-            downloadHTMLToPDF(`Soal_BCKS_${judul}`, htmlContent);
+            downloadHTMLToPDF(`Soal_TKA_${judul}`, htmlContent);
         } else { Swal.fire('Error', res.msg, 'error'); }
     }).getSiswaSoal(eid);
 }
@@ -894,7 +895,7 @@ function downloadAllQAdmin(eid) {
 function renderRecapTable() {
     const isAdmin = String(user.Role).trim().toLowerCase() === 'admin';
     let uniqueSekolah = [...new Set(recapAllData.map(r => r.SekolahSiswa || ''))].filter(Boolean);
-    let uniqueBCKS = [...new Set(recapAllData.map(r => r.JudulBCKS || ''))].filter(Boolean);
+    let uniqueUjian = [...new Set(recapAllData.map(r => r.JudulUjian || ''))].filter(Boolean);
 
     let h = `<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                 <h5 class="fw-bold text-primary mb-0"><i class="fas fa-chart-bar me-2"></i>Rekapitulasi Nilai</h5>
@@ -918,10 +919,10 @@ function renderRecapTable() {
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="small fw-bold text-muted ms-1">Filter BCKS / Survei</label>
-                    <select id="filter-BCKS" class="form-select bg-light border-0 rounded-pill px-3" onchange="applyFilterRecap()">
-                        <option value="">Semua BCKS</option>
-                        ${uniqueBCKS.map(u => `<option value="${u}">${u}</option>`).join('')}
+                    <label class="small fw-bold text-muted ms-1">Filter Ujian / Survei</label>
+                    <select id="filter-ujian" class="form-select bg-light border-0 rounded-pill px-3" onchange="applyFilterRecap()">
+                        <option value="">Semua Ujian</option>
+                        ${uniqueUjian.map(u => `<option value="${u}">${u}</option>`).join('')}
                     </select>
                 </div>
              </div>
@@ -936,7 +937,7 @@ function renderRecapTable() {
                                     <th>Waktu Submit</th>
                                     <th class="text-start">Nama Siswa</th>
                                     <th>Sekolah</th>
-                                    <th>Mapel / BCKS</th>
+                                    <th>Mapel / Ujian</th>
                                     <th>Nilai</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -961,7 +962,7 @@ function renderRecapRows(data) {
         h = `<tr><td colspan="${isAdmin ? 7 : 6}" class="text-muted py-4">Data tidak ditemukan atau belum ada data masuk.</td></tr>`;
     } else {
         data.forEach(r => {
-            recapDataStore[r.ResultID] = { detail: r.Detail, nama: r.NamaSiswa, BCKS: r.JudulBCKS, nilai: r.TotalNilai, pembuat: r.PembuatNama };
+            recapDataStore[r.ResultID] = { detail: r.Detail, nama: r.NamaSiswa, ujian: r.JudulUjian, nilai: r.TotalNilai, pembuat: r.PembuatNama };
             
             let isSurvey = false;
             try { 
@@ -991,7 +992,7 @@ function renderRecapRows(data) {
                     <td class="small text-muted">${r.WaktuSubmit}</td>
                     <td class="text-start fw-bold">${r.NamaSiswa}</td>
                     <td>${r.SekolahSiswa || '-'}</td>
-                    <td>${r.Mapel} - ${r.JudulBCKS}</td>
+                    <td>${r.Mapel} - ${r.JudulUjian}</td>
                     <td>${displayNilai}</td>
                     <td>
                         ${actionBtn}
@@ -1012,7 +1013,7 @@ function renderRecapRows(data) {
     }
     
     const role = String(user.Role).trim().toLowerCase();
-    const fBCKS = $('#filter-BCKS').val() || 'Semua_BCKS'; 
+    const fUjian = $('#filter-ujian').val() || 'Semua_Ujian'; 
     const fSekolah = $('#filter-sekolah').val() || 'Semua_Sekolah';
     
     let dataToExport = window.currentFilteredData.map((r, i) => {
@@ -1034,7 +1035,7 @@ function renderRecapRows(data) {
             "Kelas": r.KelasSiswa || '-',
             "Sekolah": r.SekolahSiswa || '-',
             "Mapel": r.Mapel,
-            "Judul BCKS": r.JudulBCKS,
+            "Judul Ujian": r.JudulUjian,
             "Nilai Akhir": nilaiTampil
         };
     });
@@ -1045,19 +1046,19 @@ function renderRecapRows(data) {
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Rekap_Nilai");
-    XLSX.writeFile(wb, `Rekap_Nilai_${fSekolah}_${fBCKS}.xlsx`);
+    XLSX.writeFile(wb, `Rekap_Nilai_${fSekolah}_${fUjian}.xlsx`);
 }
 
 function applyFilterRecap() {
     let nama = $('#filter-nama').val().toLowerCase();
     let sekolah = $('#filter-sekolah').val();
-    let BCKS = $('#filter-BCKS').val();
+    let ujian = $('#filter-ujian').val();
     
     window.currentFilteredData = recapAllData.filter(r => {
         let matchNama = r.NamaSiswa.toLowerCase().includes(nama);
         let matchSekolah = sekolah === "" || r.SekolahSiswa === sekolah;
-        let matchBCKS = BCKS === "" || r.JudulBCKS === BCKS;
-        return matchNama && matchSekolah && matchBCKS;
+        let matchUjian = ujian === "" || r.JudulUjian === ujian;
+        return matchNama && matchSekolah && matchUjian;
     });
     renderRecapRows(window.currentFilteredData);
 }
@@ -1122,13 +1123,13 @@ function dlSiswaSoal(eid) {
 
 function printFilteredRecap() {
   if(!window.currentFilteredData || window.currentFilteredData.length === 0) { Swal.fire('Data Kosong', 'Tidak ada data nilai yang tampil untuk dicetak.', 'info'); return; }
-  const fBCKS = $('#filter-BCKS').val() || 'Semua BCKS'; const fKelas = $('#filter-kelas').val() || 'Semua Kelas';
+  const fUjian = $('#filter-ujian').val() || 'Semua Ujian'; const fKelas = $('#filter-kelas').val() || 'Semua Kelas';
   let namaPengawas = window.currentFilteredData.length > 0 ? window.currentFilteredData[0].PembuatNama : user.Nama;
   const role = String(user.Role).trim().toLowerCase();
   
   let content = `<div style="text-align:center; padding-bottom:10px; margin-bottom:20px;">
-      <h3 style="margin:0; color:#0f5132; text-decoration: underline;">REKAPITULASI HASIL BCKS</h3>
-      <p style="margin:5px 0;"><strong>BCKS/Materi:</strong> ${fBCKS} | <strong>Kelas:</strong> ${fKelas}</p>
+      <h3 style="margin:0; color:#0f5132; text-decoration: underline;">REKAPITULASI HASIL UJIAN</h3>
+      <p style="margin:5px 0;"><strong>Ujian/Materi:</strong> ${fUjian} | <strong>Kelas:</strong> ${fKelas}</p>
   </div>
   <table style="width:100%; border-collapse:collapse; margin-bottom:30px; font-size:14px;" border="1">
       <thead style="background:#f1f5f9;"><tr><th style="padding:8px;">No</th><th style="padding:8px;">Waktu Submit</th><th style="padding:8px;">Nama Siswa</th><th style="padding:8px;">Kelas</th><th style="padding:8px;">Mapel / Judul</th><th style="padding:8px;">Nilai Akhir (Maks 100)</th></tr></thead>
@@ -1146,7 +1147,7 @@ function printFilteredRecap() {
           nilaiTampil = 'Survei Selesai';
       }
 
-      content += `<tr><td style="padding:8px; text-align:center;">${i + 1}</td><td style="padding:8px; text-align:center;">${r.WaktuSubmit}</td><td style="padding:8px;">${r.NamaSiswa}</td><td style="padding:8px; text-align:center;">${r.KelasSiswa}</td><td style="padding:8px;">${r.Mapel} - ${r.JudulBCKS}</td><td style="padding:8px; text-align:center; font-weight:bold; color:#064e3b; font-size:16px;">${nilaiTampil}</td></tr>`; 
+      content += `<tr><td style="padding:8px; text-align:center;">${i + 1}</td><td style="padding:8px; text-align:center;">${r.WaktuSubmit}</td><td style="padding:8px;">${r.NamaSiswa}</td><td style="padding:8px; text-align:center;">${r.KelasSiswa}</td><td style="padding:8px;">${r.Mapel} - ${r.JudulUjian}</td><td style="padding:8px; text-align:center; font-weight:bold; color:#064e3b; font-size:16px;">${nilaiTampil}</td></tr>`; 
   });
   
   content += `</tbody></table>
@@ -1155,7 +1156,7 @@ function printFilteredRecap() {
       <p style="margin-bottom:70px;">Guru Pengampu / Pengawas</p>
       <p><strong>${namaPengawas}</strong></p>
   </div>`;
-  downloadHTMLToPDF('Rekap_Nilai_BCKS', content);
+  downloadHTMLToPDF('Rekap_Nilai_Ujian', content);
 }
 
 
@@ -1209,15 +1210,15 @@ function printRecap(rid) {
       detailHtml += '</tbody></table>';
   }
 
-  let typeLabel = isSurvey ? 'Kuesioner Survei' : 'BCKS/Mapel';
-  let titleDetail = isSurvey ? 'Rincian Tanggapan Survei Karakter & Lingkungan' : 'Rincian Jawaban & Skor BCKS';
+  let typeLabel = isSurvey ? 'Kuesioner Survei' : 'Ujian/Mapel';
+  let titleDetail = isSurvey ? 'Rincian Tanggapan Survei Karakter & Lingkungan' : 'Rincian Jawaban & Skor TKA';
 
   let content = `
   <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:2px solid #e2e8f0; padding-bottom:20px;">
       <div>
           <table style="font-size:15px;">
               <tr><td width="130"><strong>Nama Peserta</strong></td><td width="10">:</td><td>${d.nama}</td></tr>
-              <tr><td><strong>${typeLabel}</strong></td><td>:</td><td>${d.BCKS}</td></tr>
+              <tr><td><strong>${typeLabel}</strong></td><td>:</td><td>${d.ujian}</td></tr>
               <tr><td><strong>Waktu Cetak</strong></td><td>:</td><td>${new Date().toLocaleString('id-ID')}</td></tr>
           </table>
       </div>
@@ -1232,14 +1233,14 @@ function printRecap(rid) {
   </div>
   `;
   
-  let fileName = isSurvey ? `Hasil_Survei_${d.nama.replace(/\s+/g, '_')}` : `Hasil_BCKS_${d.nama.replace(/\s+/g, '_')}`;
+  let fileName = isSurvey ? `Hasil_Survei_${d.nama.replace(/\s+/g, '_')}` : `Hasil_Ujian_${d.nama.replace(/\s+/g, '_')}`;
   downloadHTMLToPDF(fileName, content);
 }
 
 function renderAdministrasi() {
     const uniqueKelas = [...new Set(gAdminData.users.map(u => String(u.Kelas).trim()))].filter(k => k).sort();
     let optKelas = `<option value="ALL">Semua Kelas</option>` + uniqueKelas.map(k => `<option value="${k}">${k}</option>`).join('');
-    let optBCKS = `<option value="">-- Pilih BCKS --</option>` + gAdminData.exams.map(e => `<option value="${e.ExamID}">${e.Judul} (${e.Mapel})</option>`).join('');
+    let optUjian = `<option value="">-- Pilih Ujian --</option>` + gAdminData.exams.map(e => `<option value="${e.ExamID}">${e.Judul} (${e.Mapel})</option>`).join('');
     
     let h = `
     <div class="row g-4">
@@ -1248,9 +1249,9 @@ function renderAdministrasi() {
                 <div class="card-body p-4 text-center">
                     <div class="display-4 text-primary mb-3"><i class="fas fa-id-card"></i></div>
                     <h5 class="fw-bold text-dark">Cetak Kartu Login</h5>
-                    <p class="small text-muted mb-4">Cetak kartu berfoto untuk akses CAT Siswa.</p>
+                    <p class="small text-muted mb-4">Cetak kartu berfoto untuk akses CBT Siswa.</p>
                     <select id="adm-kls-kartu" class="form-select mb-3 bg-light border-0 rounded-pill px-3">${optKelas}</select>
-                    <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="prinBCKSrtuLogin()"><i class="fas fa-print me-1"></i> Cetak Kartu</button>
+                    <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="printKartuLogin()"><i class="fas fa-print me-1"></i> Cetak Kartu</button>
                 </div>
             </div>
         </div>
@@ -1258,9 +1259,9 @@ function renderAdministrasi() {
             <div class="card shadow-sm border-0 h-100 rounded-4">
                 <div class="card-body p-4 text-center">
                     <div class="display-4 text-info mb-3"><i class="fas fa-clipboard-list"></i></div>
-                    <h5 class="fw-bold text-dark">Daftar Hadir BCKS</h5>
-                    <p class="small text-muted mb-4">Format absensi siswa saat pelaksanaan BCKS.</p>
-                    <select id="adm-exam-hadir" class="form-select mb-2 bg-light border-0 rounded-pill px-3">${optBCKS}</select>
+                    <h5 class="fw-bold text-dark">Daftar Hadir Ujian</h5>
+                    <p class="small text-muted mb-4">Format absensi siswa saat pelaksanaan ujian.</p>
+                    <select id="adm-exam-hadir" class="form-select mb-2 bg-light border-0 rounded-pill px-3">${optUjian}</select>
                     <select id="adm-kls-hadir" class="form-select mb-3 bg-light border-0 rounded-pill px-3">${optKelas}</select>
                     <button class="btn btn-info text-white w-100 rounded-pill fw-bold" onclick="printDaftarHadir()"><i class="fas fa-print me-1"></i> Cetak Absensi</button>
                 </div>
@@ -1272,7 +1273,7 @@ function renderAdministrasi() {
                     <div class="display-4 text-success mb-3"><i class="fas fa-file-signature"></i></div>
                     <h5 class="fw-bold text-dark">Berita Acara</h5>
                     <p class="small text-muted mb-4">Format laporan pelaksanaan untuk Pengawas.</p>
-                    <select id="adm-exam-ba" class="form-select mb-2 bg-light border-0 rounded-pill px-3">${optBCKS}</select>
+                    <select id="adm-exam-ba" class="form-select mb-2 bg-light border-0 rounded-pill px-3">${optUjian}</select>
                     <select id="adm-kls-ba" class="form-select mb-3 bg-light border-0 rounded-pill px-3">${optKelas}</select>
                     <button class="btn btn-success w-100 rounded-pill fw-bold" onclick="printBeritaAcara()"><i class="fas fa-print me-1"></i> Cetak Laporan</button>
                 </div>
@@ -1282,7 +1283,7 @@ function renderAdministrasi() {
     $('#content-area').html(h);
 }
 
-function prinBCKSrtuLogin() {
+function printKartuLogin() {
     const kls = $('#adm-kls-kartu').val();
     let usersToPrint = gAdminData.users;
     if (kls !== 'ALL') usersToPrint = usersToPrint.filter(u => u.Kelas === kls);
@@ -1322,12 +1323,12 @@ function prinBCKSrtuLogin() {
 }
 function printDaftarHadir() {
     const examId = $('#adm-exam-hadir').val(); const kls = $('#adm-kls-hadir').val();
-    if(!examId) return Swal.fire('Perhatian', 'Pilih BCKS terlebih dahulu.', 'warning');
+    if(!examId) return Swal.fire('Perhatian', 'Pilih Ujian terlebih dahulu.', 'warning');
     const exam = gAdminData.exams.find(e => String(e.ExamID) === String(examId));
     let usersToPrint = gAdminData.users;
     if (kls !== 'ALL') usersToPrint = usersToPrint.filter(u => u.Kelas === kls);
     if (usersToPrint.length === 0) return Swal.fire('Kosong', 'Tidak ada data siswa untuk kelas tersebut.', 'info');
-    let html = `<html><head><title>Daftar Hadir BCKS</title><style>
+    let html = `<html><head><title>Daftar Hadir Ujian</title><style>
         body { font-family: 'Times New Roman', Times, serif; padding: 30px; }
         h3 { text-align: center; text-decoration: underline; margin-bottom: 20px; }
         .info-table { width: 100%; margin-bottom: 20px; font-size: 14px; }
@@ -1341,7 +1342,7 @@ function printDaftarHadir() {
     <div class="no-print" style="margin-bottom: 15px; text-align:right;"><button onclick="window.print()" style="padding:10px 20px; font-size:16px; background:#0dcaf0; color:white; border:none; border-radius:5px; cursor:pointer;">Cetak Dokumen</button></div>
     <div style="display: flex; align-items: center; justify-content: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; text-align: center; position: relative;">
         <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 80px; height: 80px; position: absolute; left: 10px;">
-        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">DAFTAR HADIR PESERTA BCKS</h2><p style="margin: 5px 0 0; font-size: 14px;">CATBCKS - KAB. TANGERANG</p></div>
+        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">DAFTAR HADIR PESERTA UJIAN</h2><p style="margin: 5px 0 0; font-size: 14px;">CATBCKS - KAB. TANGERANG</p></div>
     </div>
     <h3>DAFTAR HADIR PESERTA</h3>
     <table class="info-table">
@@ -1365,7 +1366,7 @@ function printDaftarHadir() {
     html += `</tbody></table>
     <div style="margin-top: 50px; text-align: right; padding-right: 50px;">
         <p>Tangerang, ..................................</p>
-        <p style="margin-bottom: 70px;">Pengawas BCKS,</p>
+        <p style="margin-bottom: 70px;">Pengawas Ujian,</p>
         <p><strong>( ......................................... )</strong></p>
     </div>
     <script>window.onload = function() { window.print(); }<\/script></body></html>`;
@@ -1373,10 +1374,10 @@ function printDaftarHadir() {
 }
 function printBeritaAcara() {
     const examId = $('#adm-exam-ba').val(); const kls = $('#adm-kls-ba').val();
-    if(!examId) return Swal.fire('Perhatian', 'Pilih BCKS terlebih dahulu.', 'warning');
+    if(!examId) return Swal.fire('Perhatian', 'Pilih Ujian terlebih dahulu.', 'warning');
     const exam = gAdminData.exams.find(e => String(e.ExamID) === String(examId));
     
-    let html = `<html><head><title>Berita Acara BCKS</title><style>
+    let html = `<html><head><title>Berita Acara Ujian</title><style>
         body { font-family: 'Times New Roman', Times, serif; padding: 40px; line-height: 1.6; }
         h3 { text-align: center; text-decoration: underline; margin-bottom: 30px; }
         .content { font-size: 15px; text-align: justify; }
@@ -1388,22 +1389,22 @@ function printBeritaAcara() {
     <div class="no-print" style="margin-bottom: 15px; text-align:right;"><button onclick="window.print()" style="padding:10px 20px; font-size:16px; background:#198754; color:white; border:none; border-radius:5px; cursor:pointer;">Cetak Dokumen</button></div>
     <div style="display: flex; align-items: center; justify-content: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 30px; text-align: center; position: relative;">
         <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 80px; height: 80px; position: absolute; left: 20px;">
-        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">PANITIA PELAKSANAAN BCKS CAT</h2><p style="margin: 5px 0 0; font-size: 14px;">CATBCKS - KAB. TANGERANG</p></div>
+        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">PANITIA PELAKSANAAN UJIAN CBT</h2><p style="margin: 5px 0 0; font-size: 14px;">CATBCKS - KAB. TANGERANG</p></div>
     </div>
-    <h3>BERITA ACARA PELAKSANAAN BCKS</h3>
+    <h3>BERITA ACARA PELAKSANAAN UJIAN</h3>
     <div class="content">
-        <p>Pada hari ini .................................. tanggal ........... bulan .............................. tahun .........................., telah diselenggarakan BCKS Berbasis Komputer (CAT) dengan rincian sebagai berikut:</p>
+        <p>Pada hari ini .................................. tanggal ........... bulan .............................. tahun .........................., telah diselenggarakan Ujian Berbasis Komputer (CBT) dengan rincian sebagai berikut:</p>
         <table style="width: 100%; margin-left: 20px; margin-bottom: 15px;">
             <tr><td width="25%">Mata Pelajaran</td><td width="5%">:</td><td><strong>${exam.Mapel} - ${exam.Judul}</strong></td></tr>
             <tr><td>Kelas / Ruang</td><td>:</td><td><strong>${kls === 'ALL' ? 'Semua Kelas' : kls}</strong></td></tr>
             <tr><td>Waktu Pelaksanaan</td><td>:</td><td>Pukul ..................... s.d .....................</td></tr>
         </table>
-        <p>Dengan jumlah peserta BCKS sebagai berikut:</p>
+        <p>Dengan jumlah peserta ujian sebagai berikut:</p>
         <table style="width: 100%; margin-left: 20px; margin-bottom: 20px;">
             <tr><td width="25%">1. Jumlah Peserta Seharusnya</td><td width="5%">:</td><td>........... Orang</td></tr>
             <tr><td>2. Jumlah Peserta Hadir</td><td>:</td><td>........... Orang</td></tr>
             <tr><td>3. Jumlah Peserta Tidak Hadir</td><td>:</td><td>........... Orang</td></tr>
-            <tr><td valign="top">4. Catatan Selama BCKS</td><td valign="top">:</td><td style="border-bottom: 1px dotted #000; height: 30px;"></td></tr>
+            <tr><td valign="top">4. Catatan Selama Ujian</td><td valign="top">:</td><td style="border-bottom: 1px dotted #000; height: 30px;"></td></tr>
             <tr><td></td><td></td><td style="border-bottom: 1px dotted #000; height: 30px;"></td></tr>
         </table>
         <p>Demikian Berita Acara ini dibuat dengan sesungguhnya untuk dapat dipergunakan sebagaimana mestinya.</p>
@@ -1412,7 +1413,7 @@ function printBeritaAcara() {
         <table>
             <tr>
                 <td width="50%"></td>
-                <td width="50%">Tangerang, ....................................<br>Pengawas BCKS,</td>
+                <td width="50%">Tangerang, ....................................<br>Pengawas Ujian,</td>
             </tr>
             <tr><td height="80"></td><td></td></tr>
             <tr>
@@ -1430,7 +1431,7 @@ function renderContent(page) {
     const isGuru = String(user.Role).trim().toLowerCase() === 'guru';
 
     if (page === 'admin-home') {
-        let schoolTable = `<div class="table-responsive"><table class="table table-sm table-hover text-center"><thead><tr class="table-light"><th>Rank</th><th>Sekolah</th><th>Rata-rata CAT</th></tr></thead><tbody>`;
+        let schoolTable = `<div class="table-responsive"><table class="table table-sm table-hover text-center"><thead><tr class="table-light"><th>Rank</th><th>Sekolah</th><th>Rata-rata CBT</th></tr></thead><tbody>`;
         if(gData.schoolRanks && gData.schoolRanks.length > 0) {
             if (isGuru) {
                 const myRankIndex = gData.schoolRanks.findIndex(s => s.Sekolah === user.Sekolah);
@@ -1471,7 +1472,7 @@ function renderContent(page) {
                         <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
                             <table class="table table-sm table-hover">
                                 <thead>
-                                    <tr class="table-light"><th>Mapel BCKS</th><th>Nama</th><th>Kelas</th><th>Skor</th></tr>
+                                    <tr class="table-light"><th>Mapel TKA</th><th>Nama</th><th>Kelas</th><th>Skor</th></tr>
                                 </thead>
                                 <tbody id="dash-student-tbody">
                                 </tbody>
@@ -1487,7 +1488,7 @@ function renderContent(page) {
 
         h = `<div class="row g-4 mb-4">
                 <div class="col-md-6"><div class="card p-4 shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, #0f5132, #15803d); color: white;"><div class="d-flex justify-content-between align-items-center"><div><h1 class="fw-bold display-4 m-0">${gData.stats.totalSiswa}</h1><p class="m-0 fs-5">Total Siswa Terdaftar</p></div><i class="fas fa-users fa-4x opacity-50"></i></div></div></div>
-                <div class="col-md-6"><div class="card p-4 shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, #d4af37, #b48500); color: white;"><div class="d-flex justify-content-between align-items-center"><div><h1 class="fw-bold display-4 m-0">${gData.stats.totalBCKS}</h1><p class="m-0 fs-5">Total BCKS Aktif</p></div><i class="fas fa-folder-open fa-4x opacity-50"></i></div></div></div>
+                <div class="col-md-6"><div class="card p-4 shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, #d4af37, #b48500); color: white;"><div class="d-flex justify-content-between align-items-center"><div><h1 class="fw-bold display-4 m-0">${gData.stats.totalUjian}</h1><p class="m-0 fs-5">Total Ujian Aktif</p></div><i class="fas fa-folder-open fa-4x opacity-50"></i></div></div></div>
              </div>
              <div class="row g-4">
                 <div class="${schoolWidgetClass}">
@@ -1502,7 +1503,7 @@ function renderContent(page) {
         return; 
     }
         
-    else if (page === 'admin-BCKS') {
+    else if (page === 'admin-ujian') {
         isSurveyMode = false;
         let uniqueMapel = [...new Set(gData.exams.map(e => e.Mapel))];
         let uniqueKelas = [...new Set(gData.exams.map(e => String(e.TargetKelas).trim()))];
@@ -1512,15 +1513,15 @@ function renderContent(page) {
         else h += `<div><h5 class="fw-bold text-primary mb-0"><i class="fas fa-folder-open me-2"></i>Daftar Bank Soal CATBCKS</h5><p class="small text-muted m-0">Guru hanya memiliki akses mengunduh soal untuk cetak PDF.</p></div>`;
         
         h += `<div class="d-flex gap-2 bg-white p-2 rounded-pill shadow-sm border">
-                <select id="filter-mapel-BCKS" class="form-select form-select-sm border-0 bg-transparent" onchange="filterAdminBCKS()"><option value="">Semua Mapel</option>${uniqueMapel.map(m=>`<option value="${m}">${m}</option>`).join('')}</select>
+                <select id="filter-mapel-ujian" class="form-select form-select-sm border-0 bg-transparent" onchange="filterAdminUjian()"><option value="">Semua Mapel</option>${uniqueMapel.map(m=>`<option value="${m}">${m}</option>`).join('')}</select>
                 <div class="vr"></div>
-                <select id="filter-kelas-BCKS" class="form-select form-select-sm border-0 bg-transparent" onchange="filterAdminBCKS()"><option value="">Semua Kelas</option>${uniqueKelas.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
-             </div></div><div class="row g-4" id="admin-BCKS-list">`;
+                <select id="filter-kelas-ujian" class="form-select form-select-sm border-0 bg-transparent" onchange="filterAdminUjian()"><option value="">Semua Kelas</option>${uniqueKelas.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
+             </div></div><div class="row g-4" id="admin-ujian-list">`;
              
         gData.exams.forEach(e => {
             let actionButtons = '';
             if (!isGuru) {
-                actionButtons = `<button class="btn btn-sm btn-outline-dark flex-fill rounded-pill fw-bold" onclick="openExamModal('${encodeURIComponent(JSON.stringify(e))}')"><i class="fas fa-cog"></i> Edit</button> <button class="btn btn-sm btn-outline-primary flex-fill rounded-pill fw-bold" onclick="manageQ('${e.ExamID}')"><i class="fas fa-list"></i> Soal BCKS</button> <button class="btn btn-sm btn-danger rounded-circle px-2" onclick="delExam('${e.ExamID}')"><i class="fas fa-trash"></i></button>`;
+                actionButtons = `<button class="btn btn-sm btn-outline-dark flex-fill rounded-pill fw-bold" onclick="openExamModal('${encodeURIComponent(JSON.stringify(e))}')"><i class="fas fa-cog"></i> Edit</button> <button class="btn btn-sm btn-outline-primary flex-fill rounded-pill fw-bold" onclick="manageQ('${e.ExamID}')"><i class="fas fa-list"></i> Soal TKA</button> <button class="btn btn-sm btn-danger rounded-circle px-2" onclick="delExam('${e.ExamID}')"><i class="fas fa-trash"></i></button>`;
             } else {
                 if (e.AllowDownloadQ === 'Yes') {
                     actionButtons = `<button class="btn btn-success w-100 py-2 rounded-pill fw-bold shadow-sm" onclick="downloadAllQAdmin('${e.ExamID}')"><i class="fas fa-file-pdf me-2"></i> Download Soal Ini (PDF)</button>`;
@@ -1528,7 +1529,7 @@ function renderContent(page) {
                     actionButtons = `<div class="alert alert-light small m-0 p-2 text-center w-100 text-muted border rounded-pill"><i class="fas fa-lock me-1"></i>Akses Download Dikunci Admin</div>`;
                 }
             }
-            h += `<div class="col-md-6 col-xl-4 BCKS-card" data-mapel="${e.Mapel}" data-kelas="${e.TargetKelas}"><div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden"><div class="card-body p-4"><div class="d-flex justify-content-between mb-3"><span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm">${e.Mapel}</span><span class="badge bg-light text-dark border px-3 py-2 rounded-pill shadow-sm"><i class="fas fa-users me-1"></i> ${e.TargetKelas}</span></div><h5 class="fw-bold text-dark mb-1 line-clamp-2">${e.Judul}</h5><p class="small text-muted mb-4"><i class="fas fa-clock me-1"></i> ${e.Durasi} Menit | ${e.LimitTries}x Akses</p><div class="d-flex gap-2 mt-auto">${actionButtons}</div></div></div></div>`;
+            h += `<div class="col-md-6 col-xl-4 ujian-card" data-mapel="${e.Mapel}" data-kelas="${e.TargetKelas}"><div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden"><div class="card-body p-4"><div class="d-flex justify-content-between mb-3"><span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm">${e.Mapel}</span><span class="badge bg-light text-dark border px-3 py-2 rounded-pill shadow-sm"><i class="fas fa-users me-1"></i> ${e.TargetKelas}</span></div><h5 class="fw-bold text-dark mb-1 line-clamp-2">${e.Judul}</h5><p class="small text-muted mb-4"><i class="fas fa-clock me-1"></i> ${e.Durasi} Menit | ${e.LimitTries}x Akses</p><div class="d-flex gap-2 mt-auto">${actionButtons}</div></div></div></div>`;
         });
         h += '</div>';
     }
@@ -1542,8 +1543,8 @@ function renderContent(page) {
         surveys.forEach(s => {
             let statusBadge = s.ShowStats === 'Aktif' ? '<span class="badge bg-success shadow-sm px-3 py-2 rounded-pill">Aktif (Auto Muncul)</span>' : '<span class="badge bg-secondary shadow-sm px-3 py-2 rounded-pill">Tidak Aktif</span>';
             let linkedExamName = 'Tidak Terhubung';
-            const linkedBCKS = gData.exams.find(ex => ex.ExamID === s.Token);
-            if(linkedBCKS) linkedExamName = linkedBCKS.Judul;
+            const linkedTKA = gData.exams.find(ex => ex.ExamID === s.Token);
+            if(linkedTKA) linkedExamName = linkedTKA.Judul;
             
             h += `<div class="col-md-6 col-xl-4"><div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden"><div class="card-body p-4"><div class="d-flex justify-content-between mb-3">${statusBadge}</div><h5 class="fw-bold text-dark mb-2">${s.Judul}</h5><p class="small text-muted mb-3 line-clamp-2">${s.TargetKelas}</p><div class="mb-4 small p-2 bg-light rounded"><i class="fas fa-link text-primary"></i> <b>Terkait:</b> ${linkedExamName}</div><div class="d-flex gap-2 mt-auto"><button class="btn btn-sm btn-outline-dark flex-fill rounded-pill fw-bold" onclick="openSurveyModal('${encodeURIComponent(JSON.stringify(s))}')"><i class="fas fa-cog"></i> Pengaturan</button> <button class="btn btn-sm btn-outline-primary flex-fill rounded-pill fw-bold" onclick="manageQ('${s.ExamID}')"><i class="fas fa-list"></i> Isi Kuesioner</button> <button class="btn btn-sm btn-danger rounded-circle px-2" onclick="delExam('${s.ExamID}')"><i class="fas fa-trash"></i></button></div></div></div></div>`;
         });
@@ -1557,7 +1558,7 @@ function renderContent(page) {
                 <div class="card mb-4 border-0 shadow-lg rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; animation: fadeInDown 0.8s;">
                     <div class="card-body p-4 text-center">
                         <i class="fas fa-check-circle fa-4x mb-3 text-white"></i>
-                        <h2 class="fw-bold mb-2">SELAMAT! ANDA LULUS BCKS</h2>
+                        <h2 class="fw-bold mb-2">SELAMAT! ANDA LULUS UJIAN</h2>
                         <p class="fs-5 mb-0">Kerja keras Anda membuahkan hasil. Tetap semangat dan persiapkan langkah selanjutnya dengan baik!</p>
                     </div>
                 </div>`;
@@ -1585,21 +1586,21 @@ function renderContent(page) {
                 </div>
             </div>
         </div>
-        <h5 class="fw-bold mb-3 border-bottom pb-2 text-primary"><i class="fas fa-edit me-2"></i>BCKS Aktif Saat Ini</h5><div class="row g-4 mb-5">`;
+        <h5 class="fw-bold mb-3 border-bottom pb-2 text-primary"><i class="fas fa-edit me-2"></i>Ujian Aktif Saat Ini</h5><div class="row g-4 mb-5">`;
         
-        if(!gData.availableExams || gData.availableExams.length === 0) { h += '<div class="col-12"><div class="alert alert-light border border-secondary text-center py-5 rounded-4 shadow-sm text-muted"><i class="fas fa-box-open fa-3x mb-3 text-secondary opacity-50"></i><br>Belum ada jadwal BCKS yang aktif untuk Anda saat ini.</div></div>'; } 
+        if(!gData.availableExams || gData.availableExams.length === 0) { h += '<div class="col-12"><div class="alert alert-light border border-secondary text-center py-5 rounded-4 shadow-sm text-muted"><i class="fas fa-box-open fa-3x mb-3 text-secondary opacity-50"></i><br>Belum ada jadwal ujian yang aktif untuk Anda saat ini.</div></div>'; } 
         else {
             gData.availableExams.forEach(e => {
-                let btnState = '', btnText = '<i class="fas fa-play-circle me-2"></i> MULAI BCKS', btnClass = 'btn-primary';
+                let btnState = '', btnText = '<i class="fas fa-play-circle me-2"></i> MULAI UJIAN', btnClass = 'btn-primary';
                 if (e.IsFinished) { btnState = 'disabled'; btnText = '<i class="fas fa-check me-2"></i> SUDAH DIKERJAKAN'; btnClass = 'btn-secondary'; }
                 else if (e.IsExpired) { btnState = 'disabled'; btnText = '<i class="fas fa-times me-2"></i> WAKTU HABIS'; btnClass = 'btn-danger'; }
-                h += `<div class="col-md-6 col-lg-4"><div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden transition-hover"><div class="card-body p-4 text-center"><span class="badge bg-light text-primary border border-primary px-3 py-2 rounded-pill mb-3 fw-bold">${e.Mapel}</span><h5 class="fw-bold text-dark mb-3">${e.Judul}</h5><p class="small text-muted mb-4"><i class="fas fa-stopwatch me-1"></i> Waktu BCKS: <b>${e.Durasi} Menit</b></p><button class="btn ${btnClass} w-100 py-2 fw-bold rounded-pill shadow-sm" onclick="startExam('${e.ExamID}')" ${btnState}>${btnText}</button></div></div></div>`;
+                h += `<div class="col-md-6 col-lg-4"><div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden transition-hover"><div class="card-body p-4 text-center"><span class="badge bg-light text-primary border border-primary px-3 py-2 rounded-pill mb-3 fw-bold">${e.Mapel}</span><h5 class="fw-bold text-dark mb-3">${e.Judul}</h5><p class="small text-muted mb-4"><i class="fas fa-stopwatch me-1"></i> Waktu TKA: <b>${e.Durasi} Menit</b></p><button class="btn ${btnClass} w-100 py-2 fw-bold rounded-pill shadow-sm" onclick="startExam('${e.ExamID}')" ${btnState}>${btnText}</button></div></div></div>`;
             });
         }
-        h += '</div><h5 class="fw-bold mb-3 border-bottom pb-2 mt-5 text-primary"><i class="fas fa-history me-2"></i>Riwayat BCKS & Pengumuman</h5>';
-        if(!gData.history || gData.history.length === 0) { h += '<p class="text-muted fst-italic ms-2">Anda belum menyelesaikan BCKS BCKS apa pun.</p>'; } 
+        h += '</div><h5 class="fw-bold mb-3 border-bottom pb-2 mt-5 text-primary"><i class="fas fa-history me-2"></i>Riwayat Ujian & Pengumuman</h5>';
+        if(!gData.history || gData.history.length === 0) { h += '<p class="text-muted fst-italic ms-2">Anda belum menyelesaikan ujian TKA apa pun.</p>'; } 
         else {
-            h += `<div class="table-responsive bg-white rounded-4 shadow-sm p-3 border"><table class="table table-hover align-middle mb-0"><thead><tr><th>Tanggal & Waktu</th><th>Nama BCKS</th><th>Pengumuman Hasil</th><th>Aksi Lanjutan</th></tr></thead><tbody>`;
+            h += `<div class="table-responsive bg-white rounded-4 shadow-sm p-3 border"><table class="table table-hover align-middle mb-0"><thead><tr><th>Tanggal & Waktu</th><th>Nama Ujian</th><th>Pengumuman Hasil</th><th>Aksi Lanjutan</th></tr></thead><tbody>`;
             gData.history.forEach(r => { 
                 
                 let displayNilai = (r.ShowStats === 'Yes' || r.ShowStats === 'Aktif') 
@@ -1661,7 +1662,7 @@ function filterDashStudentRanks() {
 
 function laporTrobel(rid) {
     Swal.fire({
-        title: 'Ajukan Reset BCKS?',
+        title: 'Ajukan Reset Ujian?',
         text: 'Jika jawaban terkirim otomatis akibat Error / Trobel, klik ajukan. Guru Anda akan mereset nilai ini agar Anda dapat mengulang.',
         icon: 'warning',
         showCancelButton: true,
@@ -1678,9 +1679,9 @@ function laporTrobel(rid) {
     });
 }
 
-function filterAdminBCKS() {
-    const m = $('#filter-mapel-BCKS').val(); const k = $('#filter-kelas-BCKS').val();
-    $('.BCKS-card').each(function() {
+function filterAdminUjian() {
+    const m = $('#filter-mapel-ujian').val(); const k = $('#filter-kelas-ujian').val();
+    $('.ujian-card').each(function() {
         const matchMapel = m === '' || $(this).data('mapel') === m;
         const matchKelas = k === '' || $(this).data('kelas') === k;
         $(this).toggle(matchMapel && matchKelas);
@@ -1688,7 +1689,7 @@ function filterAdminBCKS() {
 }
 
 function openSurveyModal(str) {
-    let optExams = `<option value="">-- Pilih BCKS BCKS Yang Relevan --</option>`;
+    let optExams = `<option value="">-- Pilih Ujian TKA Yang Relevan --</option>`;
     gData.exams.forEach(e => { optExams += `<option value="${e.ExamID}">${e.Judul} (${e.Mapel})</option>`; });
     $('#srv-linked-exam').html(optExams);
 
@@ -1701,7 +1702,7 @@ function openSurveyModal(str) {
 }
 function saveSurveyHeader() {
     const d = { id: $('#srv-id').val(), judul: $('#srv-judul').val(), desc: $('#srv-desc').val(), status: $('#srv-status').val(), linkedExam: $('#srv-linked-exam').val(), userId: user.ID };
-    if(!d.linkedExam) return Swal.fire('Error', 'Wajib memilih BCKS BCKS mana yang akan memicu survei ini!', 'warning');
+    if(!d.linkedExam) return Swal.fire('Error', 'Wajib memilih Ujian TKA mana yang akan memicu survei ini!', 'warning');
     
     showLoad(true);
     google.script.run.withSuccessHandler((res) => {
@@ -1736,14 +1737,14 @@ function saveExam() {
   google.script.run.withSuccessHandler((res) => {
     if(res.status === 'success') {
       $('#modalExam').modal('hide');
-      google.script.run.withSuccessHandler(res2 => { showLoad(false); if (res2.status === 'success') { gData = res2.data; renderContent('admin-BCKS'); toast('success', 'Jadwal Disimpan!'); } else { Swal.fire('Gagal', res2.msg, 'error'); } }).getDashboardData(user.Role, user.ID, user.Kelas, user.Sekolah);
+      google.script.run.withSuccessHandler(res2 => { showLoad(false); if (res2.status === 'success') { gData = res2.data; renderContent('admin-ujian'); toast('success', 'Jadwal Disimpan!'); } else { Swal.fire('Gagal', res2.msg, 'error'); } }).getDashboardData(user.Role, user.ID, user.Kelas, user.Sekolah);
     } else { showLoad(false); Swal.fire('Gagal', res.msg, 'error'); }
   }).adminSaveExam(d);
 }
-function delExam(id){ Swal.fire({title:'Hapus Permanen?', icon:'warning', showCancelButton:true, confirmButtonColor: '#d33'}).then(r=>{if(r.isConfirmed) google.script.run.withSuccessHandler(()=>{ if(isSurveyMode){ loadPage('admin-survey') } else { loadPage('admin-BCKS') } }).adminDeleteExam(id)}) }
+function delExam(id){ Swal.fire({title:'Hapus Permanen?', icon:'warning', showCancelButton:true, confirmButtonColor: '#d33'}).then(r=>{if(r.isConfirmed) google.script.run.withSuccessHandler(()=>{ if(isSurveyMode){ loadPage('admin-survey') } else { loadPage('admin-ujian') } }).adminDeleteExam(id)}) }
 function manageQ(id) { 
     activeExamId = id; 
-    $('#editor-q-title').html(isSurveyMode ? '<i class="fas fa-clipboard-list me-2"></i> Editor Kuesioner Survei' : '<i class="fas fa-edit me-2"></i> Editor Pertanyaan BCKS');
+    $('#editor-q-title').html(isSurveyMode ? '<i class="fas fa-clipboard-list me-2"></i> Editor Kuesioner Survei' : '<i class="fas fa-edit me-2"></i> Editor Pertanyaan TKA');
     $('#editor-tips').html(isSurveyMode ? '<b>Tips Survei:</b> Masukkan stimulus (Teks/Gambar/Video) di area Editor, lalu pilih jenis Skala Penilaian dan tambahkan rincian pernyataan di bawahnya.' : '<i class="fas fa-lightbulb me-2"></i><b>Tips:</b> Gunakan tombol <b>Rumus</b> atau <b>Video</b> pada panel editor di bawah.');
     $('#modalQ').modal('show'); 
     loadQList(); 
@@ -1826,7 +1827,7 @@ function previewAllQ() {
 function downloadAllQ() {
     let htmlContent = ''; currentQuestionsData.forEach(q => { htmlContent += `<div class="q-box" style="border-bottom:2px dashed #ccc; padding-bottom:20px; margin-bottom:20px;">${generateQHTML(q)}</div>`; });
     if(!htmlContent) return Swal.fire('Kosong', 'Belum ada soal untuk didownload.', 'info');
-    downloadHTMLToPDF('Arsip_Soal_CAT', htmlContent);
+    downloadHTMLToPDF('Arsip_Soal_CBT', htmlContent);
 }
 
 function dlSiswaHasil(rid) {
@@ -1834,7 +1835,7 @@ function dlSiswaHasil(rid) {
     google.script.run.withSuccessHandler(res => {
         showLoad(false);
         if(res.status === 'success') {
-            recapDataStore[rid] = { detail: res.data.Detail, nama: user.Nama, BCKS: res.data.Judul, nilai: res.data.TotalNilai, pembuat: 'Pengawas Sekolah' };
+            recapDataStore[rid] = { detail: res.data.Detail, nama: user.Nama, ujian: res.data.Judul, nilai: res.data.TotalNilai, pembuat: 'Pengawas Sekolah' };
             printRecap(rid);
         } else { Swal.fire('Error', res.msg, 'error'); }
     }).getSiswaDetailHasil(rid);
@@ -1885,7 +1886,7 @@ return `
                     <input type="hidden" name="id" value="${q.QID || ''}">
                     <div class="row g-3 mb-4">
                         <div class="col-md-2"><label class="small fw-bold text-muted">Nomor Urut</label><input type="number" name="num" class="form-control bg-light border-0 rounded-3" value="${nomor}"></div>
-                        <div class="col-md-5"><label class="small fw-bold text-muted">${isSurveyMode ? 'Jenis Skala Survei' : 'Tipe Soal BCKS'}</label>
+                        <div class="col-md-5"><label class="small fw-bold text-muted">${isSurveyMode ? 'Jenis Skala Survei' : 'Tipe Soal TKA'}</label>
                             ${typeSelect}
                         </div>
                         <div class="col-md-3 ${isSurveyMode ? 'hidden' : ''}"><label class="small fw-bold text-muted">Skor Maksimal</label><input type="number" step="0.1" name="score" class="form-control bg-light border-0 rounded-3" value="${q.Skor || 10}"></div>
@@ -1921,7 +1922,7 @@ function downloadQuestionTemplate() {
         {
             "Nomor": 3,
             "Tipe": "Uraian",
-            "Pertanyaan": "SebuBCKSn 3 warna primer!",
+            "Pertanyaan": "Sebutkan 3 warna primer!",
             "Opsi (Pisahkan dgn |)": "",
             "Kunci (Pisahkan dgn |)": "merah,kuning,biru",
             "Skor": 15
@@ -1934,7 +1935,7 @@ function downloadQuestionTemplate() {
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Template_Soal");
-    XLSX.writeFile(wb, "Template_Upload_Soal_CAT.xlsx");
+    XLSX.writeFile(wb, "Template_Upload_Soal_CBT.xlsx");
 }
 
 function delUser(uid) {
@@ -2068,15 +2069,15 @@ function deleteQBlock(uid) {
 
 function startExam(eid) {
     const rules = `<div class="text-start small mt-3">
-        <h6 class="fw-bold text-danger"><i class="fas fa-exclamation-triangle"></i> TATA CARA & ATURAN BCKS:</h6><br>
+        <h6 class="fw-bold text-danger"><i class="fas fa-exclamation-triangle"></i> TATA CARA & ATURAN UJIAN:</h6><br>
         <ul style="line-height:1.8">
-        <li>BCKS menggunakan <b>Layar Penuh (Fullscreen)</b>.</li>
-        <li>Jangan keluar dari layar penuh selama BCKS berlangsung.</li>
+        <li>Ujian menggunakan <b>Layar Penuh (Fullscreen)</b>.</li>
+        <li>Jangan keluar dari layar penuh selama ujian berlangsung.</li>
         <li><b>DILARANG</b> membuka aplikasi lain, tab baru, atau split layar.</li>
         <li>Sistem memiliki deteksi otomatis. Melanggar 3x = Jawaban Otomatis Dikirim!</li>
         </ul>
     </div>`;
-    Swal.fire({ title: 'Siap Memulai BCKS?', html: rules, icon: 'info', showCancelButton: true, confirmButtonText: '<i class="fas fa-play me-1"></i> SETUJU & MULAI', confirmButtonColor: '#0f5132' }).then(r => {
+    Swal.fire({ title: 'Siap Memulai Ujian?', html: rules, icon: 'info', showCancelButton: true, confirmButtonText: '<i class="fas fa-play me-1"></i> SETUJU & MULAI', confirmButtonColor: '#0f5132' }).then(r => {
         if(r.isConfirmed) {
             if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch((err) => {}); }
             showLoad(true);
@@ -2086,7 +2087,7 @@ function startExam(eid) {
                     localStorage.removeItem(`ANS_${user.ID}_${eid}`);
                     activeExamId = eid; totalQ = res.data.length;
                     $('#do-exam-title').text(user.Nama);
-                    try { localStorage.setItem('CAT_active_exam', JSON.stringify({ id: eid, qs: res.data, dur: res.duration, start: Date.now(), judul: res.judul, token: res.token })); } catch(e) {}
+                    try { localStorage.setItem('cbt_active_exam', JSON.stringify({ id: eid, qs: res.data, dur: res.duration, start: Date.now(), judul: res.judul, token: res.token })); } catch(e) {}
                     violationCount = 0; enableSecurity(); runExam(res.data, res.duration, false);
                 } else Swal.fire('Gagal Mengunduh Soal', res.msg, 'error');
             }).getExamPack(eid, user.ID);
@@ -2103,8 +2104,8 @@ function enableSecurity() {
     $(document).on("keydown.exam", function(e) { if (e.key === "PrintScreen" || (e.ctrlKey && e.key === "p") || (e.key === "F12")) { e.preventDefault(); return false; } });
 }
 function disableSecurity() { document.removeEventListener("visibilitychange", handleVisibilityChange); window.removeEventListener("blur", handleWindowBlur); document.removeEventListener("fullscreenchange", handleFullscreenChange); $(document).off(".exam"); }
-function handleVisibilityChange() { if (!isExamFinished && document.hidden) triggerViolation("Anda keluar dari tab BCKS!"); }
-function handleWindowBlur() { if (!isExamFinished) triggerViolation("Anda meninggalkan halaman BCKS!"); }
+function handleVisibilityChange() { if (!isExamFinished && document.hidden) triggerViolation("Anda keluar dari tab ujian!"); }
+function handleWindowBlur() { if (!isExamFinished) triggerViolation("Anda meninggalkan halaman ujian!"); }
 function handleFullscreenChange() { if (!isExamFinished && !document.fullscreenElement) { triggerViolation("Anda keluar dari mode fullscreen!"); try{document.documentElement.requestFullscreen().catch(()=>{});}catch(e){} } }
 function triggerViolation(msg) {
     if(violationLock || isExamFinished) return;
@@ -2113,7 +2114,7 @@ function triggerViolation(msg) {
         isExamFinished = true;
         submitExamButton(true); 
     } else {
-        Swal.fire({ icon: 'warning', title: 'PELANGGARAN DETECTED!', html: `<b>${msg}</b><br><br>Peringatan: <b>(${violationCount}/${maxViolations})</b><br>Jangan diulangi atau BCKS akan dihentikan paksa!`, confirmButtonText: 'SAYA MENGERTI', confirmButtonColor: '#d33', allowOutsideClick: false
+        Swal.fire({ icon: 'warning', title: 'PELANGGARAN DETECTED!', html: `<b>${msg}</b><br><br>Peringatan: <b>(${violationCount}/${maxViolations})</b><br>Jangan diulangi atau ujian akan dihentikan paksa!`, confirmButtonText: 'SAYA MENGERTI', confirmButtonColor: '#d33', allowOutsideClick: false
         }).then(() => { violationLock = false; try{document.documentElement.requestFullscreen().catch(()=>{});}catch(e){} });
     }
 }
@@ -2143,7 +2144,7 @@ function runExam(qs, dur, isResume) {
     applyMathJax();
 
         let startTime = Date.now();
-    if(isResume) { const storedState = JSON.parse(localStorage.getItem('CAT_active_exam') || '{}'); if(storedState && storedState.start) startTime = storedState.start; }
+    if(isResume) { const storedState = JSON.parse(localStorage.getItem('cbt_active_exam') || '{}'); if(storedState && storedState.start) startTime = storedState.start; }
     const endTime = startTime + (dur * 60000);
     
     clearInterval(timerInt);
@@ -2224,7 +2225,7 @@ function submitExamButton(force = false) {
     if (examSubmitting) return;
     if (force) { processSubmission(); return; }
     const answeredCount = $('.q-nav-btn.answered').length;
-    const activeState = JSON.parse(localStorage.getItem('CAT_active_exam') || '{}');
+    const activeState = JSON.parse(localStorage.getItem('cbt_active_exam') || '{}');
     const reqToken = activeState.token && activeState.token !== '-' ? String(activeState.token).trim().toUpperCase() : "";
     let inputPlace = reqToken ? 'Ketik Token Kirim...' : 'Ketik kata SELESAI...';
     let msgHtml = `<h4 class="mb-3 text-center">Terjawab: <b class="text-success">${answeredCount}</b> / <b>${totalQ}</b> soal</h4>`;
@@ -2247,7 +2248,7 @@ function submitExamButton(force = false) {
 function processSubmission(retryCount = 0) {
     if (examSubmitting && retryCount === 0) return;
     examSubmitting = true;
-    const btn = $('#btn-finish'); const originalText = '<i class="fas fa-check-circle me-2"></i> Selesai BCKS';
+    const btn = $('#btn-finish'); const originalText = '<i class="fas fa-check-circle me-2"></i> Selesai Ujian';
     if (retryCount === 0) {
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Mengirim Data...');
         clearInterval(timerInt); clearInterval(monitorInterval); clearInterval(autosaveInterval);
@@ -2274,7 +2275,7 @@ function processSubmission(retryCount = 0) {
     google.script.run.withSuccessHandler((res) => {
         examSubmitting = false; btn.prop('disabled', false).html(originalText);
         if (res.status === 'success') {
-            localStorage.removeItem('CAT_active_exam'); localStorage.removeItem(`ANS_${user.ID}_${activeExamId}`);
+            localStorage.removeItem('cbt_active_exam'); localStorage.removeItem(`ANS_${user.ID}_${activeExamId}`);
             
             showLoad(true);
             google.script.run.withSuccessHandler(surveyRes => {
@@ -2288,7 +2289,7 @@ function processSubmission(retryCount = 0) {
                     $('body').removeClass('exam-mode'); try { document.exitFullscreen().catch(()=>{}) } catch (e) {};
                     Swal.fire({
                         title: 'Hebat, Selesai!',
-                        html: `<div class="mb-3 text-success" style="font-size: 5rem;"><i class="fas fa-check-circle"></i></div><h5 class="fw-bold">BCKS Telah Terkirim Aman ke Server</h5><p class="text-muted mt-2">Terima kasih. Anda boleh keluar dari aplikasi.</p>`,
+                        html: `<div class="mb-3 text-success" style="font-size: 5rem;"><i class="fas fa-check-circle"></i></div><h5 class="fw-bold">Ujian Telah Terkirim Aman ke Server</h5><p class="text-muted mt-2">Terima kasih. Anda boleh keluar dari aplikasi.</p>`,
                         confirmButtonText: 'KEMBALI KE BERANDA', confirmButtonColor: '#0f5132', allowOutsideClick: false, allowEscapeKey: false
                     }).then(() => { $('#view-exam').addClass('hidden'); $('#view-dashboard').removeClass('hidden'); loadPage('siswa-home'); });
                 }
@@ -2443,7 +2444,7 @@ function handleResetCache() {
         cancelButtonText: 'Batal'
     }).then((r) => {
         if(r.isConfirmed) {
-            localStorage.removeItem('CAT_active_exam');
+            localStorage.removeItem('cbt_active_exam');
             google.script.run.withSuccessHandler(() => {
                 window.location.reload(true);
             }).sysResetCache();
