@@ -4,7 +4,7 @@
     <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KKGMI SURABAYA 10 - Dashboard</title>
+    <title>CATBCKS Kab. Tangerang - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -59,6 +59,11 @@
         .clickable-opt { cursor: pointer; transition: all 0.2s ease-in-out; margin-bottom: 0; }
         .clickable-opt:hover { background-color: #f1f5f9 !important; border-color: var(--secondary) !important; }
         
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
         @media (max-width: 768px) { 
             #sidebar { left: -260px; } 
             #sidebar.active { left: 0; } 
@@ -81,8 +86,8 @@
 <div id="view-dashboard" class="hidden wrapper">
     <nav id="sidebar">
         <div class="sidebar-header d-flex flex-column align-items-center justify-content-center p-4 border-bottom" style="border-color: rgba(255,255,255,0.1) !important;">
-            <div id="logo-container" class="mb-3 bg-white p-2 rounded-circle shadow-sm"><img src="https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq" class="rounded-circle" width="70" alt="Logo"></div>
-            <h5 class="fw-bold mb-0 text-white text-center">KKGMI SBY 10</h5>
+            <div id="logo-container" class="mb-3 bg-white p-2 rounded-circle shadow-sm"><img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" class="rounded-circle" width="70" alt="Logo"></div>
+            <h5 class="fw-bold mb-0 text-white text-center">CATBCKS</h5>
             <small class="text-warning text-center fw-bold" id="user-role-disp"></small>
         </div>
         <ul class="list-unstyled components hidden" id="menu-admin">
@@ -98,7 +103,6 @@
         <ul class="list-unstyled components hidden" id="menu-guru">
             <li><a onclick="loadPage('admin-home')" class="nav-link active"><i class="fas fa-home me-3"></i>Dashboard</a></li>
             <li><a onclick="loadPage('admin-users')" class="nav-link"><i class="fas fa-users me-3"></i>Data Peserta</a></li>
-            <!-- Menu Bank Soal dikembalikan agar Guru bisa Download Soal yang diizinkan Admin -->
             <li><a onclick="loadPage('admin-ujian')" class="nav-link"><i class="fas fa-file-alt me-3"></i>Bank Soal TKA</a></li>
             <li><a onclick="loadPage('hasil-rekap')" class="nav-link"><i class="fas fa-poll me-3"></i>Hasil Nilai</a></li>
             <li><a onclick="loadPage('guru-monitoring')" class="nav-link"><i class="fas fa-desktop me-3"></i>Live Monitor</a></li>
@@ -429,7 +433,7 @@ $(document).ready(() => {
     const savedUser = localStorage.getItem('cbt_user');
     if(!savedUser) { window.location.href = '/'; return; }
     user = JSON.parse(savedUser);
-    $('#logo-container img').attr('src', user.LogoUrl || 'https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq');
+    $('#logo-container img').attr('src', user.LogoUrl || 'https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9');
     initDash(); checkResumeExam();
 });
 
@@ -508,8 +512,6 @@ function loadPage(page) {
 
 function encodeImageFileAsURL(element) { let file = element.files[0]; let reader = new FileReader(); reader.onloadend = function() { $('#mu-foto-b64').val(reader.result); }; if(file) reader.readAsDataURL(file); }
 function fetchLiveMonitor(isSilent = false) {
-    // PERBAIKAN: Hapus showLoad(true) (loader layar penuh) agar layar tidak freeze.
-    // Gunakan spinner lokalan saja di dalam kotak grid.
     if(!isSilent) {
         $('#monitor-grid').html('<div class="col-12 text-center p-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Memuat status siswa...</p></div>');
     }
@@ -523,7 +525,7 @@ function fetchLiveMonitor(isSilent = false) {
                 } else {
                     res.data.forEach(u => {
                         let pct = u.total > 0 ? Math.round((u.terjawab / u.total) * 100) : 0;
-                        if (pct > 100) pct = 100; // Mencegah bar melebihi kotak jika jumlah soal dinamis
+                        if (pct > 100) pct = 100;
                         let statusColor = u.status === 'Offline' ? 'bg-secondary' : (pct === 100 ? 'bg-success' : 'bg-primary');
                         
                         h += `<div class="col-md-4 col-lg-3">
@@ -549,7 +551,6 @@ function fetchLiveMonitor(isSilent = false) {
             }
         })
         .withFailureHandler(err => {
-            // PERBAIKAN: Menambahkan failure handler agar jika koneksi putus, loader tidak macet
             $('#monitor-grid').html(`<div class="col-12 text-center py-5 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><br>Koneksi server terputus. Sistem akan otomatis mencoba lagi.</div>`);
         })
         .getLiveMonitoring(user.ID, user.Role, user.Sekolah);
@@ -573,15 +574,13 @@ function fetchLiveMonitor(isSilent = false) {
         else clearInterval(monitorInterval);
     }, 300000);
     }
-// Fungsi untuk memuat kerangka Data Peserta beserta Filter Pencarian
     
 function renderUsers(users) {
-    window.allUsersData = users; // Simpan data global untuk filter
+    window.allUsersData = users;
     const role = String(user.Role).trim().toLowerCase();
     const isAdmin = role === 'admin';
-    const canEdit = role === 'admin' || role === 'guru'; // Guru & Admin bisa edit
+    const canEdit = role === 'admin' || role === 'guru'; 
     
-    // Ambil daftar sekolah unik untuk dropdown filter
     let uniqueSekolah = [...new Set(users.map(u => u.Sekolah || ''))].filter(Boolean);
 
     let h = `<div class="d-flex justify-content-between mb-3 flex-wrap gap-2 align-items-center">
@@ -590,7 +589,10 @@ function renderUsers(users) {
             <button class="btn btn-success shadow-sm me-2 rounded-pill px-3 mb-2" onclick="$('#modalUser').modal('show');$('#modalUser form')[0].reset();$('#mu-id').val('');$('#mu-foto-b64').val('');"><i class="fas fa-plus me-1"></i> Tambah User</button>
             <label class="btn btn-primary shadow-sm m-0 me-2 rounded-pill px-3 mb-2"><i class="fas fa-upload me-1"></i> Upload Excel <input type="file" hidden accept=".xlsx,.xls" onchange="handleUploadUsersExcel(event)"></label>
             <button class="btn btn-outline-success shadow-sm m-0 me-2 rounded-pill px-3 mb-2" onclick="downloadUserTemplate()"><i class="fas fa-download me-1"></i> Template Excel</button>
-            <button class="btn btn-danger shadow-sm m-0 rounded-pill px-3 mb-2 fw-bold hidden" id="btn-bulk-delete-users" onclick="bulkDeleteUsers()"><i class="fas fa-trash me-1"></i> Hapus Terpilih</button>
+            <button class="btn btn-danger shadow-sm m-0 me-2 rounded-pill px-3 mb-2 fw-bold hidden" id="btn-bulk-delete-users" onclick="bulkDeleteUsers()"><i class="fas fa-trash me-1"></i> Hapus Terpilih</button>
+            
+            <button class="btn btn-success shadow-sm m-0 me-2 rounded-pill px-3 mb-2 hidden" id="btn-bulk-lulus" onclick="setKelulusan('LULUS')"><i class="fas fa-check-circle me-1"></i> Set Lulus</button>
+            <button class="btn btn-warning shadow-sm m-0 rounded-pill px-3 mb-2 hidden text-dark" id="btn-bulk-gagal" onclick="setKelulusan('TIDAK LULUS')"><i class="fas fa-times-circle me-1"></i> Set Belum Lulus</button>
             ` : `<h5 class="fw-bold text-primary mb-0"><i class="fas fa-users me-2"></i>Data Siswa Anda</h5>`}
             
             ${canEdit ? `
@@ -602,7 +604,6 @@ function renderUsers(users) {
         </div>
     </div>
     
-    <!-- Area Filter -->
     <div class="row g-2 mb-3 p-3 bg-white rounded-4 shadow-sm border">
         <div class="col-md-6">
             <label class="small fw-bold text-muted ms-1">Cari Nama / Username Siswa</label>
@@ -617,7 +618,6 @@ function renderUsers(users) {
         </div>
     </div>
 
-    <!-- Tabel Peserta -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -626,7 +626,7 @@ function renderUsers(users) {
                         <tr>
                             ${isAdmin ? `<th width="50"><input type="checkbox" class="form-check-input" id="check-all-users" onchange="toggleAllUsers(this)"></th>` : ''}
                             <th>Foto & Nama</th>
-                            <th>Tgl Lahir</th>
+                            <th>Status</th>
                             <th>Username</th>
                             <th>Role</th>
                             <th>Kelas</th>
@@ -644,11 +644,10 @@ function renderUsers(users) {
     renderUserRows(users);
 }
 
-// Fungsi untuk merender isi (baris) tabel pengguna berdasarkan filter
 function renderUserRows(data) {
     const role = String(user.Role).trim().toLowerCase();
     const isAdmin = role === 'admin';
-    const canEdit = role === 'admin' || role === 'guru'; // Guru diizinkan melihat tombol aksi
+    const canEdit = role === 'admin' || role === 'guru';
     let h = '';
     
     if(!data || data.length === 0) {
@@ -656,6 +655,11 @@ function renderUserRows(data) {
     } else {
         data.forEach(u => {
             const safeData = encodeURIComponent(JSON.stringify(u));
+            let statusTampil = u.Status || '-';
+            let bgStatus = 'secondary';
+            if (statusTampil === 'LULUS') bgStatus = 'success';
+            if (statusTampil === 'TIDAK LULUS') bgStatus = 'danger';
+            
             h += `<tr>
                 ${isAdmin ? `<td><input type="checkbox" class="form-check-input check-user" value="${u.ID}" onchange="toggleBulkDeleteUsersBtn()"></td>` : ''}
                 <td>
@@ -664,7 +668,7 @@ function renderUserRows(data) {
                         <span class="fw-bold text-dark">${u.Nama}</span>
                     </div>
                 </td>
-                <td>${u.TglLahir || '-'}</td>
+                <td><span class="badge bg-${bgStatus}">${statusTampil}</span></td>
                 <td>${u.Username}</td>
                 <td><span class="badge bg-${String(u.Role).trim().toLowerCase()==='admin'?'danger':(String(u.Role).trim().toLowerCase()==='guru'?'warning text-dark':'primary')}">${u.Role}</span></td>
                 <td>${u.Kelas || '-'}</td>
@@ -681,31 +685,24 @@ function renderUserRows(data) {
     $('#check-all-users').prop('checked', false);
     if(isAdmin) toggleBulkDeleteUsersBtn();
 }
-// Logika Upload Foto Masal (Mencocokkan nama file dengan Username)
+
 async function handleBulkPhotoUpload(event) {
     const files = event.target.files;
     if(!files || files.length === 0) return;
 
     let uploadQueue = [];
-
-    // Proses membaca seluruh file yang dipilih
     for(let i = 0; i < files.length; i++) {
         let file = files[i];
-        // Ambil nama file tanpa ekstensi (.jpg, .png, dll)
         let filename = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-        
-        // Cari user yang usernamenya sama persis dengan nama file (tidak sensitif huruf besar/kecil)
         let matchedUser = window.allUsersData.find(u => String(u.Username).toLowerCase() === String(filename).toLowerCase());
         
         if(matchedUser) {
-            // Konversi file gambar menjadi format Base64
             let base64str = await new Promise((resolve) => {
                 let reader = new FileReader();
                 reader.onloadend = () => resolve(reader.result);
                 reader.readAsDataURL(file);
             });
             
-            // Siapkan payload data untuk diupdate
             let updatedUser = {
                 id: matchedUser.ID,
                 nama: matchedUser.Nama,
@@ -721,14 +718,12 @@ async function handleBulkPhotoUpload(event) {
         }
     }
 
-    // Kosongkan input agar bisa mengupload file yang sama lagi jika perlu
     event.target.value = '';
 
     if(uploadQueue.length === 0) {
-        return Swal.fire('Tidak Ada Kecocokan', 'Tidak ada nama file foto yang cocok dengan Username peserta. Pastikan nama file sama persis dengan username (cth: siswa01.jpg).', 'info');
+        return Swal.fire('Tidak Ada Kecocokan', 'Tidak ada nama file foto yang cocok dengan Username peserta.', 'info');
     }
 
-    // Konfirmasi eksekusi penyimpanan ke database
     Swal.fire({
         title: `Ditemukan ${uploadQueue.length} Foto Cocok!`,
         text: "Mulai proses upload foto ke database?",
@@ -739,7 +734,6 @@ async function handleBulkPhotoUpload(event) {
         if(r.isConfirmed) {
             showLoad(true);
             let successCount = 0;
-            // Kirim antrean upload secara berurutan agar tidak overload
             for(let data of uploadQueue) {
                 await new Promise(resolve => {
                     google.script.run
@@ -750,14 +744,11 @@ async function handleBulkPhotoUpload(event) {
             }
             showLoad(false);
             Swal.fire('Selesai', `Berhasil mengupload ${successCount} foto.`, 'success');
-            loadPage('admin-users'); // Segarkan data tabel
+            loadPage('admin-users');
         }
     });
 }
 
-
-
-// Logika Filter (Nama/Username dan Sekolah)
 function applyFilterUsers() {
     let kataKunci = $('#filter-user-nama').val().toLowerCase();
     let sekolah = $('#filter-user-sekolah').val();
@@ -771,19 +762,49 @@ function applyFilterUsers() {
     renderUserRows(filtered);
 }
 
-// Logika Checkbox "Check All" Peserta
 function toggleAllUsers(el) {
     $('.check-user').prop('checked', el.checked);
     toggleBulkDeleteUsersBtn();
 }
 
-// Logika memunculkan tombol hapus massal
 function toggleBulkDeleteUsersBtn() {
-    if($('.check-user:checked').length > 0) $('#btn-bulk-delete-users').removeClass('hidden');
-    else $('#btn-bulk-delete-users').addClass('hidden');
+    if($('.check-user:checked').length > 0) {
+        $('#btn-bulk-delete-users').removeClass('hidden');
+        $('#btn-bulk-lulus').removeClass('hidden');
+        $('#btn-bulk-gagal').removeClass('hidden');
+    } else {
+        $('#btn-bulk-delete-users').addClass('hidden');
+        $('#btn-bulk-lulus').addClass('hidden');
+        $('#btn-bulk-gagal').addClass('hidden');
+    }
 }
 
-// Logika Eksekusi Hapus Massal Peserta
+// LOGIKA SET KELULUSAN MASSAL
+function setKelulusan(statusVal) {
+    const checked = $('.check-user:checked');
+    if(checked.length === 0) return;
+    
+    let userIds = [];
+    checked.each(function() { userIds.push($(this).val()); });
+
+    Swal.fire({
+        title: 'Atur Kelulusan?',
+        text: `Anda akan mengatur ${checked.length} peserta menjadi ${statusVal}.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Terapkan'
+    }).then(r => {
+        if (r.isConfirmed) {
+            showLoad(true);
+            google.script.run.withSuccessHandler(res => {
+                showLoad(false);
+                Swal.fire('Berhasil', res.msg, 'success');
+                loadPage('admin-users');
+            }).adminSetKelulusan(userIds, statusVal);
+        }
+    });
+}
+
 async function bulkDeleteUsers() {
     const checked = $('.check-user:checked');
     if(checked.length === 0) return;
@@ -801,7 +822,6 @@ async function bulkDeleteUsers() {
     showLoad(true);
     let successCount = 0;
     
-    // Looping dengan Promise untuk menghapus tiap data tanpa bertabrakan di server
     for(let i = 0; i < checked.length; i++) {
         const uid = $(checked[i]).val();
         await new Promise(resolve => {
@@ -817,7 +837,6 @@ async function bulkDeleteUsers() {
     loadPage('admin-users');
 }
 
-// Logika Generate Template Excel Data Peserta
 function downloadUserTemplate() {
     const wsData = [{
         "Nama": "Siswa Contoh",
@@ -834,23 +853,17 @@ function downloadUserTemplate() {
     XLSX.writeFile(wb, "Template_Upload_Peserta.xlsx");
 }
 
-// -----------------------------------------------------
-// KOP SURAT STANDAR KKGMI
-// -----------------------------------------------------
 function getKopHTML(title) {
     return `
     <div class="kop" style="display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #064e3b; padding-bottom: 20px; margin-bottom: 30px; position: relative; text-align: center;">
-        <img src="https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq" alt="Logo KKGMI" style="width: 100px; height: 100px; position: absolute; left: 10px; top: 0;">
+        <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 100px; height: 100px; position: absolute; left: 10px; top: 0;">
         <div style="width: 100%; padding-left: 90px;">
-            <h2 style="margin: 0; font-size: 26px; color: #064e3b; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">KELOMPOK KERJA GURU MADRASAH IBTIDAIYAH</h2>
-            <h3 style="margin: 5px 0; font-size: 20px; color: #1e293b; font-weight: bold; letter-spacing: 2px;">(KKGMI) KOTA SURABAYA 10</h3>
+            <h2 style="margin: 0; font-size: 26px; color: #064e3b; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">CATBCKS - KABUPATEN TANGERANG</h2>
             <p style="margin: 0; color: #64748b; font-size: 14px; font-style: italic;">Aplikasi Computer Based Test (CBT) Inovasi - ${title}</p>
         </div>
     </div>`;
 }
 
-// FUNGSI BLOB DOWNLOAD HTML/PDF BEBAS POPUP BLOCKER
-// Ganti fungsi cetak PDF lama agar nomor 1 langsung menyambung setelah KOP
 function downloadHTMLToPDF(filename, htmlContent) {
     const html = `<!DOCTYPE html><html lang="id">
     <head>
@@ -863,7 +876,6 @@ function downloadHTMLToPDF(filename, htmlContent) {
             body { font-family: 'Poppins', Arial, sans-serif; background-color: #fff; padding: 20px; color: #1e293b; }
             .container { max-width: 100%; margin: 0 auto; background: white; padding: 0; }
             img { max-width: 100%; height: auto; border-radius: 6px; margin: 5px 0; }
-            /* Memperbaiki jeda halaman agar nomor 1 langsung menyambung setelah KOP */
             .q-box { border-bottom: 1px solid #ccc; padding-bottom: 15px; margin-bottom: 15px; page-break-inside: avoid; }
             @media print {
                 .no-print { display: none; }
@@ -887,7 +899,6 @@ function downloadHTMLToPDF(filename, htmlContent) {
         <\/script>
     </body></html>`;
     
-    // Membuka dialog print langsung 
     const win = window.open('', '', 'width=900,height=800');
     win.document.write(html);
     win.document.close();
@@ -906,7 +917,7 @@ function downloadAllQAdmin(eid) {
         } else { Swal.fire('Error', res.msg, 'error'); }
     }).getSiswaSoal(eid);
 }
-// Memuat tabel hasil nilai
+
 function renderRecapTable() {
     const isAdmin = String(user.Role).trim().toLowerCase() === 'admin';
     let uniqueSekolah = [...new Set(recapAllData.map(r => r.SekolahSiswa || ''))].filter(Boolean);
@@ -921,7 +932,6 @@ function renderRecapTable() {
                 </div>
              </div>
              
-             <!-- Filter Area -->
              <div class="row g-2 mb-3 p-3 bg-white rounded-4 shadow-sm border">
                 <div class="col-md-4">
                     <label class="small fw-bold text-muted ms-1">Cari Nama Siswa</label>
@@ -943,7 +953,6 @@ function renderRecapTable() {
                 </div>
              </div>
 
-             <!-- Tabel Data -->
              <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -970,7 +979,6 @@ function renderRecapTable() {
     renderRecapRows(recapAllData);
 }
 
-// Fungsi Merender Baris Tabel secara Dinamis
 function renderRecapRows(data) {
     const role = String(user.Role).trim().toLowerCase();
     const isAdmin = role === 'admin';
@@ -991,14 +999,11 @@ function renderRecapRows(data) {
             let displayNilai = '';
             let actionBtn = '';
 
-            // Jika Survei
             if (isSurvey) {
                 displayNilai = `<span class="badge bg-info text-dark rounded-pill px-3 fs-6">Survei</span>`;
                 actionBtn = `<button class="btn btn-sm btn-outline-primary rounded-circle me-1" onclick="printRecap('${r.ResultID}')" title="Cetak Rincian"><i class="fas fa-print"></i></button>`;
             } 
-            // Jika Ujian Biasa
             else {
-                // Kunci jika Role adalah Guru dan Admin belum mengaktifkan ShowStats
                 if (role === 'guru' && r.ShowStats !== 'Yes' && r.ShowStats !== 'Aktif') {
                     displayNilai = `<span class="badge bg-secondary rounded-pill px-3"><i class="fas fa-lock me-1"></i> Menunggu Rilis</span>`;
                     actionBtn = `<button class="btn btn-sm btn-outline-secondary rounded-circle me-1" title="Akses Dikunci Admin" disabled><i class="fas fa-lock"></i></button>`;
@@ -1037,14 +1042,12 @@ function renderRecapRows(data) {
     const fUjian = $('#filter-ujian').val() || 'Semua_Ujian'; 
     const fSekolah = $('#filter-sekolah').val() || 'Semua_Sekolah';
     
-    // Siapkan data array untuk SheetJS
     let dataToExport = window.currentFilteredData.map((r, i) => {
         let isSurvey = false;
         try { let dArr = JSON.parse(r.Detail); if (dArr.length > 0 && dArr[0].responses) isSurvey = true; } catch(e) {}
 
         let nilaiTampil = r.TotalNilai;
         
-        // Kunci Excel untuk Guru jika ShowStats = No
         if (role === 'guru' && !isSurvey && r.ShowStats !== 'Yes' && r.ShowStats !== 'Aktif') {
             nilaiTampil = 'Menunggu Rilis';
         } else if (isSurvey) {
@@ -1072,8 +1075,6 @@ function renderRecapRows(data) {
     XLSX.writeFile(wb, `Rekap_Nilai_${fSekolah}_${fUjian}.xlsx`);
 }
 
-
-// Logika Pencarian & Filter
 function applyFilterRecap() {
     let nama = $('#filter-nama').val().toLowerCase();
     let sekolah = $('#filter-sekolah').val();
@@ -1088,7 +1089,6 @@ function applyFilterRecap() {
     renderRecapRows(window.currentFilteredData);
 }
 
-// Logika Checkbox & Hapus Massal
 function toggleAllRecap(el) {
     $('.check-recap').prop('checked', el.checked);
     toggleBulkDeleteBtn();
@@ -1109,7 +1109,6 @@ async function bulkDeleteResults() {
     showLoad(true);
     let successCount = 0;
     
-    // Looping dengan Promise agar tidak membebani server/database
     for(let i = 0; i < checked.length; i++) {
         const rid = $(checked[i]).val();
         await new Promise(resolve => {
@@ -1122,7 +1121,6 @@ async function bulkDeleteResults() {
     loadPage('hasil-rekap');
 }
 
-// Fungsi untuk menghapus nilai individu jika siswa ingin diremet/diulang
 function delResult(rid) {
     Swal.fire({ title: 'Hapus Nilai Secara Permanen?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(r => {
         if(r.isConfirmed) {
@@ -1169,7 +1167,6 @@ function printFilteredRecap() {
 
       let nilaiTampil = r.TotalNilai;
       
-      // Kunci PDF Cetak untuk Guru jika ShowStats = No
       if (role === 'guru' && !isSurvey && r.ShowStats !== 'Yes' && r.ShowStats !== 'Aktif') {
           nilaiTampil = '<i style="color:#64748b;">Menunggu Rilis</i>';
       } else if (isSurvey) {
@@ -1181,7 +1178,7 @@ function printFilteredRecap() {
   
   content += `</tbody></table>
   <div style="text-align:right; margin-top:40px;">
-      <p>Surabaya, ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</p>
+      <p>Tangerang, ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</p>
       <p style="margin-bottom:70px;">Guru Pengampu / Pengawas</p>
       <p><strong>${namaPengawas}</strong></p>
   </div>`;
@@ -1195,7 +1192,6 @@ function printRecap(rid) {
   let detailArr = []; 
   try { detailArr = JSON.parse(d.detail); } catch(e) {}
   
-  // Deteksi Format Survei
   let isSurvey = false;
   if (detailArr.length > 0 && detailArr[0].responses !== undefined) {
       isSurvey = true;
@@ -1205,7 +1201,6 @@ function printRecap(rid) {
   let nilaiBox = '';
 
   if (isSurvey) {
-      // TAMPILAN JIKA DATA ADALAH SURVEI LINGKUNGAN / KARAKTER
       nilaiBox = `<div style="text-align:center; border:2px solid #0284c7; padding:15px; border-radius:8px; min-width:150px; background:#f0f9ff;">
                       <div style="font-size:14px; color:#0369a1; font-weight:bold;">STATUS PENGISIAN</div>
                       <div style="font-size:20px; font-weight:bold; color:#0284c7;">SURVEI SELESAI</div>
@@ -1222,7 +1217,6 @@ function printRecap(rid) {
       detailHtml += '</tbody></table>';
 
   } else {
-      // TAMPILAN JIKA DATA ADALAH UJIAN TKA (BERNILAI)
       nilaiBox = `<div style="text-align:center; border:2px solid #0f5132; padding:15px; border-radius:8px; min-width:150px; background:#f0fdf4;">
                       <div style="font-size:14px; color:#64748b; font-weight:bold;">NILAI AKHIR (Skala 100)</div>
                       <div style="font-size:36px; font-weight:bold; color:#0f5132;">${d.nilai}</div>
@@ -1259,7 +1253,7 @@ function printRecap(rid) {
   <h4 style="color:#1e293b; margin-bottom:10px;">${titleDetail}</h4>
   ${detailHtml}
   <div style="text-align:right; margin-top:50px;">
-      <p>Surabaya, ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</p>
+      <p>Tangerang, ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</p>
       <p style="margin-bottom:70px;">Guru Pengampu / Pengawas</p>
       <p><strong>${namaPengawas}</strong></p>
   </div>
@@ -1315,7 +1309,6 @@ function renderAdministrasi() {
     $('#content-area').html(h);
 }
 
-// ---------------- CETAK ADMINISTRASI DENGAN KOP ----------------
 function printKartuLogin() {
     const kls = $('#adm-kls-kartu').val();
     let usersToPrint = gAdminData.users;
@@ -1334,8 +1327,8 @@ function printKartuLogin() {
     usersToPrint.forEach(u => {
         html += `<div class="card">
             <div style="display:flex; align-items:center; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px;">
-                <img src="https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq" alt="Logo" style="width:50px; height:50px; margin-right:15px;">
-                <div><h3 style="margin:0; font-size:15px; text-transform:uppercase;">KARTU LOGIN CBT KKGMI</h3><p style="margin:0; font-size:11px;">KOTA SURABAYA 10</p></div>
+                <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width:50px; height:50px; margin-right:15px;">
+                <div><h3 style="margin:0; font-size:15px; text-transform:uppercase;">KARTU LOGIN CATBCKS</h3><p style="margin:0; font-size:11px;">KAB. TANGERANG</p></div>
             </div>
             <div style="display:flex; gap:15px; align-items:center;">
                 <div style="flex-shrink:0;">
@@ -1374,8 +1367,8 @@ function printDaftarHadir() {
     </style></head><body>
     <div class="no-print" style="margin-bottom: 15px; text-align:right;"><button onclick="window.print()" style="padding:10px 20px; font-size:16px; background:#0dcaf0; color:white; border:none; border-radius:5px; cursor:pointer;">Cetak Dokumen</button></div>
     <div style="display: flex; align-items: center; justify-content: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; text-align: center; position: relative;">
-        <img src="https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq" alt="Logo" style="width: 80px; height: 80px; position: absolute; left: 10px;">
-        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">DAFTAR HADIR PESERTA UJIAN</h2><p style="margin: 5px 0 0; font-size: 14px;">KKGMI KOTA SURABAYA 10</p></div>
+        <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 80px; height: 80px; position: absolute; left: 10px;">
+        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">DAFTAR HADIR PESERTA UJIAN</h2><p style="margin: 5px 0 0; font-size: 14px;">CATBCKS - KAB. TANGERANG</p></div>
     </div>
     <h3>DAFTAR HADIR PESERTA</h3>
     <table class="info-table">
@@ -1398,7 +1391,7 @@ function printDaftarHadir() {
     });
     html += `</tbody></table>
     <div style="margin-top: 50px; text-align: right; padding-right: 50px;">
-        <p>Surabaya, ..................................</p>
+        <p>Tangerang, ..................................</p>
         <p style="margin-bottom: 70px;">Pengawas Ujian,</p>
         <p><strong>( ......................................... )</strong></p>
     </div>
@@ -1421,8 +1414,8 @@ function printBeritaAcara() {
     </style></head><body>
     <div class="no-print" style="margin-bottom: 15px; text-align:right;"><button onclick="window.print()" style="padding:10px 20px; font-size:16px; background:#198754; color:white; border:none; border-radius:5px; cursor:pointer;">Cetak Dokumen</button></div>
     <div style="display: flex; align-items: center; justify-content: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 30px; text-align: center; position: relative;">
-        <img src="https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq" alt="Logo" style="width: 80px; height: 80px; position: absolute; left: 20px;">
-        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">PANITIA PELAKSANAAN UJIAN CBT</h2><p style="margin: 5px 0 0; font-size: 14px;">KKGMI KOTA SURABAYA 10</p></div>
+        <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 80px; height: 80px; position: absolute; left: 20px;">
+        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">PANITIA PELAKSANAAN UJIAN CBT</h2><p style="margin: 5px 0 0; font-size: 14px;">CATBCKS - KAB. TANGERANG</p></div>
     </div>
     <h3>BERITA ACARA PELAKSANAAN UJIAN</h3>
     <div class="content">
@@ -1446,7 +1439,7 @@ function printBeritaAcara() {
         <table>
             <tr>
                 <td width="50%"></td>
-                <td width="50%">Surabaya, ....................................<br>Pengawas Ujian,</td>
+                <td width="50%">Tangerang, ....................................<br>Pengawas Ujian,</td>
             </tr>
             <tr><td height="80"></td><td></td></tr>
             <tr>
@@ -1508,7 +1501,6 @@ function renderContent(page) {
                                     <tr class="table-light"><th>Mapel TKA</th><th>Nama</th><th>Kelas</th><th>Skor</th></tr>
                                 </thead>
                                 <tbody id="dash-student-tbody">
-                                    <!-- Diisi oleh fungsi filterDashStudentRanks -->
                                 </tbody>
                             </table>
                         </div>
@@ -1516,8 +1508,6 @@ function renderContent(page) {
                 </div>
             </div>`;
         }
-// ... lanjut ke baris let schoolWidgetClass
-
 
         let schoolWidgetClass = isGuru ? `col-md-5` : `col-md-12`;
         let cardTitleSekolah = isGuru ? 'Peringkat Sekolah Anda' : 'Peringkat Sekolah (Global)';
@@ -1535,11 +1525,9 @@ function renderContent(page) {
              
         area.html(h);
         
-        // Panggil fungsi filter pertama kali untuk mengisi tabel siswa
         if (isGuru) setTimeout(() => filterDashStudentRanks(), 50);
-        return; // Selesaikan eksekusi khusus admin-home
+        return; 
     }
-
         
     else if (page === 'admin-ujian') {
         isSurveyMode = false;
@@ -1548,7 +1536,7 @@ function renderContent(page) {
         
         h = `<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">`;
         if(!isGuru) h += `<button class="btn btn-primary shadow-sm px-4 py-2 rounded-pill fw-bold" onclick="openExamModal()"><i class="fas fa-plus me-2"></i>Buat Jadwal Baru</button>`;
-        else h += `<div><h5 class="fw-bold text-primary mb-0"><i class="fas fa-folder-open me-2"></i>Daftar Bank Soal KKGMI</h5><p class="small text-muted m-0">Guru hanya memiliki akses mengunduh soal untuk cetak PDF.</p></div>`;
+        else h += `<div><h5 class="fw-bold text-primary mb-0"><i class="fas fa-folder-open me-2"></i>Daftar Bank Soal CATBCKS</h5><p class="small text-muted m-0">Guru hanya memiliki akses mengunduh soal untuk cetak PDF.</p></div>`;
         
         h += `<div class="d-flex gap-2 bg-white p-2 rounded-pill shadow-sm border">
                 <select id="filter-mapel-ujian" class="form-select form-select-sm border-0 bg-transparent" onchange="filterAdminUjian()"><option value="">Semua Mapel</option>${uniqueMapel.map(m=>`<option value="${m}">${m}</option>`).join('')}</select>
@@ -1589,7 +1577,44 @@ function renderContent(page) {
         h += '</div>';
     }
     else if (page === 'siswa-home') {
-        h = `<div class="card mb-4 border-0 shadow-sm rounded-4 text-white overflow-hidden" style="background: linear-gradient(135deg, #0f5132, #d4af37);"><div class="card-body p-4"><div class="d-flex align-items-center"><img src="${user.Foto || 'https://via.placeholder.com/60'}" class="rounded-circle me-4 shadow" width="70" height="70" style="object-fit:cover; border:3px solid #fff;"><div class="text-start"><h4 class="fw-bold m-0 text-white">Assalamu'alaikum, ${user.Nama}</h4><p class="m-0 text-white-50"><i class="fas fa-school me-1"></i> ${user.Sekolah} | Kelas ${user.Kelas}</p></div></div></div></div><h5 class="fw-bold mb-3 border-bottom pb-2 text-primary"><i class="fas fa-edit me-2"></i>Ujian Aktif Saat Ini</h5><div class="row g-4 mb-5">`;
+        // PENAMBAHAN PENGUMUMAN KELULUSAN
+        let announcement = '';
+        if (gData.userStatus === 'LULUS' || gData.userStatus === 'TIDAK LULUS') {
+            if (gData.userStatus === 'LULUS') {
+                announcement = `
+                <div class="card mb-4 border-0 shadow-lg rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; animation: fadeInDown 0.8s;">
+                    <div class="card-body p-4 text-center">
+                        <i class="fas fa-check-circle fa-4x mb-3 text-white"></i>
+                        <h2 class="fw-bold mb-2">SELAMAT! ANDA LULUS UJIAN</h2>
+                        <p class="fs-5 mb-0">Kerja keras Anda membuahkan hasil. Tetap semangat dan persiapkan langkah selanjutnya dengan baik!</p>
+                    </div>
+                </div>`;
+            } else {
+                announcement = `
+                <div class="card mb-4 border-0 shadow-lg rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); color: white; animation: fadeInDown 0.8s;">
+                    <div class="card-body p-4 text-center">
+                        <i class="fas fa-hand-holding-heart fa-4x mb-3 text-white"></i>
+                        <h2 class="fw-bold mb-2">MOHON MAAF, ANDA BELUM LULUS</h2>
+                        <p class="fs-5 mb-0">Jangan berkecil hati. Kegagalan adalah keberhasilan yang tertunda. Tetap semangat belajar dan coba lagi di kesempatan berikutnya!</p>
+                    </div>
+                </div>`;
+            }
+        }
+        
+        h = `${announcement}
+        <div class="card mb-4 border-0 shadow-sm rounded-4 text-white overflow-hidden" style="background: linear-gradient(135deg, #0f5132, #d4af37);">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center">
+                    <img src="${user.Foto || 'https://via.placeholder.com/60'}" class="rounded-circle me-4 shadow" width="70" height="70" style="object-fit:cover; border:3px solid #fff;">
+                    <div class="text-start">
+                        <h4 class="fw-bold m-0 text-white">Assalamu'alaikum, ${user.Nama}</h4>
+                        <p class="m-0 text-white-50"><i class="fas fa-school me-1"></i> ${user.Sekolah} | Kelas ${user.Kelas}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h5 class="fw-bold mb-3 border-bottom pb-2 text-primary"><i class="fas fa-edit me-2"></i>Ujian Aktif Saat Ini</h5><div class="row g-4 mb-5">`;
+        
         if(!gData.availableExams || gData.availableExams.length === 0) { h += '<div class="col-12"><div class="alert alert-light border border-secondary text-center py-5 rounded-4 shadow-sm text-muted"><i class="fas fa-box-open fa-3x mb-3 text-secondary opacity-50"></i><br>Belum ada jadwal ujian yang aktif untuk Anda saat ini.</div></div>'; } 
         else {
             gData.availableExams.forEach(e => {
@@ -1607,12 +1632,10 @@ function renderContent(page) {
                 let displayNilai = (r.ShowStats === 'Yes') ? `<span class="badge bg-success fs-6 shadow-sm px-3 rounded-pill">${r.Nilai}</span>` : `<span class="badge bg-secondary fs-6 shadow-sm px-3 rounded-pill"><i class="fas fa-lock"></i> Rahasia</span>`;
                                 let actions = '';
                 
-                // Cek jika Guru mengizinkan unduh soal
                 if(r.AllowDownloadQ === 'Yes') {
                     actions += `<button class="btn btn-sm btn-outline-info me-2 mt-1 rounded-pill px-3 shadow-sm" onclick="dlSiswaSoal('${r.ExamID}')"><i class="fas fa-file-alt me-1"></i> Soal PDF</button>`;
                 }
                 
-                // Tampilkan Download Hasil PDF selama ShowStats tidak 'No' (Baik untuk Ujian maupun Survei)
                 if(r.ShowStats !== 'No' && r.ShowStats !== 'Tidak') {
                     actions += `<button class="btn btn-sm btn-success me-2 mt-1 rounded-pill px-3 shadow-sm" onclick="dlSiswaHasil('${r.ResultID}')"><i class="fas fa-file-pdf me-1"></i> Hasil PDF</button>`;
                 }
@@ -1626,7 +1649,7 @@ function renderContent(page) {
     }
     area.html(h);
 }
-// Fungsi Filter untuk Peringkat Siswa di Dashboard Guru
+
 function filterDashStudentRanks() {
     const tbody = document.getElementById('dash-student-tbody');
     if (!tbody || !window.allStudentRanks) return;
@@ -1663,7 +1686,6 @@ function filterDashStudentRanks() {
     
     tbody.innerHTML = html;
 }
-
 
 function laporTrobel(rid) {
     Swal.fire({
@@ -1727,7 +1749,6 @@ function openExamModal(str) {
     $('#ex-token').val(d.Token || ''); $('#ex-randomQ').prop('checked', d.RandomQ === 'Yes'); $('#ex-showStats').prop('checked', d.ShowStats === 'Yes');
     $('#ex-dlSoal').prop('checked', d.AllowDownloadQ === 'Yes'); $('#ex-dlHasil').prop('checked', d.AllowDownloadR === 'Yes');
   } else { $('#modalExam form')[0].reset(); $('#ex-id').val(''); $('#ex-token').val(''); }
-  const role = String(user.Role).trim().toLowerCase();
   const container = $('#kelas-container');
   let valKelas = d ? d.TargetKelas : '';
   container.html(`<input type="text" name="targetKelas" id="ex-kelas" class="form-control" placeholder="Contoh: 7A, 7B, atau All" value="${valKelas}" required>`);
@@ -1801,7 +1822,6 @@ function loadQList() {
 
 function generateQHTML(q) {
     let inp = '';
-    // Gunakan fungsi decodeHTML agar tag html seperti <p> dsb diterjemahkan dengan benar
     let cleanedQuestion = decodeHTML(q.Pertanyaan);
 
     if(q.Tipe==='PGKK') {
@@ -1907,7 +1927,7 @@ return `
         </div>
     </div>`;
 }
-// Logika Generate Template Excel Bank Soal
+
 function downloadQuestionTemplate() {
     const wsData = [
         {
@@ -1936,7 +1956,6 @@ function downloadQuestionTemplate() {
         }
     ];
     
-    // Fitur auto-width kolom
     const ws = XLSX.utils.json_to_sheet(wsData);
     const wscols = [ {wch:10}, {wch:15}, {wch:40}, {wch:50}, {wch:30}, {wch:10} ];
     ws['!cols'] = wscols;
@@ -1946,7 +1965,6 @@ function downloadQuestionTemplate() {
     XLSX.writeFile(wb, "Template_Upload_Soal_CBT.xlsx");
 }
 
-// Tambahan: Pastikan ada fungsi delUser (penghapusan individual) untuk melengkapi tombol di dalam tabel peserta
 function delUser(uid) {
     Swal.fire({
         title: 'Hapus Peserta?',
@@ -2162,8 +2180,6 @@ function runExam(qs, dur, isResume) {
         if(diff <= 0) { 
             clearInterval(timerInt);
             $('#timer-disp').text('HABIS');
-            // PERBAIKAN 1: Tambahkan Jitter. 
-            // Delay pengiriman otomatis secara acak antara 1 hingga 30 detik agar 10.000 siswa tidak menembak server di detik yang sama.
             const randomDelay = Math.floor(Math.random() * 30000);
             setTimeout(() => { submitExamButton(true); }, randomDelay);
         }
@@ -2174,18 +2190,7 @@ function runExam(qs, dur, isResume) {
         }
     }, 1000);
     
-    // PERBAIKAN 2: Ubah interval monitoring siswa menjadi 3 menit (180.000 ms) sekali.
-   // PERBAIKAN: Matikan interval monitoring siswa secara total di frontend
-    // Ini memastikan peramban siswa tidak menembak server secara terus-menerus
     clearInterval(monitorInterval);
-    /* 
-       KODE DI BAWAH INI DIKOMENTARI (DIMATIKAN)
-       monitorInterval = setInterval(() => { 
-           google.script.run.updateClientProgress(activeExamId, user.ID, $('.q-nav-btn.answered').length, totalQ); 
-       }, 900000);
-    */
-
-    // PERBAIKAN 3: Autosave ke server dihapus, simpanan hanya fokus di LocalStorage
     clearInterval(autosaveInterval);
 }
     
@@ -2291,7 +2296,6 @@ function processSubmission(retryCount = 0) {
         });
     } catch(e) { console.error("Error collecting", e); }
     
-    // Buat format YYYY-MM-DD HH:MM:SS sesuai waktu device siswa
     const d = new Date();
     const localTime = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
     
@@ -2322,11 +2326,9 @@ function processSubmission(retryCount = 0) {
     }).withFailureHandler((err) => {
         if (retryCount < 3) { setTimeout(() => processSubmission(retryCount + 1), 3000); } 
         else { examSubmitting = false; btn.prop('disabled', false).html(originalText); Swal.fire('Koneksi Terputus', 'Gagal menghubungi server.', 'error'); }
-    // TAMBAHKAN argumen localTime di sini:
     }).submitExam(user.ID, activeExamId, ans, violationCount, localTime);
 }
 
-// ---------------- ALUR SURVEI EVALUASI (Countdown -> Tampil -> Kirim) ----------------
 let countdownTimer;
 function startCountdown() {
     let timeLeft = 30;
@@ -2356,7 +2358,6 @@ function renderSurveyForm() {
         let scales = JSON.parse(q.Key || "[]");
         let statements = JSON.parse(q.Options || "[]");
         
-        // CSS class hidden untuk soal selain soal pertama
         let slideClass = qIdx === 0 ? '' : 'hidden';
         
         h += `<div class="card border-0 shadow-sm rounded-4 mb-4 survey-slide ${slideClass}" id="surv-sl-${qIdx}">
@@ -2395,10 +2396,9 @@ function renderSurveyForm() {
     });
     
     $('#survey-container').html(h);
-    updateSurveyNav(); // Panggil pengatur tombol
+    updateSurveyNav(); 
 }
 
-// Fungsi Pindah Halaman Survei
 function navSurvey(dir) {
     let nextIdx = currentSurveyIdx + dir;
     if (nextIdx >= 0 && nextIdx < totalSurveyQ) {
@@ -2406,23 +2406,19 @@ function navSurvey(dir) {
         $(`#surv-sl-${nextIdx}`).removeClass('hidden');
         currentSurveyIdx = nextIdx;
         updateSurveyNav();
-        // Auto scroll ke atas saat pindah soal
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
-// Fungsi Mengatur Tampilan Tombol Navigasi Survei
 function updateSurveyNav() {
     $('#survey-progress-text').text(`Halaman ${currentSurveyIdx + 1} dari ${totalSurveyQ}`);
     
-    // Tampilkan / sembunyikan tombol Sebelumnya
     if(currentSurveyIdx === 0) {
         $('#btn-prev-survey').addClass('hidden');
     } else {
         $('#btn-prev-survey').removeClass('hidden');
     }
     
-    // Tampilkan / sembunyikan tombol Selanjutnya dan Kirim
     if(currentSurveyIdx === totalSurveyQ - 1) {
         $('#btn-next-survey').addClass('hidden');
         $('#btn-submit-survey').removeClass('hidden');
@@ -2444,11 +2440,9 @@ function submitSurvey() {
         });
         answers.push(qAns);
     });
-    if(!allAnswered) return Swal.fire('Belum Lengkap', 'Mohon isi tanggapan untuk semua pernyataan survei sebelum mengirim.', 'warning');
     
     if(!allAnswered) return Swal.fire('Belum Lengkap', 'Mohon isi tanggapan untuk semua pernyataan.', 'warning');
     
-    // Buat format YYYY-MM-DD HH:MM:SS sesuai waktu device siswa
     const d = new Date();
     const localTime = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
     
@@ -2461,14 +2455,13 @@ function submitSurvey() {
         });
     }).submitSurveyResponse(user.ID, window.activeSurveyData.header.ExamID, answers, localTime);
 }
-    // Fungsi untuk merapikan teks HTML yang bocor dari hasil copy-paste
+
 function decodeHTML(htmlText) {
     let txt = document.createElement("textarea");
     txt.innerHTML = htmlText;
     return txt.value;
 }
 
-// Fungsi agar tombol menu Reset Cache berfungsi penuh
 function handleResetCache() {
     Swal.fire({
         title: 'Bersihkan Cache Sistem?',
@@ -2486,12 +2479,10 @@ function handleResetCache() {
         }
     });
 }
-    // Fungsi untuk memunculkan modal dan mengisi data peserta saat tombol Edit diklik
+
 function editUser(str) {
-    // Decode data JSON yang dikirim dari tombol
     const d = JSON.parse(decodeURIComponent(str));
     
-    // Masukkan data ke dalam form modal
     $('#mu-id').val(d.ID);
     $('#mu-nama').val(d.Nama);
     $('#mu-tgl').val(d.TglLahir || '');
@@ -2500,18 +2491,14 @@ function editUser(str) {
     $('#mu-role').val(String(d.Role).toLowerCase());
     $('#mu-kelas').val(d.Kelas || '');
     $('#mu-sekolah').val(d.Sekolah || '');
-    $('#mu-foto-b64').val(d.Foto || ''); // Foto dikonversi dalam base64
+    $('#mu-foto-b64').val(d.Foto || ''); 
     
-    // Kosongkan input file agar tidak error
     $('#mu-foto').val('');
     
-    // Tampilkan modal
     $('#modalUser').modal('show');
 }
 
-// Fungsi untuk menyimpan perubahan / menambah akun peserta baru ke database
 function saveUser() {
-    // Ambil semua data dari form
     const d = {
         id: $('#mu-id').val(),
         nama: $('#mu-nama').val(),
@@ -2524,19 +2511,16 @@ function saveUser() {
         foto: $('#mu-foto-b64').val()
     };
     
-    // Validasi singkat
     if(!d.nama || !d.username || !d.password) {
         return Swal.fire('Data Tidak Lengkap', 'Nama, Username, dan Password wajib diisi!', 'warning');
     }
 
-    // Ubah status tombol agar tidak diklik berkali-kali
     const btn = $('#frm-user button[type="submit"]');
     const originalText = btn.html();
     btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> MENYIMPAN...');
     
     showLoad(true);
     
-    // Kirim data ke backend (route.js)
     google.script.run.withSuccessHandler(res => {
         showLoad(false);
         btn.prop('disabled', false).html(originalText);
@@ -2544,7 +2528,7 @@ function saveUser() {
         if(res.status === 'success') {
             $('#modalUser').modal('hide');
             toast('success', res.msg);
-            loadPage('admin-users'); // Segarkan otomatis tabel peserta
+            loadPage('admin-users'); 
         } else {
             Swal.fire('Gagal Menyimpan', res.msg, 'error');
         }
