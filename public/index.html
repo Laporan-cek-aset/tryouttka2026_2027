@@ -77,7 +77,7 @@
             <li><a onclick="loadPage('admin-home')" class="nav-link active"><i class="fas fa-home me-3"></i>Dashboard</a></li>
             <li><a onclick="loadPage('admin-users')" class="nav-link"><i class="fas fa-users me-3"></i>Data Peserta</a></li>
             <li><a onclick="loadPage('admin-ujian')" class="nav-link"><i class="fas fa-calendar-alt me-3"></i>Bank Soal CAT BCKS</a></li>
-            <li><a onclick="loadPage('admin-survey')" class="nav-link"><i class="fas fa-clipboard-check me-3"></i>Manajemen Survei</a></li>
+            <li><a onclick="loadPage('admin-sesi')" class="nav-link text-warning"><i class="fas fa-clock me-3"></i>Jam Sesi Ujian</a></li>
             <li><a onclick="loadPage('hasil-rekap')" class="nav-link"><i class="fas fa-chart-bar me-3"></i>Hasil Nilai</a></li>
             <li><a onclick="loadPage('admin-administrasi')" class="nav-link text-info"><i class="fas fa-print me-3"></i>Administrasi</a></li>
             <li><a onclick="handleResetCache()" class="nav-link text-warning"><i class="fas fa-bolt me-3"></i>Reset Cache</a></li>
@@ -193,7 +193,6 @@
     </div>
 </div>
 
-<!-- MODAL UNTUK ADMIN (BUAT JADWAL UJIAN) -->
 <div class="modal fade" id="modalExam" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content border-0 shadow">
@@ -226,7 +225,7 @@
         </div>
     </div>
 </div>
-
+    
 <!-- MODAL UNTUK ADMIN (BUAT SURVEI & LINKING) -->
 <div class="modal fade" id="modalSurvey" tabindex="-1">
     <div class="modal-dialog">
@@ -1264,6 +1263,36 @@ function renderAdministrasi() {
     $('#content-area').html(h);
 }
 
+    // TAMPILAN ADMIN MENU SESI
+    if (page === 'admin-sesi') {
+        let sessions = gData.sessions || [
+            {SesiID: '1', JamMulai: '07:30', JamSelesai: '09:00'},
+            {SesiID: '2', JamMulai: '09:30', JamSelesai: '11:00'},
+            {SesiID: '3', JamMulai: '11:30', JamSelesai: '13:00'},
+            {SesiID: '4', JamMulai: '13:30', JamSelesai: '15:00'}
+        ];
+        h = `<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                    <h5 class="fw-bold text-primary mb-0"><i class="fas fa-clock me-2"></i>Pengaturan Jam Sesi Ujian</h5>
+             </div>
+             <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <form id="frm-sesi-page" onsubmit="event.preventDefault(); saveSessionsPage(); return false;">`;
+        sessions.forEach(s => {
+            h += `<div class="row g-3 mb-3 bg-light p-3 rounded-4 border align-items-center">
+                    <div class="col-md-2 fw-bold text-primary fs-5">Sesi ${s.SesiID}</div>
+                    <div class="col-md-5"><label class="small text-muted fw-bold">Jam Mulai Buka</label><input type="time" id="pg-sesi-m-${s.SesiID}" class="form-control rounded-pill bg-white" value="${s.JamMulai}" required></div>
+                    <div class="col-md-5"><label class="small text-muted fw-bold">Jam Selesai Tutup</label><input type="time" id="pg-sesi-s-${s.SesiID}" class="form-control rounded-pill bg-white" value="${s.JamSelesai}" required></div>
+                  </div>`;
+        });
+        h += `          <div class="text-end mt-4"><button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm"><i class="fas fa-save me-2"></i>SIMPAN PENGATURAN WAKTU</button></div>
+                    </form>
+                </div>
+             </div>`;
+    }
+
+    $('#content-area').html(h);
+}
+    
 function printKartuLogin() {
     let usersToPrint = gAdminData.users;
     if (usersToPrint.length === 0) return Swal.fire('Kosong', 'Tidak ada data peserta.', 'info');
@@ -1714,12 +1743,17 @@ function openExamModal(str) {
   let valKelas = d ? d.TargetKelas : 'ALL';
   container.html(`<input type="text" name="targetKelas" id="ex-kelas" class="form-control" placeholder="Contoh: 7A, 7B, atau All" value="${valKelas}" required>`);
 }
+// PERBAIKAN FUNGSI saveExam AGAR TIDAK ERROR LENGKAPI DATA KARENA KELAS DIHAPUS
 function saveExam() {
   const formEl = document.getElementById('frm-exam'); const fd = new FormData(formEl); const d = Object.fromEntries(fd.entries());
   d.showStats = $('#ex-showStats').is(':checked') ? 'Yes' : 'No'; d.randomQ = $('#ex-randomQ').is(':checked') ? 'Yes' : 'No'; 
   d.dlSoal = $('#ex-dlSoal').is(':checked') ? 'Yes' : 'No'; d.dlHasil = $('#ex-dlHasil').is(':checked') ? 'Yes' : 'No';
   d.userRole = user.Role; d.userId = user.ID; d.userClass = user.Kelas;
-  if (!d.judul || !d.mapel || !d.start || !d.end || !d.targetKelas) { return Swal.fire('Error', 'Lengkapi data!', 'error'); }
+  
+  // Karena fitur kelas dihilangkan, kita "paksa" nilainya ALL agar database / validasi aman.
+  d.targetKelas = 'ALL'; 
+  
+  if (!d.judul || !d.mapel || !d.start || !d.end) { return Swal.fire('Error', 'Lengkapi data!', 'error'); }
   
   showLoad(true);
   google.script.run.withSuccessHandler((res) => {
@@ -1729,6 +1763,7 @@ function saveExam() {
     } else { showLoad(false); Swal.fire('Gagal', res.msg, 'error'); }
   }).adminSaveExam(d);
 }
+
 function delExam(id){ Swal.fire({title:'Hapus Permanen?', icon:'warning', showCancelButton:true, confirmButtonColor: '#d33'}).then(r=>{if(r.isConfirmed) google.script.run.withSuccessHandler(()=>{ if(isSurveyMode){ loadPage('admin-survey') } else { loadPage('admin-ujian') } }).adminDeleteExam(id)}) }
 function manageQ(id) { 
     activeExamId = id; 
