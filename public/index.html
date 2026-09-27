@@ -19,8 +19,11 @@
         body { font-family: 'Poppins', sans-serif; background-color: var(--bg-body); color: #1e293b; overflow-x: hidden; }
         body.exam-mode { overflow: hidden; user-select: none; }
         .hidden { display: none !important; }
-        .q-content img, .opt-content img, .survey-stimulus img { max-width: 100% !important; height: auto !important; border-radius: 6px; margin: 5px 0; }
+        .q-content img, .opt-content img { max-width: 100% !important; height: auto !important; border-radius: 6px; margin: 5px 0; }
         
+        /* FIX: Agar popup saat Ujian Selesai berada di atas layar ujian fullscreen */
+        .swal2-container { z-index: 99999 !important; }
+
         .wrapper { display: flex; width: 100%; align-items: stretch; position: relative; }
         #sidebar { min-width: 260px; max-width: 260px; background: #064e3b; color: #fff; min-height: 100vh; position: fixed; z-index: 1050; transition: all 0.3s; left: 0; top: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
         #sidebar.active { left: -260px; }
@@ -77,7 +80,6 @@
             <li><a onclick="loadPage('admin-home')" class="nav-link active"><i class="fas fa-home me-3"></i>Dashboard</a></li>
             <li><a onclick="loadPage('admin-users')" class="nav-link"><i class="fas fa-users me-3"></i>Data Peserta</a></li>
             <li><a onclick="loadPage('admin-ujian')" class="nav-link"><i class="fas fa-calendar-alt me-3"></i>Bank Soal CAT BCKS</a></li>
-            <li><a onclick="loadPage('admin-survey')" class="nav-link"><i class="fas fa-clipboard-check me-3"></i>Manajemen Survei</a></li>
             <li><a onclick="loadPage('hasil-rekap')" class="nav-link"><i class="fas fa-chart-bar me-3"></i>Hasil Nilai</a></li>
             <li><a onclick="loadPage('admin-administrasi')" class="nav-link text-info"><i class="fas fa-print me-3"></i>Administrasi</a></li>
             <li><a onclick="loadPage('admin-sesi')" class="nav-link text-warning"><i class="fas fa-clock me-3"></i>Jam Sesi Ujian</a></li>
@@ -150,35 +152,6 @@
     </div>
 </div>
 
-<!-- TAMPILAN COUNTDOWN (JEDA MENUJU SURVEI) -->
-<div id="view-countdown" class="hidden" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
-    <div class="card border-0 shadow-lg rounded-4 p-5 text-center" style="max-width: 550px;">
-        <i class="fas fa-check-circle text-success mb-3" style="font-size: 5rem;"></i>
-        <h3 class="fw-bold text-dark">Ujian CAT BCKS Terkirim!</h3>
-        <p class="text-muted mb-4 mt-3" style="font-size: 1.1rem;">Mohon tunggu sebentar, Anda diwajibkan untuk mengisi Survei Evaluasi. Layar akan beralih otomatis dalam:</p>
-        <h1 class="display-1 fw-bold text-primary mb-4" id="countdown-number">30</h1>
-        <div class="spinner-border text-primary mt-2" role="status"></div>
-    </div>
-</div>
-
-<!-- TAMPILAN FORM SURVEI DENGAN UI CERIA -->
-<div id="view-survey" class="hidden" style="min-height: 100vh; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); padding-bottom: 50px;">
-    <div class="bg-warning text-dark p-5 shadow-sm text-center" style="border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%) !important;">
-        <i class="fas fa-smile-beam fa-3x mb-3 text-white"></i>
-        <h3 class="fw-bold m-0 text-white" id="survey-title" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Judul Survey</h3>
-        <p class="m-0 mt-2 text-white fw-medium" id="survey-desc" style="font-size: 1.1rem;">Deskripsi</p>
-    </div>
-    <div class="container my-5" style="max-width: 900px;" id="survey-container"></div>
-    <div class="container" style="max-width: 900px;">
-        <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded-4 shadow-sm border">
-            <button class="btn btn-secondary rounded-pill px-4 fw-bold shadow-sm hidden" id="btn-prev-survey" onclick="navSurvey(-1)"><i class="fas fa-chevron-left me-2"></i> Sebelumnya</button>
-            <div class="flex-grow-1 text-center fw-bold text-muted" id="survey-progress-text"></div>
-            <button class="btn btn-info text-white rounded-pill px-4 fw-bold shadow-sm" id="btn-next-survey" onclick="navSurvey(1)">Selanjutnya <i class="fas fa-chevron-right ms-2"></i></button>
-            <button class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-lg hidden" id="btn-submit-survey" onclick="submitSurvey()" style="background: #ff758c; border: none;"><i class="fas fa-paper-plane me-2"></i> Kirim Survei</button>
-        </div>
-    </div>
-</div>
-
 <!-- MODAL MANAJEMEN SESI (ADMIN) -->
 <div class="modal fade" id="modalSession" tabindex="-1">
     <div class="modal-dialog">
@@ -214,7 +187,6 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-4 d-none">
                             <label class="small fw-bold text-muted">Target Kelas</label>
-                            <!-- HAPUS ATRIBUT REQUIRED DI SINI AGAR TIDAK ERROR "LENGKAPI DATA" -->
                             <div id="kelas-container"><input type="text" name="targetKelas" id="ex-kelas" class="form-control" value="ALL"></div>
                         </div>
                         <div class="col-md-6"><label class="small fw-bold text-muted">Limit Mengerjakan</label><input type="number" name="limit" id="ex-limit" class="form-control" value="1"></div>
@@ -227,41 +199,6 @@
                         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="dlHasil" id="ex-dlHasil" value="Yes"><label class="small fw-medium text-success">Izinkan Download Hasil</label></div>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3">SIMPAN JADWAL</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL UNTUK ADMIN (BUAT SURVEI & LINKING) -->
-<div class="modal fade" id="modalSurvey" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Pengaturan Form Survei</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body p-4">
-                <form id="frm-survey" onsubmit="event.preventDefault(); saveSurveyHeader(); return false;" action="javascript:void(0);">
-                    <input type="hidden" id="srv-id" name="id">
-                    <div class="mb-3">
-                        <label class="small fw-bold text-muted">Nama Survei</label>
-                        <input type="text" name="judul" id="srv-judul" class="form-control" placeholder="Contoh: Survey Karakter Belajar" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold text-muted">Deskripsi / Petunjuk Pengisian</label>
-                        <textarea name="desc" id="srv-desc" class="form-control" rows="3" required></textarea>
-                    </div>
-                    <div class="mb-3 p-3 bg-light rounded border border-warning">
-                        <label class="small fw-bold text-primary mb-2"><i class="fas fa-link"></i> Sambungkan dengan Ujian CAT BCKS</label>
-                        <select name="linkedExam" id="srv-linked-exam" class="form-select fw-bold"></select>
-                        <small class="text-muted mt-2 d-block">Penting: Survei ini otomatis muncul hanya untuk peserta yang baru saja menekan tombol 'Selesai' pada ujian CAT BCKS yang dipilih di atas.</small>
-                    </div>
-                    <div class="mb-4">
-                        <label class="small fw-bold text-muted">Status Aktif Survei</label>
-                        <select name="status" id="srv-status" class="form-select fw-bold">
-                            <option value="Aktif">Aktif (Auto Muncul)</option>
-                            <option value="Tidak">Tidak Aktif</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold rounded-3">SIMPAN INFO SURVEI</button>
                 </form>
             </div>
         </div>
@@ -366,9 +303,6 @@ let activeExamId = null; let timerInt, monitorInterval, autosaveInterval;
 let totalQ = 0; let currentQuestionsData = []; let currentQIdx = 0;
 let recapAllData = []; let recapDataStore = {};
 let violationCount = 0; const maxViolations = 3; let isExamFinished = false; let violationLock = false;
-let isSurveyMode = false;
-let currentSurveyIdx = 0;
-let totalSurveyQ = 0;
 
 const MathButton = function (context) {
     const ui = $.summernote.ui;
@@ -394,14 +328,6 @@ const MathButton = function (context) {
     return button.render();
 }
 const snConfig = { height: 220, toolbar: [ ['style', ['bold', 'italic', 'underline', 'clear']], ['para', ['ul', 'ol']], ['insert', ['picture', 'video', 'link', 'math']] ], buttons: { math: MathButton } };
-
-const surveyScales = {
-    'persetujuan': ['Sangat Setuju', 'Setuju', 'Tidak Setuju', 'Sangat Tidak Setuju'],
-    'frekuensi': ['Selalu', 'Sering', 'Kadang-kadang', 'Tidak Pernah'],
-    'pengalaman': ['Pernah', 'Tidak Pernah'],
-    'yatidak': ['Ya', 'Tidak'],
-    'kepuasan': ['Sangat Puas', 'Puas', 'Cukup', 'Kurang Puas', 'Tidak Puas']
-};
 
 $(document).ready(() => {
     const savedUser = localStorage.getItem('cbt_user');
@@ -573,7 +499,6 @@ function renderContent(page) {
              
     }
     else if (page === 'admin-ujian') {
-        isSurveyMode = false;
         let uniqueMapel = [...new Set(gData.exams.map(e => e.Mapel))];
         
         h = `<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">`;
@@ -596,23 +521,6 @@ function renderContent(page) {
                 }
             }
             h += `<div class="col-md-6 col-xl-4 ujian-card" data-mapel="${e.Mapel}"><div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden"><div class="card-body p-4"><div class="d-flex justify-content-between mb-3"><span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm">${e.Mapel}</span></div><h5 class="fw-bold text-dark mb-1 line-clamp-2">${e.Judul}</h5><p class="small text-muted mb-4"><i class="fas fa-clock me-1"></i> ${e.Durasi} Menit | ${e.LimitTries}x Akses</p><div class="d-flex gap-2 mt-auto">${actionButtons}</div></div></div></div>`;
-        });
-        h += '</div>';
-    }
-    else if (page === 'admin-survey') {
-        isSurveyMode = true;
-        let surveys = gData.surveys || [];
-        h = `<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                <div><h5 class="fw-bold text-primary mb-0"><i class="fas fa-clipboard-check me-2"></i>Manajemen Survei (Evaluasi)</h5></div>
-                <button class="btn btn-success shadow-sm px-4 py-2 rounded-pill fw-bold" onclick="openSurveyModal()"><i class="fas fa-plus me-2"></i>Buat Survei Baru</button>
-             </div><div class="row g-4">`;
-        surveys.forEach(s => {
-            let statusBadge = s.ShowStats === 'Aktif' ? '<span class="badge bg-success shadow-sm px-3 py-2 rounded-pill">Aktif (Auto Muncul)</span>' : '<span class="badge bg-secondary shadow-sm px-3 py-2 rounded-pill">Tidak Aktif</span>';
-            let linkedExamName = 'Tidak Terhubung';
-            const linkedTKA = gData.exams.find(ex => ex.ExamID === s.Token);
-            if(linkedTKA) linkedExamName = linkedTKA.Judul;
-            
-            h += `<div class="col-md-6 col-xl-4"><div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden"><div class="card-body p-4"><div class="d-flex justify-content-between mb-3">${statusBadge}</div><h5 class="fw-bold text-dark mb-2">${s.Judul}</h5><p class="small text-muted mb-3 line-clamp-2 d-none">${s.TargetKelas}</p><div class="mb-4 small p-2 bg-light rounded"><i class="fas fa-link text-primary"></i> <b>Terkait:</b> ${linkedExamName}</div><div class="d-flex gap-2 mt-auto"><button class="btn btn-sm btn-outline-dark flex-fill rounded-pill fw-bold" onclick="openSurveyModal('${encodeURIComponent(JSON.stringify(s))}')"><i class="fas fa-cog"></i> Pengaturan</button> <button class="btn btn-sm btn-outline-primary flex-fill rounded-pill fw-bold" onclick="manageQ('${s.ExamID}')"><i class="fas fa-list"></i> Isi Kuesioner</button> <button class="btn btn-sm btn-danger rounded-circle px-2" onclick="delExam('${s.ExamID}')"><i class="fas fa-trash"></i></button></div></div></div></div>`;
         });
         h += '</div>';
     }
@@ -1038,7 +946,7 @@ function renderRecapTable() {
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="small fw-bold text-muted ms-1">Filter Ujian / Survei</label>
+                    <label class="small fw-bold text-muted ms-1">Filter Ujian</label>
                     <select id="filter-ujian" class="form-select bg-light border-0 rounded-pill px-3" onchange="applyFilterRecap()">
                         <option value="">Semua Ujian</option>
                         ${uniqueUjian.map(u => `<option value="${u}">${u}</option>`).join('')}
@@ -1659,11 +1567,11 @@ function saveExam() {
   }).adminSaveExam(d);
 }
 
-function delExam(id){ Swal.fire({title:'Hapus Permanen?', icon:'warning', showCancelButton:true, confirmButtonColor: '#d33'}).then(r=>{if(r.isConfirmed) google.script.run.withSuccessHandler(()=>{ if(isSurveyMode){ loadPage('admin-survey') } else { loadPage('admin-ujian') } }).adminDeleteExam(id)}) }
+function delExam(id){ Swal.fire({title:'Hapus Permanen?', icon:'warning', showCancelButton:true, confirmButtonColor: '#d33'}).then(r=>{if(r.isConfirmed) google.script.run.withSuccessHandler(()=>{ loadPage('admin-ujian') }).adminDeleteExam(id)}) }
 function manageQ(id) { 
     activeExamId = id; 
-    $('#editor-q-title').html(isSurveyMode ? '<i class="fas fa-clipboard-list me-2"></i> Editor Kuesioner Survei' : '<i class="fas fa-edit me-2"></i> Editor Pertanyaan CAT BCKS');
-    $('#editor-tips').html(isSurveyMode ? '<b>Tips Survei:</b> Masukkan stimulus (Teks/Gambar/Video) di area Editor, lalu pilih jenis Skala Penilaian dan tambahkan rincian pernyataan di bawahnya.' : '<i class="fas fa-lightbulb me-2"></i><b>Tips:</b> Gunakan tombol <b>Rumus</b> atau <b>Video</b> pada panel editor di bawah.');
+    $('#editor-q-title').html('<i class="fas fa-edit me-2"></i> Editor Pertanyaan CAT BCKS');
+    $('#editor-tips').html('<i class="fas fa-lightbulb me-2"></i><b>Tips:</b> Gunakan tombol <b>Rumus</b> atau <b>Video</b> pada panel editor di bawah.');
     $('#modalQ').modal('show'); 
     loadQList(); 
 }
@@ -1701,14 +1609,12 @@ function loadQList() {
     google.script.run.withSuccessHandler(qs => {
         let html = ''; lastQuestionNum = 0; currentQuestionsData = qs || [];
         let topActions = '';
-        if(!isSurveyMode) {
-            topActions = `<div class="d-flex justify-content-end mb-3 gap-2 flex-wrap bg-white p-3 rounded-4 shadow-sm border">
-                <button class="btn btn-outline-info shadow-sm rounded-pill px-4 fw-bold" onclick="downloadQuestionTemplate()"><i class="fas fa-file-excel me-2"></i> Template Excel</button>
-                <label class="btn btn-outline-success shadow-sm m-0 rounded-pill px-4 fw-bold"><i class="fas fa-upload me-2"></i> Upload Excel <input type="file" hidden accept=".xlsx,.xls" onchange="handleUploadQuestionsExcel(event)"></label>
-                <button class="btn btn-info text-white shadow-sm rounded-pill px-4 fw-bold" onclick="previewAllQ()"><i class="fas fa-desktop me-2"></i> Preview Soal</button>
-                <button class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold" onclick="downloadAllQ()"><i class="fas fa-file-pdf me-2"></i> Download HTML/PDF</button>
-            </div>`;
-        }
+        topActions = `<div class="d-flex justify-content-end mb-3 gap-2 flex-wrap bg-white p-3 rounded-4 shadow-sm border">
+            <button class="btn btn-outline-info shadow-sm rounded-pill px-4 fw-bold" onclick="downloadQuestionTemplate()"><i class="fas fa-file-excel me-2"></i> Template Excel</button>
+            <label class="btn btn-outline-success shadow-sm m-0 rounded-pill px-4 fw-bold"><i class="fas fa-upload me-2"></i> Upload Excel <input type="file" hidden accept=".xlsx,.xls" onchange="handleUploadQuestionsExcel(event)"></label>
+            <button class="btn btn-info text-white shadow-sm rounded-pill px-4 fw-bold" onclick="previewAllQ()"><i class="fas fa-desktop me-2"></i> Preview Soal</button>
+            <button class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold" onclick="downloadAllQ()"><i class="fas fa-file-pdf me-2"></i> Download HTML/PDF</button>
+        </div>`;
         
         if (qs && qs.length > 0) {
             lastQuestionNum = Math.max(...qs.map(q => Number(q.Nomor) || 0));
@@ -1739,7 +1645,7 @@ function generateQHTML(q) {
         inp = `<textarea style="width:100%; padding:15px; border:1px solid #e2e8f0; border-radius:8px; font-family:inherit; resize:vertical;" rows="5" placeholder="Ketik jawaban di sini..."></textarea>`;
     }
     
-    let katLabel = q.Kategori && !isSurveyMode ? ` - [${q.Kategori}]` : '';
+    let katLabel = q.Kategori ? ` - [${q.Kategori}]` : '';
     return `<div style="font-family: 'Poppins', Arial, sans-serif; padding:15px 0; margin-bottom:20px;"><div style="background:#0f5132; color:white; display:inline-block; padding:5px 15px; border-radius:15px; font-size:13px; font-weight:bold; margin-bottom:15px;">Soal No. ${q.Nomor||''}${katLabel}</div><div style="margin-bottom:20px; font-size:16px; line-height:1.6; word-wrap: break-word;">${cleanedQuestion}</div>${inp}</div>`;
 }
 
@@ -1770,7 +1676,7 @@ function dlSiswaHasil(rid) {
 }
 
 function addNewQuestionBlock() {
-    lastQuestionNum++; const newBlock = renderQuestionBlock({ Nomor: lastQuestionNum, Tipe: isSurveyMode ? 'SURVEY' : 'PGS' }, lastQuestionNum - 1);
+    lastQuestionNum++; const newBlock = renderQuestionBlock({ Nomor: lastQuestionNum, Tipe: 'PGS' }, lastQuestionNum - 1);
     $('#q-list-container').append(newBlock); const uid = $(newBlock).attr('data-id');
     toggleEditQ(uid); $('.modal-body').animate({ scrollTop: $('.modal-body')[0].scrollHeight }, 500);
 }
@@ -1784,32 +1690,21 @@ function renderQuestionBlock(q, idx) {
     let typeSelect = '';
     let katSelect = '';
     
-    if (isSurveyMode) {
-        typeSelect = `<input type="hidden" name="type" value="SURVEY" id="type-${uid}">
-                      <select class="form-select bg-light border-0 rounded-3 q-type-sel" onchange="renderAnsFields('${uid}', 'SURVEY', this.value)" id="survey-scale-${uid}">
-                          <option value="persetujuan">Skala Persetujuan (Sangat Setuju...)</option>
-                          <option value="frekuensi">Skala Frekuensi (Selalu, Sering...)</option>
-                          <option value="pengalaman">Skala Pengalaman (Pernah / Tidak)</option>
-                          <option value="yatidak">Pilihan Ya / Tidak</option>
-                          <option value="kepuasan">Skala Kepuasan (Sangat Puas...)</option>
-                      </select>`;
-    } else {
-        typeSelect = `<select name="type" class="form-select bg-light border-0 rounded-3 q-type-sel" onchange="renderAnsFields('${uid}', this.value)" id="type-${uid}">
-                          <option value="PGS" ${q.Tipe=='PGS'?'selected':''}>Pilihan Ganda (1 Jawaban)</option>
-                          <option value="PGK" ${q.Tipe=='PGK'?'selected':''}>PG Kompleks (Banyak Jawaban)</option>
-                          <option value="PGKK" ${q.Tipe=='PGKK'?'selected':''}>Benar Salah / Setuju Tidak</option>
-                          <option value="Menjodohkan" ${q.Tipe=='Menjodohkan'?'selected':''}>Menjodohkan</option>
-                          <option value="Uraian" ${q.Tipe=='Uraian'?'selected':''}>Uraian / Essay</option>
-                      </select>`;
-                      
-        katSelect = `<div class="col-md-3"><label class="small fw-bold text-muted">Kategori Soal</label>
-                        <select name="kategori" class="form-select bg-light border-0 rounded-3">
-                            <option value="Kepribadian" ${q.Kategori=='Kepribadian'?'selected':''}>Kepribadian</option>
-                            <option value="Profesional" ${q.Kategori=='Profesional'?'selected':''}>Profesional</option>
-                            <option value="Sosial" ${q.Kategori=='Sosial'?'selected':''}>Sosial</option>
-                        </select>
-                     </div>`;
-    }
+    typeSelect = `<select name="type" class="form-select bg-light border-0 rounded-3 q-type-sel" onchange="renderAnsFields('${uid}', this.value)" id="type-${uid}">
+                      <option value="PGS" ${q.Tipe=='PGS'?'selected':''}>Pilihan Ganda (1 Jawaban)</option>
+                      <option value="PGK" ${q.Tipe=='PGK'?'selected':''}>PG Kompleks (Banyak Jawaban)</option>
+                      <option value="PGKK" ${q.Tipe=='PGKK'?'selected':''}>Benar Salah / Setuju Tidak</option>
+                      <option value="Menjodohkan" ${q.Tipe=='Menjodohkan'?'selected':''}>Menjodohkan</option>
+                      <option value="Uraian" ${q.Tipe=='Uraian'?'selected':''}>Uraian / Essay</option>
+                  </select>`;
+                  
+    katSelect = `<div class="col-md-3"><label class="small fw-bold text-muted">Kategori Soal</label>
+                    <select name="kategori" class="form-select bg-light border-0 rounded-3">
+                        <option value="Kepribadian" ${q.Kategori=='Kepribadian'?'selected':''}>Kepribadian</option>
+                        <option value="Profesional" ${q.Kategori=='Profesional'?'selected':''}>Profesional</option>
+                        <option value="Sosial" ${q.Kategori=='Sosial'?'selected':''}>Sosial</option>
+                    </select>
+                 </div>`;
 
 return `
 <div class="card mb-4 border-0 shadow-sm rounded-4 overflow-hidden q-block" id="block-${uid}" data-id="${uid}" data-q-obj="${safeJson}">
@@ -1824,15 +1719,15 @@ return `
                     <input type="hidden" name="id" value="${q.QID || ''}">
                     <div class="row g-3 mb-4">
                         <div class="col-md-2"><label class="small fw-bold text-muted">Nomor Urut</label><input type="number" name="num" class="form-control bg-light border-0 rounded-3" value="${nomor}"></div>
-                        <div class="col-md-4"><label class="small fw-bold text-muted">${isSurveyMode ? 'Jenis Skala Survei' : 'Tipe Soal CAT BCKS'}</label>
+                        <div class="col-md-4"><label class="small fw-bold text-muted">Tipe Soal CAT BCKS</label>
                             ${typeSelect}
                         </div>
                         ${katSelect}
-                        <div class="col-md-3 ${isSurveyMode ? 'hidden' : ''}"><label class="small fw-bold text-muted">Skor Maksimal</label><input type="number" step="0.1" name="score" class="form-control bg-light border-0 rounded-3" value="${q.Skor || 10}"></div>
+                        <div class="col-md-3"><label class="small fw-bold text-muted">Skor Maksimal</label><input type="number" step="0.1" name="score" class="form-control bg-light border-0 rounded-3" value="${q.Skor || 10}"></div>
                     </div>
-                    <label class="small fw-bold text-muted mb-2">${isSurveyMode ? 'Teks Stimulus (Cerita / Gambar / Video / Pengantar)' : 'Teks Pertanyaan'}</label>
+                    <label class="small fw-bold text-muted mb-2">Teks Pertanyaan</label>
                     <textarea id="sn-${uid}" name="text">${q.Pertanyaan || ''}</textarea>
-                    <div class="card mt-4 bg-light border-0 rounded-4 shadow-sm"><div class="card-body p-4"><label class="small fw-bold text-primary mb-3"><i class="fas fa-check-circle me-1"></i> ${isSurveyMode ? 'Daftar Pernyataan Survei' : 'Area Jawaban & Kunci'}</label><div id="ans-area-${uid}"></div></div></div>
+                    <div class="card mt-4 bg-light border-0 rounded-4 shadow-sm"><div class="card-body p-4"><label class="small fw-bold text-primary mb-3"><i class="fas fa-check-circle me-1"></i> Area Jawaban & Kunci</label><div id="ans-area-${uid}"></div></div></div>
                     <div class="text-end mt-4"><button type="button" class="btn btn-secondary me-2 rounded-pill px-4" onclick="toggleEditQ('${uid}')">Batal / Tutup</button><button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm"><i class="fas fa-save me-1"></i> Simpan Data</button></div>
                 </form>
             </div>
@@ -1903,34 +1798,21 @@ function toggleEditQ(uid) {
     if (form.hasClass('hidden')) { 
         activeUid = uid; form.removeClass('hidden'); $(`#block-${uid}`).addClass('border-primary'); 
         $(`#sn-${uid}`).summernote(snConfig); 
-        
-        if(isSurveyMode) {
-            let qData = {}; try { qData = JSON.parse(decodeURIComponent($(`#block-${uid}`).attr('data-q-obj'))); } catch(e){}
-            let savedKeys = JSON.parse(qData.Key || "[]");
-            if(savedKeys.length > 0) {
-                for (let key in surveyScales) { if (JSON.stringify(surveyScales[key]) === JSON.stringify(savedKeys)) { $(`#survey-scale-${uid}`).val(key); break; } }
-            }
-            renderAnsFields(uid, 'SURVEY', $(`#survey-scale-${uid}`).val());
-        } else {
-            renderAnsFields(uid, $(`#type-${uid}`).val());
-        }
+        renderAnsFields(uid, $(`#type-${uid}`).val());
     } else { 
         form.addClass('hidden'); $(`#block-${uid}`).removeClass('border-primary'); 
         $(`#sn-${uid}`).summernote('destroy'); $(`#ans-area-${uid} .summernote-opt`).each(function(){ $(this).summernote('destroy'); }); 
     } 
 }
 
-function renderAnsFields(uid, type, surveyScaleKey = null) { 
+function renderAnsFields(uid, type) { 
     const block = $(`#block-${uid}`); let qData = {}; 
     try { qData = JSON.parse(decodeURIComponent(block.attr('data-q-obj')) || '{}'); } catch(e){} 
     const opts = (qData.Tipe === type) ? JSON.parse(qData.Options || "[]") : [];
     const keys = (qData.Tipe === type) ? JSON.parse(qData.Key || "[]") : []; 
     $(`#ans-area-${uid} .summernote-opt`).each(function(){ $(this).summernote('destroy'); }); let h = '';
     
-    if (type === 'SURVEY') {
-        h = `<table class="table table-bordered bg-white rounded-3 overflow-hidden"><thead><tr class="table-light"><th>Teks Pernyataan (Peserta akan memilih skala di sebelahnya)</th><th width="50">X</th></tr></thead><tbody id="srv-tbody-${uid}">`; 
-        if(opts.length) opts.forEach((o,i)=>h+=genSurveyRow(o)); else h+=genSurveyRow(); h+=`</tbody></table><button type="button" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm mt-2" onclick="addSurveyRowTo('${uid}')"><i class="fas fa-plus"></i> Tambah Pernyataan</button>`; 
-    } else if (type === 'PGS' || type === 'PGK') { 
+    if (type === 'PGS' || type === 'PGK') { 
         const inputType = type === 'PGS' ? 'radio' : 'checkbox';
         h = `<button type="button" class="btn btn-primary btn-sm mb-3 rounded-pill px-3 shadow-sm" onclick="addOptRow('${uid}', '${inputType}')"><i class="fas fa-plus"></i> Tambah Opsi Baru</button><div id="opts-wrap-${uid}">`; 
         if(opts.length) opts.forEach(o => h+=genOptRow(uid, inputType, o, keys.map(k=>k.trim()).includes(o.trim())?'checked':''));
@@ -1945,15 +1827,13 @@ function renderAnsFields(uid, type, surveyScaleKey = null) {
         h = `<label class="small text-muted mb-2">Kata Kunci Penilaian (Pisahkan dengan koma)</label><textarea class="form-control rounded-3 bg-white" name="essay_key" placeholder="Contoh: presiden, jakarta, indonesia" rows="3">${keys.join(',')}</textarea>`; 
     } 
     $(`#ans-area-${uid}`).html(h);
-    if(type !== 'SURVEY') $(`#ans-area-${uid} .summernote-opt`).summernote(snConfig); 
+    $(`#ans-area-${uid} .summernote-opt`).summernote(snConfig); 
 }
 
-function genSurveyRow(q='') { return `<tr><td><input type="text" class="form-control border-0 bg-light srv-q" placeholder="Ketik pernyataan..." value="${q.replace(/"/g, '&quot;')}"></td><td class="text-center align-middle"><button class="btn btn-danger btn-sm rounded-circle" onclick="$(this).closest('tr').remove()"><i class="fas fa-times"></i></button></td></tr>`; }
 function genOptRow(uid, type, val='', checked='') { return `<div class="d-flex align-items-start mb-3 ans-row gap-3 bg-white p-3 rounded-3 border shadow-sm"><div class="mt-2 text-center"><input type="${type}" name="k_${uid}" class="form-check-input" style="width: 25px; height: 25px;" ${checked}><br><small class="text-success fw-bold">KUNCI</small></div><div class="flex-grow-1"><textarea class="summernote-opt">${val}</textarea></div><button type="button" class="btn btn-outline-danger mt-1 rounded-circle shadow-sm" onclick="removeOptRow(this)"><i class="fas fa-times"></i></button></div>`; }
 function genPGKKRow(q='', k='B') { return `<tr><td><textarea class="summernote-opt pgkk-q">${q}</textarea></td><td class="text-center align-middle"><select class="form-select bg-light border-0 fw-bold text-primary pgkk-k"><option value="B" ${k=='B'?'selected':''}>BENAR</option><option value="S" ${k=='S'?'selected':''}>SALAH</option></select></td><td class="text-center align-middle"><button class="btn btn-danger btn-sm rounded-circle" onclick="$(this).closest('tr').remove()"><i class="fas fa-times"></i></button></td></tr>`; }
 function genMatchRow(l='', r='') { return `<tr><td><textarea class="summernote-opt match-l">${l}</textarea></td><td><textarea class="summernote-opt match-r">${r}</textarea></td><td class="text-center align-middle"><button class="btn btn-danger btn-sm rounded-circle" onclick="$(this).closest('tr').remove()"><i class="fas fa-times"></i></button></td></tr>`; }
 
-function addSurveyRowTo(uid) { $(`#srv-tbody-${uid}`).append(genSurveyRow()); }
 function addOptRow(uid, t) { const el = $(genOptRow(uid, t)); $(`#opts-wrap-${uid}`).append(el); el.find('.summernote-opt').summernote(snConfig); }
 function addPGKKRowTo(uid) { const el = $(genPGKKRow()); $(`#pgkk-tbody-${uid}`).append(el); el.find('.summernote-opt').summernote(snConfig); }
 function addMatchRowTo(uid) { const el = $(genMatchRow()); $(`#match-tbody-${uid}`).append(el); el.find('.summernote-opt').summernote(snConfig); }
@@ -1963,7 +1843,7 @@ function saveQBlock(uid) {
     const form = $(`#frm-q-${uid}`); 
     const type = form.find('input[name="type"]').length ? form.find('input[name="type"]').val() : form.find('select[name="type"]').val(); 
     const text = $(`#sn-${uid}`).summernote('code');
-    const score = isSurveyMode ? 0 : form.find('input[name="score"]').val(); 
+    const score = form.find('input[name="score"]').val(); 
     const num = form.find('input[name="num"]').val();
     const id = form.find('input[name="id"]').val(); 
     
@@ -1971,11 +1851,7 @@ function saveQBlock(uid) {
 
     let opts=[], keys=[], keyIndices=[];
     
-    if (type === 'SURVEY') {
-        const scaleKey = $(`#survey-scale-${uid}`).val();
-        keys = surveyScales[scaleKey] || surveyScales['persetujuan'];
-        $(`#srv-tbody-${uid} tr`).each(function(){ const q = $(this).find('.srv-q').val(); if(q) opts.push(q); });
-    } else if (type === 'PGS' || type === 'PGK') { 
+    if (type === 'PGS' || type === 'PGK') { 
         $(`#opts-wrap-${uid} .ans-row`).each(function(){ 
             const v = $(this).find('.summernote-opt').summernote('code'); 
             if(v && v !== '<p><br></p>'){ opts.push(v); if($(this).find('.form-check-input').is(':checked')) { keys.push(v); keyIndices.push(opts.length - 1); } } 
@@ -2132,7 +2008,7 @@ function runExam(qs, dur, isResume) {
             opts.forEach(o => inp += `<label class="form-check p-3 border mb-3 rounded-4 bg-white shadow-sm clickable-opt d-flex align-items-center w-100"><input class="form-check-input flex-shrink-0" type="${q.Tipe==='PGK'?'checkbox':'radio'}" name="ans-${q.QID}" value="${encodeURIComponent(o)}" onchange="saveAnsLocal('${q.QID}', '${q.Tipe}', ${i})"><div class="ms-3 flex-grow-1 opt-content mb-0 fs-6">${o}</div></label>`);
         } else inp = `<textarea class="form-control bg-white shadow-sm border-0 rounded-4" rows="6" name="ans-${q.QID}" onchange="saveAnsLocal('${q.QID}', 'ESSAY', ${i})" placeholder="Ketik jawaban Anda dengan lengkap di sini..."></textarea>`;
         
-        let katLabel = q.Kategori && !isSurveyMode ? `<span class="ms-2 badge bg-warning text-dark border border-warning">${q.Kategori}</span>` : '';
+        let katLabel = q.Kategori ? `<span class="ms-2 badge bg-warning text-dark border border-warning">${q.Kategori}</span>` : '';
         
         c.append(`<div class="q-slide hidden" id="sl-${i}" data-qid="${q.QID}" data-type="${q.Tipe}"><div class="mb-5 q-content" style="font-size: 16px; line-height: 1.8;"><div style="background:#0f5132; color:white; display:inline-block; padding:5px 15px; border-radius:15px; font-size:13px; font-weight:bold; margin-bottom:15px;">Soal No. ${i+1}${katLabel}</div><br>${q.Pertanyaan}</div>${inp}</div>`);
         
@@ -2220,8 +2096,8 @@ function toggleRagu() { $(`#nb-${currentQIdx}`).toggleClass('btn-ragu'); jump(cu
 
 function jump(i) { 
     currentQIdx = i; 
-    $('.q-slide').addClass('hidden'); $(`#sl-${i}`).removeClass('hidden'); 
-    $('.q-nav-btn').removeClass('active-q'); $(`#nb-${i}`).addClass('active-q'); 
+    $('.q-slide').addClass('hidden');$(`#sl-${i}`).removeClass('hidden'); 
+    $('.q-nav-btn').removeClass('active-q');$(`#nb-${i}`).addClass('active-q'); 
     
     $('#q-number-title').text('Soal nomor ' + (i + 1));
     $('#btn-prev').css('visibility', i === 0 ? 'hidden' : 'visible');
@@ -2289,155 +2165,25 @@ function processSubmission(retryCount = 0) {
         if (res.status === 'success') {
             localStorage.removeItem('cbt_active_exam'); localStorage.removeItem(`ANS_${user.ID}_${activeExamId}`);
             
-            showLoad(true);
-            google.script.run.withSuccessHandler(surveyRes => {
-                showLoad(false);
-                if(surveyRes.status === 'success' && surveyRes.data) {
-                    $('body').removeClass('exam-mode');$('#view-exam').addClass('hidden');
-                    $('#view-countdown').removeClass('hidden');
-                    window.activeSurveyData = surveyRes.data;
-                    startCountdown();
-                } else {
-                    $('body').removeClass('exam-mode'); try { document.exitFullscreen().catch(()=>{}) } catch (e) {};
-                    Swal.fire({
-                        title: 'Hebat, Selesai!',
-                        html: `<div class="mb-3 text-success" style="font-size: 5rem;"><i class="fas fa-check-circle"></i></div><h5 class="fw-bold">Ujian Telah Terkirim Aman ke Server</h5><p class="text-muted mt-2">Terima kasih. Anda boleh keluar dari aplikasi.</p>`,
-                        confirmButtonText: 'KEMBALI KE BERANDA', confirmButtonColor: '#0f5132', allowOutsideClick: false, allowEscapeKey: false
-                    }).then(() => { $('#view-exam').addClass('hidden'); $('#view-dashboard').removeClass('hidden'); loadPage('siswa-home'); });
-                }
-            }).checkActiveSurvey(activeExamId);
+            // KEMBALI KE DASHBOARD PESERTA SECARA LANGSUNG (TANPA SURVEI)
+            $('body').removeClass('exam-mode'); 
+            try { document.exitFullscreen().catch(()=>{}) } catch (e) {};
+            
+            Swal.fire({
+                title: 'Ujian Selesai!',
+                html: `<div class="mb-3 text-success" style="font-size: 5rem;"><i class="fas fa-check-circle"></i></div><h5 class="fw-bold">Jawaban Telah Terkirim ke Server</h5><p class="text-muted mt-2">Terima kasih. Anda telah menyelesaikan ujian CAT BCKS.</p>`,
+                confirmButtonText: 'KEMBALI KE BERANDA', confirmButtonColor: '#0f5132', allowOutsideClick: false, allowEscapeKey: false
+            }).then(() => { 
+                $('#view-exam').addClass('hidden'); 
+                $('#view-dashboard').removeClass('hidden'); 
+                loadPage('peserta-home'); 
+            });
             
         } else { Swal.fire('Gagal', res.msg || 'Terjadi kesalahan sistem.', 'error'); }
     }).withFailureHandler((err) => {
         if (retryCount < 3) { setTimeout(() => processSubmission(retryCount + 1), 3000); } 
         else { examSubmitting = false; btn.prop('disabled', false).html(originalText); Swal.fire('Koneksi Terputus', 'Gagal menghubungi server.', 'error'); }
     }).submitExam(user.ID, activeExamId, ans, violationCount, localTime);
-}
-
-let countdownTimer;
-function startCountdown() {
-    let timeLeft = 30;
-    $('#countdown-number').text(timeLeft);
-    countdownTimer = setInterval(() => {
-        timeLeft--; $('#countdown-number').text(timeLeft);
-        if(timeLeft <= 0) { skipCountdown(); }
-    }, 1000);
-}
-
-function skipCountdown() { 
-    clearInterval(countdownTimer); 
-    $('#view-countdown').addClass('hidden'); 
-    renderSurveyForm(); 
-}
-
-function renderSurveyForm() {
-    $('#view-survey').removeClass('hidden');
-    $('#survey-title').text(window.activeSurveyData.header.Judul);
-    $('#survey-desc').text(window.activeSurveyData.header.TargetKelas);
-    
-    totalSurveyQ = window.activeSurveyData.qs.length;
-    currentSurveyIdx = 0;
-    
-    let h = '';
-    window.activeSurveyData.qs.forEach((q, qIdx) => {
-        let scales = JSON.parse(q.Key || "[]");
-        let statements = JSON.parse(q.Options || "[]");
-        
-        let slideClass = qIdx === 0 ? '' : 'hidden';
-        
-        h += `<div class="card border-0 shadow-sm rounded-4 mb-4 survey-slide ${slideClass}" id="surv-sl-${qIdx}">
-                <div class="card-body p-4">
-                    <div class="mb-4 survey-stimulus" style="font-size:16px;">
-                        <div class="badge bg-success mb-3 fs-6 rounded-pill px-3 py-2 shadow-sm">Bagian ${qIdx + 1}</div><br>
-                        ${decodeHTML(q.Pertanyaan)}
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Pernyataan Detail</th>`;
-        
-        scales.forEach(s => h += `<th class="text-center" style="width:100px;">${s}</th>`);
-        
-        h += `                  </tr>
-                            </thead>
-                            <tbody>`;
-        
-        statements.forEach((stmt, sIdx) => {
-            h += `<tr><td class="fw-medium">${stmt}</td>`;
-            scales.forEach(s => { 
-                h += `<td class="text-center">
-                        <input type="radio" class="form-check-input" style="width:1.5em; height:1.5em; cursor:pointer;" name="sq-${q.QID}-${sIdx}" value="${s}">
-                      </td>`; 
-            });
-            h += `</tr>`;
-        });
-        
-        h += `              </tbody>
-                        </table>
-                    </div>
-                </div>
-              </div>`;
-    });
-    
-    $('#survey-container').html(h);
-    updateSurveyNav(); 
-}
-
-function navSurvey(dir) {
-    let nextIdx = currentSurveyIdx + dir;
-    if (nextIdx >= 0 && nextIdx < totalSurveyQ) {
-        $('.survey-slide').addClass('hidden');$(`#surv-sl-${nextIdx}`).removeClass('hidden');
-        currentSurveyIdx = nextIdx;
-        updateSurveyNav();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-}
-
-function updateSurveyNav() {
-    $('#survey-progress-text').text(`Halaman ${currentSurveyIdx + 1} dari ${totalSurveyQ}`);
-    
-    if(currentSurveyIdx === 0) {
-        $('#btn-prev-survey').addClass('hidden');
-    } else {
-        $('#btn-prev-survey').removeClass('hidden');
-    }
-    
-    if(currentSurveyIdx === totalSurveyQ - 1) {
-        $('#btn-next-survey').addClass('hidden');
-        $('#btn-submit-survey').removeClass('hidden');
-    } else {
-        $('#btn-next-survey').removeClass('hidden');
-        $('#btn-submit-survey').addClass('hidden');
-    }
-}
-
-function submitSurvey() {
-    let answers = []; let allAnswered = true;
-    window.activeSurveyData.qs.forEach((q) => {
-        let statements = JSON.parse(q.Options || "[]");
-        let qAns = { qid: q.QID, responses: [] };
-        statements.forEach((stmt, sIdx) => {
-            let val = $(`input[name="sq-${q.QID}-${sIdx}"]:checked`).val();
-            if(!val) allAnswered = false;
-            qAns.responses.push({ statement: stmt, answer: val });
-        });
-        answers.push(qAns);
-    });
-    
-    if(!allAnswered) return Swal.fire('Belum Lengkap', 'Mohon isi tanggapan untuk semua pernyataan.', 'warning');
-    
-    const d = new Date();
-    const localTime = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
-    
-    showLoad(true);
-    google.script.run.withSuccessHandler(res => {
-        showLoad(false); $('#view-survey').addClass('hidden');
-        try { document.exitFullscreen().catch(()=>{}) } catch (e) {};
-        Swal.fire({ title: 'Terima Kasih!', text: 'Respon evaluasi survei Anda telah kami terima dengan baik.', icon: 'success', confirmButtonColor: '#0f5132', allowOutsideClick: false }).then(() => {
-            $('#view-dashboard').removeClass('hidden'); loadPage('siswa-home');
-        });
-    }).submitSurveyResponse(user.ID, window.activeSurveyData.header.ExamID, answers, localTime);
 }
 
 function decodeHTML(htmlText) {
