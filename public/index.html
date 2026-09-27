@@ -179,21 +179,6 @@
     </div>
 </div>
 
-<!-- MODAL MANAJEMEN SESI (ADMIN) -->
-<div class="modal fade" id="modalSession" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold"><i class="fas fa-clock me-2"></i>Pengaturan Waktu Sesi</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body p-4">
-                <form id="frm-session" onsubmit="event.preventDefault(); saveSessions(); return false;" action="javascript:void(0);">
-                    <div id="session-container"></div>
-                    <button type="submit" class="btn btn-primary w-100 py-2 mt-3 fw-bold rounded-3">SIMPAN WAKTU SESI</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- MODAL UNTUK ADMIN (BUAT JADWAL UJIAN) -->
 <div class="modal fade" id="modalExam" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -217,7 +202,7 @@
                             <div id="kelas-container"><input type="text" name="targetKelas" id="ex-kelas" class="form-control" value="ALL"></div>
                         </div>
                         <div class="col-md-6"><label class="small fw-bold text-muted">Limit Mengerjakan</label><input type="number" name="limit" id="ex-limit" class="form-control" value="1"></div>
-                        <div class="col-md-6"><label class="small fw-bold text-muted">Token Pengerjaan Ujian (Wajib/Opsional)</label><input type="text" name="token" id="ex-token" class="form-control" placeholder="Kosongkan jika tak ada"></div>
+                        <div class="col-md-6"><label class="small fw-bold text-muted">Token Pengerjaan Ujian (Opsional)</label><input type="text" name="token" id="ex-token" class="form-control" placeholder="Kosongkan jika tak ada"></div>
                     </div>
                     <div class="d-flex flex-wrap gap-4 mb-4 p-3 bg-light rounded-3 border">
                         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="showStats" id="ex-showStats" value="Yes"><label class="small fw-medium">Tampilkan Nilai ke Peserta</label></div>
@@ -484,11 +469,6 @@ function loadPage(page) {
         google.script.run.withSuccessHandler(r => { showLoad(false); if(r.status === 'success') { gAdminData = r; renderAdministrasi('admin-administrasi'); } else Swal.fire('Error', r.msg, 'error'); }).getAdminData(user.Role, user.ID, user.Kelas, user.Sekolah);
         return;
     }
-    if(routeArg === 'admin-sesi') {
-        showLoad(true);
-        google.script.run.withSuccessHandler(r => { showLoad(false); if(r.status === 'success') { gAdminData = r; renderAdministrasi('admin-sesi'); } else Swal.fire('Error', r.msg, 'error'); }).getAdminData(user.Role, user.ID, user.Kelas, user.Sekolah);
-        return;
-    }
     
     showLoad(true);
     google.script.run.withSuccessHandler(res => {
@@ -497,7 +477,6 @@ function loadPage(page) {
     }).getDashboardData(user.Role, user.ID, user.Kelas, user.Sekolah);
 }
 
-// LOGIKA PENGUMUMAN PESERTA
 function lihatPengumuman() {
     const status = gData.userStatus || '';
     if (status === 'LULUS') {
@@ -547,7 +526,6 @@ function renderUsers(users) {
             
             <button class="btn btn-success shadow-sm m-0 me-2 rounded-pill px-3 mb-2 hidden" id="btn-bulk-lulus" onclick="setKelulusan('LULUS')"><i class="fas fa-check-circle me-1"></i> Set Lulus</button>
             <button class="btn btn-warning shadow-sm m-0 rounded-pill px-3 mb-2 hidden text-dark" id="btn-bulk-gagal" onclick="setKelulusan('TIDAK LULUS')"><i class="fas fa-times-circle me-1"></i> Set Belum Lulus</button>
-            <button class="btn btn-outline-dark shadow-sm m-0 rounded-pill px-3 mb-2" onclick="openSessionModal()"><i class="fas fa-clock me-1"></i> Atur Jam Sesi</button>
             ` : `<h5 class="fw-bold text-primary mb-0"><i class="fas fa-users me-2"></i>Data Peserta Anda</h5>`}
             
             ${canEdit ? `
@@ -641,38 +619,6 @@ function renderUserRows(data) {
     $('#users-tbody').html(h);
     $('#check-all-users').prop('checked', false);
     if(isAdmin) toggleBulkDeleteUsersBtn();
-}
-
-function openSessionModal() {
-    $('#modalSession').modal('show');
-    let h = '';
-    let sessions = gData.sessions || [
-        {SesiID: '1', JamMulai: '07:30', JamSelesai: '09:00'},
-        {SesiID: '2', JamMulai: '09:30', JamSelesai: '11:00'},
-        {SesiID: '3', JamMulai: '11:30', JamSelesai: '13:00'},
-        {SesiID: '4', JamMulai: '13:30', JamSelesai: '15:00'}
-    ];
-    
-    sessions.forEach(s => {
-        h += `<div class="row g-2 mb-3 bg-light p-2 rounded border">
-                <div class="col-12 fw-bold text-primary">Sesi ${s.SesiID}</div>
-                <div class="col-6"><label class="small text-muted">Jam Mulai</label><input type="time" id="sesi-m-${s.SesiID}" class="form-control" value="${s.JamMulai}"></div>
-                <div class="col-6"><label class="small text-muted">Jam Selesai</label><input type="time" id="sesi-s-${s.SesiID}" class="form-control" value="${s.JamSelesai}"></div>
-              </div>`;
-    });
-    $('#session-container').html(h);
-}
-
-function saveSessions() {
-    let payload = [];
-    for(let i=1; i<=4; i++) {
-        payload.push({ id: i.toString(), mulai: $(`#sesi-m-${i}`).val(), selesai: $(`#sesi-s-${i}`).val() });
-    }
-    showLoad(true);
-    google.script.run.withSuccessHandler(res => {
-        showLoad(false); $('#modalSession').modal('hide'); Swal.fire('Berhasil', res.msg, 'success');
-        loadPage('admin-users');
-    }).adminSaveSession(payload);
 }
 
 function saveSessionsPage() {
@@ -1288,35 +1234,9 @@ function renderAdministrasi() {
         </div>
     </div>`;
     
-    if (page === 'admin-sesi') {
-        let sessions = gData.sessions || [
-            {SesiID: '1', JamMulai: '07:30', JamSelesai: '09:00'},
-            {SesiID: '2', JamMulai: '09:30', JamSelesai: '11:00'},
-            {SesiID: '3', JamMulai: '11:30', JamSelesai: '13:00'},
-            {SesiID: '4', JamMulai: '13:30', JamSelesai: '15:00'}
-        ];
-        h = `<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                    <h5 class="fw-bold text-primary mb-0"><i class="fas fa-clock me-2"></i>Pengaturan Jam Sesi Ujian</h5>
-             </div>
-             <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-body p-4">
-                    <form id="frm-sesi-page" onsubmit="event.preventDefault(); saveSessionsPage(); return false;">`;
-        sessions.forEach(s => {
-            h += `<div class="row g-3 mb-3 bg-light p-3 rounded-4 border align-items-center">
-                    <div class="col-md-2 fw-bold text-primary fs-5">Sesi ${s.SesiID}</div>
-                    <div class="col-md-5"><label class="small text-muted fw-bold">Jam Mulai Buka</label><input type="time" id="pg-sesi-m-${s.SesiID}" class="form-control rounded-pill bg-white" value="${s.JamMulai}" required></div>
-                    <div class="col-md-5"><label class="small text-muted fw-bold">Jam Selesai Tutup</label><input type="time" id="pg-sesi-s-${s.SesiID}" class="form-control rounded-pill bg-white" value="${s.JamSelesai}" required></div>
-                  </div>`;
-        });
-        h += `          <div class="text-end mt-4"><button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm"><i class="fas fa-save me-2"></i>SIMPAN PENGATURAN WAKTU</button></div>
-                    </form>
-                </div>
-             </div>`;
-    }
-
     $('#content-area').html(h);
 }
-    
+
 function printKartuLogin() {
     let usersToPrint = gAdminData.users;
     if (usersToPrint.length === 0) return Swal.fire('Kosong', 'Tidak ada data peserta.', 'info');
@@ -1830,7 +1750,6 @@ function deleteQBlock(uid) {
     });
 }
 
-// LOGIKA TOKEN SAAT MULAI UJIAN
 function startExam(eid, reqToken = '') {
     const tokenValid = reqToken && reqToken !== '-' && reqToken !== 'null';
 
@@ -1847,7 +1766,7 @@ function startExam(eid, reqToken = '') {
     if (tokenValid) {
         Swal.fire({
             title: 'Token Ujian Diperlukan',
-            text: 'Silakan masukkan token pengerjaan ujian untuk memulai.',
+            html: rules + '<div class="mt-3"><label class="fw-bold mb-2 text-primary">Masukkan Token Ujian:</label></div>',
             input: 'text',
             inputAttributes: { autocapitalize: 'characters', autocomplete: 'off' },
             icon: 'info',
@@ -1862,48 +1781,46 @@ function startExam(eid, reqToken = '') {
                 return true;
             }
         }).then(r => {
-            if (r.isConfirmed) { showExamRules(eid, rules); }
+            if (r.isConfirmed) { executeStartExam(eid); }
         });
     } else {
-        showExamRules(eid, rules);
+        Swal.fire({ title: 'Siap Memulai Ujian?', html: rules, icon: 'info', showCancelButton: true, confirmButtonText: '<i class="fas fa-play me-1"></i> SETUJU & MULAI', confirmButtonColor: '#0f5132' }).then(r => {
+            if(r.isConfirmed) { executeStartExam(eid); }
+        });
     }
 }
 
-function showExamRules(eid, rules) {
-    Swal.fire({ title: 'Siap Memulai Ujian?', html: rules, icon: 'info', showCancelButton: true, confirmButtonText: '<i class="fas fa-play me-1"></i> SETUJU & MULAI', confirmButtonColor: '#0f5132' }).then(r => {
-        if(r.isConfirmed) {
-            if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch((err) => {}); }
-            showLoad(true);
-            google.script.run.withSuccessHandler(res => {
-                showLoad(false);
-                if(res.status === 'success') {
-                    localStorage.removeItem(`ANS_${user.ID}_${eid}`);
-                    activeExamId = eid; 
-                    
-                    let qs = res.data;
-                    let randomQ = res.randomQ === 'Yes';
-                    let grouped = { 'Kepribadian': [], 'Profesional': [], 'Sosial': [] };
-                    
-                    qs.forEach(q => {
-                        let k = q.Kategori || 'Profesional';
-                        if(grouped[k]) grouped[k].push(q);
-                        else grouped['Profesional'].push(q);
-                    });
-                    
-                    let finalQs = [];
-                    ['Kepribadian', 'Profesional', 'Sosial'].forEach(k => {
-                        if(randomQ) grouped[k].sort(() => Math.random() - 0.5);
-                        finalQs.push(...grouped[k]);
-                    });
-                    
-                    totalQ = finalQs.length;
-                    $('#do-exam-title').text(user.Nama);
-                    try { localStorage.setItem('cbt_active_exam', JSON.stringify({ id: eid, qs: finalQs, dur: res.duration, start: Date.now(), judul: res.judul, token: res.token })); } catch(e) {}
-                    violationCount = 0; enableSecurity(); runExam(finalQs, res.duration, false);
-                } else Swal.fire('Gagal Mengunduh Soal', res.msg, 'error');
-            }).getExamPack(eid, user.ID);
-        }
-    });
+function executeStartExam(eid) {
+    if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch((err) => {}); }
+    showLoad(true);
+    google.script.run.withSuccessHandler(res => {
+        showLoad(false);
+        if(res.status === 'success') {
+            localStorage.removeItem(`ANS_${user.ID}_${eid}`);
+            activeExamId = eid; 
+            
+            let qs = res.data;
+            let randomQ = res.randomQ === 'Yes';
+            let grouped = { 'Kepribadian': [], 'Profesional': [], 'Sosial': [] };
+            
+            qs.forEach(q => {
+                let k = q.Kategori || 'Profesional';
+                if(grouped[k]) grouped[k].push(q);
+                else grouped['Profesional'].push(q);
+            });
+            
+            let finalQs = [];
+            ['Kepribadian', 'Profesional', 'Sosial'].forEach(k => {
+                if(randomQ) grouped[k].sort(() => Math.random() - 0.5);
+                finalQs.push(...grouped[k]);
+            });
+            
+            totalQ = finalQs.length;
+            $('#do-exam-title').text(user.Nama);
+            try { localStorage.setItem('cbt_active_exam', JSON.stringify({ id: eid, qs: finalQs, dur: res.duration, start: Date.now(), judul: res.judul, token: res.token })); } catch(e) {}
+            violationCount = 0; enableSecurity(); runExam(finalQs, res.duration, false);
+        } else Swal.fire('Gagal Mengunduh Soal', res.msg, 'error');
+    }).getExamPack(eid, user.ID);
 }
 
 function enableSecurity() { 
