@@ -1630,7 +1630,16 @@ function printBeritaAcara() {
     <script>window.onload = function() { window.print(); }<\/script></body></html>`;
     const win = window.open('', '', 'width=800,height=600'); win.document.write(html); win.document.close();
 }
-
+function openExamModal(str) {
+  $('#modalExam').modal('show'); let d = null;
+  if(str) {
+    d = JSON.parse(decodeURIComponent(str));
+    $('#ex-id').val(d.ExamID); $('#ex-judul').val(d.Judul); $('#ex-mapel').val(d.Mapel); $('#ex-durasi').val(d.Durasi);
+    $('#ex-limit').val(d.Limit); $('#ex-start').val(d.StartDate.replace(' ','T')); $('#ex-end').val(d.EndDate.replace(' ','T'));
+    $('#ex-token').val(d.Token || ''); $('#ex-randomQ').prop('checked', d.RandomQ === 'Yes'); $('#ex-showStats').prop('checked', d.ShowStats === 'Yes');
+    $('#ex-dlSoal').prop('checked', d.AllowDownloadQ === 'Yes'); $('#ex-dlHasil').prop('checked', d.AllowDownloadR === 'Yes');
+  } else { $('#modalExam form')[0].reset(); $('#ex-id').val(''); $('#ex-token').val(''); }
+}
 function saveExam() {
   const formEl = document.getElementById('frm-exam'); const fd = new FormData(formEl); const d = Object.fromEntries(fd.entries());
   d.showStats = $('#ex-showStats').is(':checked') ? 'Yes' : 'No'; d.randomQ = $('#ex-randomQ').is(':checked') ? 'Yes' : 'No'; 
