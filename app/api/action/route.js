@@ -49,11 +49,6 @@ export async function POST(req) {
             output.studentRanks = studentRankQuery.rows;
         }
         
-        if (role === 'admin') {
-            const surveys = await turso.execute("SELECT * FROM Exams WHERE Mapel = 'SURVEY'");
-            output.surveys = surveys.rows;
-        }
-
         const sessionsQuery = await turso.execute("SELECT * FROM Sessions ORDER BY SesiID ASC");
         output.sessions = sessionsQuery.rows;
 
@@ -163,27 +158,6 @@ export async function POST(req) {
          await turso.execute({ sql: "INSERT INTO Questions (QID, ExamID, Tipe, Pertanyaan, Options, Key, Skor, Nomor, PembuatID, Kategori) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", args: [id, eid, q.type, q.text, JSON.stringify(q.options), JSON.stringify(q.key), q.score, q.num, userId, kategori] });
       }
       return NextResponse.json({ status: 'success', msg: `${qArr.length} soal diupload!` });
-    }
-
-    if (action === 'adminSaveSurvey') {
-      const d = args[0]; const id = d.id || ('SRV' + Date.now());
-      const cek = await turso.execute({ sql: "SELECT ExamID FROM Exams WHERE ExamID = ?", args: [id] });
-      if (cek.rows.length > 0) { await turso.execute({ sql: "UPDATE Exams SET Judul=?, ShowStats=?, Token=? WHERE ExamID=?", args: [d.judul, d.status, d.linkedExam, id] });
-      } else { await turso.execute({ sql: "INSERT INTO Exams (ExamID, Judul, Mapel, Durasi, Token, StartDate, EndDate, LimitTries, ShowStats, RandomQ, AllowDownloadQ, AllowDownloadR, PembuatID) VALUES (?, ?, 'SURVEY', 0, ?, '', '', 1, ?, 'No', 'No', 'No', ?)", args: [id, d.judul, d.linkedExam, d.status, d.userId] }); }
-      return NextResponse.json({ status: 'success' });
-    }
-
-    if (action === 'checkActiveSurvey') {
-        const srv = await turso.execute({ sql: "SELECT * FROM Exams WHERE Mapel='SURVEY' AND Token=? AND ShowStats='Aktif' LIMIT 1", args: [args[0]] });
-        if(srv.rows.length > 0) { const qs = await turso.execute({ sql: "SELECT * FROM Questions WHERE ExamID = ?", args: [srv.rows[0].ExamID] }); return NextResponse.json({ status: 'success', data: { header: srv.rows[0], qs: qs.rows } }); }
-        return NextResponse.json({ status: 'empty' });
-    }
-
-    if (action === 'submitSurveyResponse') {
-        const uid = args[0]; const sid = args[1]; const answers = args[2]; const waktuSubmit = args[3];
-        await turso.execute({ sql: "INSERT INTO Results (ResultID, SiswaID, ExamID, TotalNilai, Detail, Pelanggaran, WaktuSubmit) VALUES (?, ?, ?, 0, ?, 'Survey Response', ?)", args: ['SRES' + Date.now(), uid, sid, JSON.stringify(answers), waktuSubmit] });
-        try { await turso.execute({ sql: "UPDATE Users SET Status='Survei Selesai', Terjawab=TotalSoal WHERE ID=?", args: [uid] }); } catch(e){}
-        return NextResponse.json({ status: 'success' });
     }
 
     if (action === 'getExamPack') {
