@@ -8,6 +8,21 @@ export async function POST(req) {
   try {
     const { action, args } = await req.json();
 
+    // MENGAMBIL DATA SESI UNTUK LANDING PAGE SECARA PUBLIK
+    if (action === 'getPublicSessions') {
+      try {
+          const sessionsQuery = await turso.execute("SELECT * FROM Sessions ORDER BY SesiID ASC");
+          return NextResponse.json({ status: 'success', data: sessionsQuery.rows });
+      } catch (error) {
+          return NextResponse.json({ status: 'success', data: [
+              {SesiID: '1', JamMulai: '07:30', JamSelesai: '09:00'},
+              {SesiID: '2', JamMulai: '09:30', JamSelesai: '11:00'},
+              {SesiID: '3', JamMulai: '11:30', JamSelesai: '13:00'},
+              {SesiID: '4', JamMulai: '13:30', JamSelesai: '15:00'}
+          ]});
+      }
+    }
+
     if (action === 'getDashboardData') {
       const [role, userId, , sekolah] = args; 
       let exams, users;
@@ -111,9 +126,10 @@ export async function POST(req) {
 
     if (action === 'adminSaveExam') {
       const d = args[0]; const id = d.examId || ('EX' + Date.now());
+      const targetKelas = 'ALL'; // Dipaksa ALL karena fitur kelas dihilangkan
       const cek = await turso.execute({ sql: "SELECT ExamID FROM Exams WHERE ExamID = ?", args: [id] });
-      if (cek.rows.length > 0) { await turso.execute({ sql: "UPDATE Exams SET Judul=?, Mapel=?, Durasi=?, Token=?, StartDate=?, EndDate=?, LimitTries=?, ShowStats=?, RandomQ=?, AllowDownloadQ=?, AllowDownloadR=? WHERE ExamID=?", args: [d.judul, d.mapel, d.durasi, d.token || '', d.start, d.end, d.limit || 1, d.showStats, d.randomQ, d.dlSoal, d.dlHasil, id] });
-      } else { await turso.execute({ sql: "INSERT INTO Exams (ExamID, Judul, Mapel, Durasi, Token, StartDate, EndDate, LimitTries, ShowStats, RandomQ, AllowDownloadQ, AllowDownloadR, PembuatID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", args: [id, d.judul, d.mapel, d.durasi, d.token || '', d.start, d.end, d.limit || 1, d.showStats, d.randomQ, d.dlSoal, d.dlHasil, d.userId] }); }
+      if (cek.rows.length > 0) { await turso.execute({ sql: "UPDATE Exams SET Judul=?, Mapel=?, TargetKelas=?, Durasi=?, Token=?, StartDate=?, EndDate=?, LimitTries=?, ShowStats=?, RandomQ=?, AllowDownloadQ=?, AllowDownloadR=? WHERE ExamID=?", args: [d.judul, d.mapel, targetKelas, d.durasi, d.token || '', d.start, d.end, d.limit || 1, d.showStats, d.randomQ, d.dlSoal, d.dlHasil, id] });
+      } else { await turso.execute({ sql: "INSERT INTO Exams (ExamID, Judul, Mapel, TargetKelas, Durasi, Token, StartDate, EndDate, LimitTries, ShowStats, RandomQ, AllowDownloadQ, AllowDownloadR, PembuatID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", args: [id, d.judul, d.mapel, targetKelas, d.durasi, d.token || '', d.start, d.end, d.limit || 1, d.showStats, d.randomQ, d.dlSoal, d.dlHasil, d.userId] }); }
       return NextResponse.json({ status: 'success', msg: 'Jadwal Ujian berhasil dibuat!' });
     }
 
@@ -223,7 +239,6 @@ export async function POST(req) {
           }
        });
 
-       // MURNI PENJUMLAHAN (Tanpa dibagi atau dikali 100)
        let finalScore = Math.round(rawTotalScore * 100) / 100;
 
        await turso.execute({ sql: "INSERT INTO Results (ResultID, SiswaID, ExamID, TotalNilai, Detail, Pelanggaran, WaktuSubmit) VALUES (?, ?, ?, ?, ?, ?, ?)", args: ['RES' + Date.now(), uid, eid, finalScore, JSON.stringify(detailLog), violations > 0 ? `Pelanggaran: ${violations}x` : "-", waktuSubmit] });
