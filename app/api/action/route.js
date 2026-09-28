@@ -13,11 +13,12 @@ export async function POST(req) {
 
     if (action === 'getLandingData') {
       try {
-        const settings = await turso.execute("SELECT * FROM Settings WHERE KeyName = 'SesiAktif'");
-        const sesi = settings.rows.length > 0 ? settings.rows[0].KeyValue : '1';
-        return NextResponse.json({ status: 'success', data: { SesiAktif: sesi } });
+        const settings = await turso.execute("SELECT * FROM Settings WHERE KeyName IN ('SesiAktif', 'JamSesi1', 'JamSesi2', 'JamSesi3')");
+        let data = { SesiAktif: '1', JamSesi1: '07.30 - 09.00', JamSesi2: '09.30 - 11.00', JamSesi3: '11.30 - 13.00' };
+        settings.rows.forEach(r => { data[r.KeyName] = r.KeyValue; });
+        return NextResponse.json({ status: 'success', data: data });
       } catch (e) {
-        return NextResponse.json({ status: 'success', data: { SesiAktif: '1' } });
+        return NextResponse.json({ status: 'success', data: { SesiAktif: '1', JamSesi1: '07.30 - 09.00', JamSesi2: '09.30 - 11.00', JamSesi3: '11.30 - 13.00' } });
       }
     }
 
@@ -25,13 +26,21 @@ export async function POST(req) {
       const newSesi = args[0];
       try {
         await turso.execute("CREATE TABLE IF NOT EXISTS Settings (KeyName VARCHAR(50) PRIMARY KEY, KeyValue VARCHAR(255))");
-        const cek = await turso.execute("SELECT KeyName FROM Settings WHERE KeyName = 'SesiAktif'");
-        if (cek.rows.length > 0) {
-           await turso.execute({ sql: "UPDATE Settings SET KeyValue = ? WHERE KeyName = 'SesiAktif'", args: [newSesi] });
-        } else {
-           await turso.execute({ sql: "INSERT INTO Settings (KeyName, KeyValue) VALUES ('SesiAktif', ?)", args: [newSesi] });
-        }
+        await turso.execute({ sql: "INSERT OR REPLACE INTO Settings (KeyName, KeyValue) VALUES ('SesiAktif', ?)", args: [newSesi] });
         return NextResponse.json({ status: 'success', msg: 'Sesi Aktif Berhasil Diperbarui' });
+      } catch (e) {
+        return NextResponse.json({ status: 'error', msg: e.message });
+      }
+    }
+
+    if (action === 'adminUpdateJamSesi') {
+      const { s1, s2, s3 } = args[0];
+      try {
+        await turso.execute("CREATE TABLE IF NOT EXISTS Settings (KeyName VARCHAR(50) PRIMARY KEY, KeyValue VARCHAR(255))");
+        await turso.execute({ sql: "INSERT OR REPLACE INTO Settings (KeyName, KeyValue) VALUES ('JamSesi1', ?)", args: [s1] });
+        await turso.execute({ sql: "INSERT OR REPLACE INTO Settings (KeyName, KeyValue) VALUES ('JamSesi2', ?)", args: [s2] });
+        await turso.execute({ sql: "INSERT OR REPLACE INTO Settings (KeyName, KeyValue) VALUES ('JamSesi3', ?)", args: [s3] });
+        return NextResponse.json({ status: 'success', msg: 'Jam Sesi Berhasil Diperbarui' });
       } catch (e) {
         return NextResponse.json({ status: 'error', msg: e.message });
       }
@@ -51,11 +60,17 @@ export async function POST(req) {
       
       let output = { logo: 'https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq' };
       
-      // Ambil Sesi Global
+      // Ambil Sesi Global dan Jam Sesi
       try {
-        const settings = await turso.execute("SELECT * FROM Settings WHERE KeyName = 'SesiAktif'");
-        output.sesiAktif = settings.rows.length > 0 ? settings.rows[0].KeyValue : '1';
-      } catch(e) { output.sesiAktif = '1'; }
+        const settings = await turso.execute("SELECT * FROM Settings WHERE KeyName IN ('SesiAktif', 'JamSesi1', 'JamSesi2', 'JamSesi3')");
+        output.sesiAktif = '1'; output.jamSesi1 = '07.30 - 09.00'; output.jamSesi2 = '09.30 - 11.00'; output.jamSesi3 = '11.30 - 13.00';
+        settings.rows.forEach(r => {
+            if(r.KeyName === 'SesiAktif') output.sesiAktif = r.KeyValue;
+            if(r.KeyName === 'JamSesi1') output.jamSesi1 = r.KeyValue;
+            if(r.KeyName === 'JamSesi2') output.jamSesi2 = r.KeyValue;
+            if(r.KeyName === 'JamSesi3') output.jamSesi3 = r.KeyValue;
+        });
+      } catch(e) {}
       
       if (role === 'admin' || role === 'guru') {
         output.exams = exams.rows;
@@ -103,7 +118,6 @@ export async function POST(req) {
         });
         output.history = history.rows;
         
-        // Ambil data User untuk cek Sesi Siswa ini
         const userSelf = await turso.execute({ sql: "SELECT Sesi FROM Users WHERE ID = ?", args: [userId] });
         if(userSelf.rows.length > 0) output.userSesi = userSelf.rows[0].Sesi;
       }
