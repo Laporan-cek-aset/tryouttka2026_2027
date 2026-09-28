@@ -48,8 +48,6 @@
         .spinner { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes fadeInDown { 0% { opacity: 0; transform: translateY(-20px); } 100% { opacity: 1; transform: translateY(0); } }
-        @keyframes pulseBtn { 0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(25, 135, 84, 0); } 100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); } }
-        .btn-pulse { animation: pulseBtn 2s infinite; }
         
         .match-container { position: relative; width: 100%; min-height: 300px; display: flex; justify-content: space-between; padding: 10px; user-select: none; }
         .match-col { width: 40%; display: flex; flex-direction: column; gap: 15px; z-index: 2; }
@@ -67,7 +65,7 @@
         .clickable-opt:has(input:checked) { border-color: var(--primary) !important; background-color: #f0fdf4 !important; }
         .clickable-opt input[type="radio"], .clickable-opt input[type="checkbox"] { transform: scale(1.6); margin-top: 0; cursor: pointer; accent-color: var(--primary); flex-shrink:0; }
         
-        /* Modifikasi Checkbox Jadwal Ujian (Circular Checkbox Style) */
+        /* Modifikasi Checkbox Jadwal Ujian */
         .setting-checkbox { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; border: 2px solid #cbd5e1; border-radius: 50%; background: #fff; cursor: pointer; position: relative; margin-top: 0; flex-shrink: 0; }
         .setting-checkbox:checked { border-color: #0d6efd; background-color: #fff; }
         .setting-checkbox:checked::after { content: ''; position: absolute; top: 4px; left: 4px; width: 10px; height: 10px; background-color: #0d6efd; border-radius: 50%; }
@@ -88,7 +86,7 @@
     </style>
 </head>
 <body>
-<!-- Loader / Layar Putih -->
+<!-- Loader -->
 <div id="loader" class="loader hidden"><div class="spinner"></div></div>
 <div id="sidebar-overlay" class="overlay" onclick="toggleSidebar()"></div>
 
@@ -178,7 +176,7 @@
     </div>
 </div>
 
-<!-- MODAL UNTUK ADMIN (BUAT JADWAL UJIAN) - RE-DESIGN MATCHING IMAGE 1000136941.jpg -->
+<!-- MODAL UNTUK ADMIN (BUAT JADWAL UJIAN) -->
 <div class="modal fade" id="modalExam" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
@@ -348,7 +346,7 @@ window.google = {
             })
             .catch(err => {
               console.error("CBT Error:", err);
-              $('#loader').addClass('hidden'); // Force Matikan Loader Jika Error Database
+              $('#loader').addClass('hidden'); // Force Matikan Loader Jika Error
               if(target.fCb) target.fCb(err);
               else Swal.fire('Terjadi Kesalahan', err.message || 'Gagal menyambung ke database. Harap Refresh.', 'error');
             });
@@ -463,7 +461,7 @@ function loadPage(page) {
     
     if(routeArg === 'admin-users') {
         showLoad(true);
-        google.script.run.withSuccessHandler(r => { showLoad(false); if(r.status === 'success') renderUsers(r.data); else Swal.fire('Error', r.msg, 'error'); }).getUserList(user.Role, user.ID, user.Sekolah);
+        google.script.run.withSuccessHandler(r => { showLoad(false); if(r.status === 'success') renderUsers(r.data); }).getUserList(user.Role, user.ID, user.Sekolah);
         return;
     }
     if(routeArg === 'hasil-rekap') {
@@ -473,7 +471,7 @@ function loadPage(page) {
     }
     if(routeArg === 'admin-administrasi') {
         showLoad(true);
-        google.script.run.withSuccessHandler(r => { showLoad(false); if(r.status === 'success') { gAdminData = r; renderAdministrasi(); } else Swal.fire('Error', r.msg, 'error'); }).getAdminData(user.Role, user.ID, user.Kelas, user.Sekolah);
+        google.script.run.withSuccessHandler(r => { showLoad(false); if(r.status === 'success') { gAdminData = r; renderAdministrasi(); } }).getAdminData(user.Role, user.ID, user.Kelas, user.Sekolah);
         return;
     }
     
@@ -482,9 +480,9 @@ function loadPage(page) {
         showLoad(false);
         if (res.status === 'success') { 
             gData = res.data; 
-            renderContentSafe(page); // Menggunakan Safe Renderer
+            renderContentSafe(page);
             applyMathJax(); 
-        } else Swal.fire('Error', res.msg, 'error');
+        } 
     }).getDashboardData(user.Role, user.ID, user.Kelas, user.Sekolah);
 }
 
@@ -504,7 +502,6 @@ function renderContent(page) {
     const area = $('#content-area'); let h = '';
     const isGuru = String(user.Role).trim().toLowerCase() === 'guru';
 
-    // Inisialisasi default array (Mencegah Error)
     let examsData = gData.exams || [];
     let historyData = gData.history || [];
     let schoolRanksData = gData.schoolRanks || [];
@@ -543,9 +540,7 @@ function renderContent(page) {
         if(isGuru && studentRanksData.length > 0) {
             const uniqueMapels = [...new Set(studentRanksData.map(st => st.Mapel))];
             let mapelFilterOptions = `<option value="">Semua Mapel</option>` + uniqueMapels.map(m => `<option value="${m}">${m}</option>`).join('');
-            
             window.allStudentRanks = studentRanksData;
-
             extraWidget = `
             <div class="col-md-7">
                 <div class="card shadow-sm border-0 rounded-4 h-100">
@@ -586,11 +581,9 @@ function renderContent(page) {
                 </div>
                 ${extraWidget}
              </div>`;
-             
     }
     else if (page === 'admin-ujian') {
         let uniqueMapel = [...new Set(examsData.map(e => e.Mapel))];
-        
         h = `<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">`;
         if(!isGuru) h += `<button class="btn btn-primary shadow-sm px-4 py-2 rounded-pill fw-bold" onclick="openExamModal()"><i class="fas fa-plus me-2"></i>Buat Jadwal Baru</button>`;
         else h += `<div><h5 class="fw-bold text-primary mb-0"><i class="fas fa-folder-open me-2"></i>Daftar Bank Soal CAT BCKS</h5><p class="small text-muted m-0">Guru hanya memiliki akses mengunduh soal untuk cetak PDF.</p></div>`;
@@ -677,21 +670,26 @@ function renderContent(page) {
                 h += `<div class="col-md-6 col-lg-4"><div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden transition-hover"><div class="card-body p-4 text-center"><span class="badge bg-light text-primary border border-primary px-3 py-2 rounded-pill mb-3 fw-bold">${e.Mapel}</span><h5 class="fw-bold text-dark mb-3">${e.Judul}</h5><p class="small text-muted mb-4"><i class="fas fa-stopwatch me-1"></i> Waktu CAT BCKS: <b>${e.Durasi} Menit</b></p><button class="btn ${btnClass} w-100 py-2 fw-bold rounded-pill shadow-sm" onclick="startExam('${e.ExamID}', '${e.Token || ''}')" ${btnState}>${btnText}</button></div></div></div>`;
             });
         }
-        h += '</div><h5 class="fw-bold mb-3 border-bottom pb-2 mt-5 text-primary"><i class="fas fa-history me-2"></i>Riwayat Ujian & Pengumuman</h5>';
+        h += '</div><h5 class="fw-bold mb-3 border-bottom pb-2 mt-5 text-primary"><i class="fas fa-history me-2"></i>Riwayat Ujian & Hasil</h5>';
         
         if(historyData.length === 0) { h += '<p class="text-muted fst-italic ms-2">Anda belum menyelesaikan ujian CAT BCKS apa pun.</p>'; } 
         else {
-            h += `<div class="table-responsive bg-white rounded-4 shadow-sm p-3 border"><table class="table table-hover align-middle mb-0"><thead><tr><th>Tanggal & Waktu</th><th>Nama Ujian</th><th>Pengumuman Hasil</th><th>Aksi Lanjutan</th></tr></thead><tbody>`;
+            h += `<div class="table-responsive bg-white rounded-4 shadow-sm p-3 border"><table class="table table-hover align-middle mb-0"><thead><tr><th>Tanggal & Waktu</th><th>Nama Ujian</th><th>Nilai Akhir</th><th>Aksi Lanjutan</th></tr></thead><tbody>`;
             historyData.forEach(r => { 
                 
                 let displayNilai = (r.ShowStats === 'Yes' || r.ShowStats === 'Aktif') 
-                    ? `<button class="btn btn-sm btn-success rounded-pill px-4 py-2 shadow-sm fw-bold btn-pulse" onclick="lihatPengumuman()"><i class="fas fa-envelope-open-text me-2"></i> Buka Pengumuman</button>` 
-                    : `<span class="badge bg-secondary fs-6 shadow-sm px-3 rounded-pill"><i class="fas fa-lock"></i> Belum Diumumkan</span>`;
+                    ? `<span class="badge bg-success fs-5 shadow-sm px-4 py-2 rounded-pill">${r.Nilai}</span>` 
+                    : `<span class="badge bg-secondary fs-6 shadow-sm px-3 py-2 rounded-pill"><i class="fas fa-lock me-1"></i> Dirahasiakan</span>`;
                 
                 let actions = '';
                 
                 if(r.AllowDownloadQ === 'Yes') {
                     actions += `<button class="btn btn-sm btn-outline-info me-2 mt-1 rounded-pill px-3 shadow-sm" onclick="dlSiswaSoal('${r.ExamID}')"><i class="fas fa-file-alt me-1"></i> Soal PDF</button>`;
+                }
+                
+                // Gunakan AllowDownloadR untuk cetak hasil PDF
+                if(r.AllowDownloadR === 'Yes' && (r.ShowStats === 'Yes' || r.ShowStats === 'Aktif')) {
+                    actions += `<button class="btn btn-sm btn-success me-2 mt-1 rounded-pill px-3 shadow-sm" onclick="dlSiswaHasil('${r.ResultID}')"><i class="fas fa-file-pdf me-1"></i> Hasil PDF</button>`;
                 }
                 
                 actions += `<button class="btn btn-sm btn-outline-danger mt-1 rounded-pill px-3 shadow-sm" onclick="laporTrobel('${r.ResultID}')"><i class="fas fa-exclamation-triangle me-1"></i> Lapor Trobel</button>`;
@@ -723,36 +721,6 @@ function renderContent(page) {
 
     area.html(h);
     if (page === 'admin-home' && isGuru) setTimeout(() => filterDashStudentRanks(), 50);
-}
-
-// LOGIKA PENGUMUMAN PESERTA
-function lihatPengumuman() {
-    const status = gData.userStatus || '';
-    if (status === 'LULUS') {
-        Swal.fire({
-            title: 'PENGUMUMAN HASIL',
-            html: `<div class="mb-4 mt-2"><i class="fas fa-check-circle text-success" style="font-size: 5rem; text-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);"></i></div>
-                   <h3 class="fw-bold text-success mb-3">SELAMAT! ANDA LULUS</h3>
-                   <p class="fs-6 text-muted">Berdasarkan hasil penilaian, Anda dinyatakan memenuhi kriteria kelulusan.<br>Terus pertahankan semangat belajarmu!</p>`,
-            confirmButtonText: 'Tutup',
-            confirmButtonColor: '#198754'
-        });
-    } else if (status === 'TIDAK LULUS') {
-        Swal.fire({
-            title: 'PENGUMUMAN HASIL',
-            html: `<div class="mb-4 mt-2"><i class="fas fa-times-circle text-danger" style="font-size: 5rem; text-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);"></i></div>
-                   <h3 class="fw-bold text-danger mb-3">MOHON MAAF</h3>
-                   <p class="fs-6 text-muted">Berdasarkan hasil penilaian, Anda dinyatakan <b>BELUM LULUS</b>.<br>Jangan menyerah, jadikan ini sebagai motivasi untuk belajar lebih giat lagi!</p>`,
-            confirmButtonText: 'Tutup',
-            confirmButtonColor: '#dc3545'
-        });
-    } else {
-        Swal.fire({
-            title: 'BELUM TERSEDIA',
-            text: 'Status kelulusan Anda saat ini sedang dalam proses atau belum dirilis oleh panitia.',
-            icon: 'info'
-        });
-    }
 }
 
 function encodeImageFileAsURL(element) { let file = element.files[0]; let reader = new FileReader(); reader.onloadend = function() { $('#mu-foto-b64').val(reader.result); }; if(file) reader.readAsDataURL(file); }
@@ -1643,11 +1611,13 @@ function openExamModal(str) {
       $('#modalExam form')[0].reset(); 
       $('#ex-id').val(''); $('#ex-token').val(''); 
       $('#ex-randomQ').prop('checked', true); 
+      $('#ex-showStats').prop('checked', false);
+      $('#ex-dlSoal').prop('checked', false);
+      $('#ex-dlHasil').prop('checked', false);
   }
 }
 
 function saveExam() {
-  const formEl = document.getElementById('frm-exam'); 
   const d = {
       judul: $('#ex-judul').val(),
       mapel: $('#ex-mapel').val(),
@@ -1673,7 +1643,7 @@ function saveExam() {
   google.script.run.withSuccessHandler((res) => {
     if(res.status === 'success') {
       $('#modalExam').modal('hide');
-      google.script.run.withSuccessHandler(res2 => { showLoad(false); if (res2.status === 'success') { gData = res2.data; renderContent('admin-ujian'); toast('success', 'Jadwal Disimpan!'); } else { Swal.fire('Gagal', res2.msg, 'error'); } }).getDashboardData(user.Role, user.ID, user.Kelas, user.Sekolah);
+      google.script.run.withSuccessHandler(res2 => { showLoad(false); if (res2.status === 'success') { gData = res2.data; renderContentSafe('admin-ujian'); toast('success', 'Jadwal Disimpan!'); } else { Swal.fire('Gagal', res2.msg, 'error'); } }).getDashboardData(user.Role, user.ID, user.Kelas, user.Sekolah);
     } else { showLoad(false); Swal.fire('Gagal', res.msg, 'error'); }
   }).adminSaveExam(d);
 }
@@ -2231,22 +2201,17 @@ function submitExamButton(force = false) {
     if (examSubmitting) return;
     if (force) { processSubmission(); return; }
     const answeredCount = $('.q-nav-btn.answered').length;
-    const activeState = JSON.parse(localStorage.getItem('cbt_active_exam') || '{}');
-    const reqToken = activeState.token && activeState.token !== '-' ? String(activeState.token).trim().toUpperCase() : "";
-    let inputPlace = reqToken ? 'Ketik Token Kirim...' : 'Ketik kata SELESAI...';
+    
     let msgHtml = `<h4 class="mb-3 text-center">Terjawab: <b class="text-success">${answeredCount}</b> / <b>${totalQ}</b> soal</h4>`;
-    if(reqToken) { msgHtml += '<div class="alert alert-info small"><i class="fas fa-lock me-1"></i> Silakan masukkan <b>Token Kirim Jawaban</b> (Minta pada pengawas):</div>'; } 
-    else { msgHtml += '<div class="alert alert-warning small"><i class="fas fa-exclamation-triangle me-1"></i> Pastikan semua soal terjawab.<br>Ketik kata <b>SELESAI</b> di bawah ini untuk mengirim:</div>'; }
+    msgHtml += '<div class="alert alert-warning small"><i class="fas fa-exclamation-triangle me-1"></i> Pastikan semua soal terjawab.<br>Ketik kata <b>SELESAI</b> di bawah ini untuk mengirim:</div>';
     
     Swal.fire({
         target: document.getElementById('view-exam') || document.body,
         title: 'Konfirmasi Pengiriman', html: `<div class="text-start">${msgHtml}</div>`, input: 'text', inputAttributes: { autocapitalize: 'characters', autocomplete: 'off' },
-        inputPlaceholder: inputPlace, icon: 'question', showCancelButton: true, allowOutsideClick: false, allowEscapeKey: false,
+        inputPlaceholder: 'Ketik kata SELESAI...', icon: 'question', showCancelButton: true, allowOutsideClick: false, allowEscapeKey: false,
         confirmButtonText: '<i class="fas fa-paper-plane me-1"></i> Ya, Kirim Sekarang', cancelButtonText: 'Batal', confirmButtonColor: '#0f5132',
         preConfirm: (inputValue) => {
-            let val = (inputValue || '').trim().toUpperCase();
-            if (reqToken) { if (val !== reqToken) { Swal.showValidationMessage('Token Kirim Salah!'); return false; } } 
-            else { if (val !== 'SELESAI') { Swal.showValidationMessage('Ketik kata SELESAI untuk mengirim.'); return false; } }
+            if ((inputValue || '').trim().toUpperCase() !== 'SELESAI') { Swal.showValidationMessage('Ketik kata SELESAI untuk mengirim.'); return false; } 
             return true;
         }
     }).then((result) => { if (result.isConfirmed) { processSubmission(); } });
@@ -2256,11 +2221,13 @@ function processSubmission(retryCount = 0) {
     if (examSubmitting && retryCount === 0) return;
     examSubmitting = true;
     const btn = $('#btn-finish'); const originalText = '<i class="fas fa-check-circle me-2"></i> Selesai Ujian';
+    
     if (retryCount === 0) {
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Mengirim Data...');
         clearInterval(timerInt); clearInterval(monitorInterval); clearInterval(autosaveInterval);
         isExamFinished = true; disableSecurity();
     }
+    
     let ans = [];
     try {
         $('.q-slide').each(function(idx) {
@@ -2276,7 +2243,6 @@ function processSubmission(retryCount = 0) {
         });
     } catch(e) { console.error("Error collecting", e); }
     
-    // Buat format YYYY-MM-DD HH:MM:SS sesuai waktu device siswa
     const d = new Date();
     const localTime = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
     
@@ -2285,13 +2251,32 @@ function processSubmission(retryCount = 0) {
         if (res.status === 'success') {
             localStorage.removeItem('cbt_active_exam'); localStorage.removeItem(`ANS_${user.ID}_${activeExamId}`);
             
-            // KEMBALI KE DASHBOARD PESERTA SECARA LANGSUNG (TANPA SURVEI)
+            // Tutup fullscreen dan kembali ke UI Dashboard
             $('body').removeClass('exam-mode'); 
             try { document.exitFullscreen().catch(()=>{}) } catch (e) {};
             
+            // CEK APAKAH TAMPILAN NILAI DIAKTIFKAN UNTUK UJIAN INI
+            let currentExam = null;
+            if (gData && gData.availableExams) {
+                currentExam = gData.availableExams.find(e => String(e.ExamID) === String(activeExamId));
+            }
+            let showStats = currentExam ? currentExam.ShowStats : 'No';
+            
+            let scoreHtml = '';
+            if (showStats === 'Yes' || showStats === 'Aktif') {
+                scoreHtml = `
+                <div class="alert alert-success mt-3 py-2 border-success border-2 shadow-sm">
+                    <h6 class="m-0 text-muted">Nilai Akhir Anda:</h6>
+                    <h2 class="fw-bold m-0 text-success" style="font-size: 3rem;">${res.data.score}</h2>
+                </div>`;
+            }
+            
             Swal.fire({
                 title: 'Ujian Selesai!',
-                html: `<div class="mb-3 text-success" style="font-size: 5rem;"><i class="fas fa-check-circle"></i></div><h5 class="fw-bold">Jawaban Telah Terkirim ke Server</h5><p class="text-muted mt-2">Terima kasih. Anda telah menyelesaikan ujian CAT BCKS.</p>`,
+                html: `<div class="mb-3 text-success" style="font-size: 5rem;"><i class="fas fa-check-circle"></i></div>
+                       <h5 class="fw-bold">Jawaban Telah Terkirim ke Server</h5>
+                       ${scoreHtml}
+                       <p class="text-muted mt-3">Terima kasih. Anda telah menyelesaikan ujian CAT BCKS.</p>`,
                 confirmButtonText: 'KEMBALI KE BERANDA', confirmButtonColor: '#0f5132', allowOutsideClick: false, allowEscapeKey: false
             }).then(() => { 
                 $('#view-exam').addClass('hidden'); 
