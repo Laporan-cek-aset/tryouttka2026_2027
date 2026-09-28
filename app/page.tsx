@@ -8,42 +8,67 @@ export default function Page() {
   const [tglLahir, setTglLahir] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
-  // Mencegah login ulang jika sesi masih aktif saat direload
+  // Ambil Data Sesi & Redirect Jika Sesi Masih Aktif
   useEffect(() => {
     const savedUser = localStorage.getItem('cbt_user');
-    if (savedUser) {
-      window.location.href = '/index.html';
-    }
+    if (savedUser) { window.location.href = '/index.html'; return; }
+
+    const fetchPublicData = async () => {
+      try {
+        const res = await fetch('/api/action', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getPublicData', args: [] })
+        });
+        const result = await res.json();
+        if (result.status === 'success') {
+          setSessions(result.data.sessions);
+        }
+      } catch (err) { console.error('Gagal memuat jadwal sesi'); }
+    };
+    fetchPublicData();
+
+    // Timer Countdown Mockup Ke Hari Esok Jam 08:00
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + 1);
+    targetDate.setHours(8, 0, 0, 0);
+
+    const timer = setInterval(() => {
+      const now = new Date();
+      const difference = targetDate.getTime() - now.getTime();
+      if (difference > 0) {
+        setTimeLeft({
+          d: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          h: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          m: Math.floor((difference / 1000 / 60) % 60),
+          s: Math.floor((difference / 1000) % 60)
+        });
+      }
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password, tglLahir })
       });
-      
       const result = await res.json();
-
       if (result.status === 'success') {
         const user = result.data;
         user.LogoUrl = result.logo;
         localStorage.setItem('cbt_user', JSON.stringify(user));
-        
         window.location.href = '/index.html';
-      } else {
-        alert('Gagal Login: ' + result.msg);
-      }
-    } catch (err) {
-      alert('Terjadi kesalahan jaringan atau server tidak merespons.');
-    } finally {
-      setLoading(false);
-    }
+      } else { alert('Gagal Login: ' + result.msg); }
+    } catch (err) { alert('Terjadi kesalahan jaringan.'); } 
+    finally { setLoading(false); }
   };
 
   return (
@@ -53,169 +78,166 @@ export default function Page() {
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
       <div style={{
-        fontFamily: "'Poppins', sans-serif",
-        minHeight: '100vh',
-        width: '100%',
-        margin: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: "linear-gradient(135deg, #064e3b 0%, #15803d 50%, #d4af37 100%)",
-        padding: '20px'
+        fontFamily: "'Poppins', sans-serif", minHeight: '100vh', width: '100%', display: 'flex',
+        alignItems: 'center', justifyContent: 'center', padding: '20px',
+        background: "linear-gradient(135deg, #115e3c 0%, #15803d 50%, #d4af37 100%)"
       }}>
         
         <div className="container" style={{ maxWidth: '1100px' }}>
-          <div className="row g-4 align-items-center">
-            
-            {/* --- BAGIAN KIRI (INFO) --- */}
-            <div className="col-lg-7 text-white pe-lg-4 mb-4 mb-lg-0">
-              <h2 className="fw-bold mb-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>Tryout TKA KKGMI Surabaya 10</h2>
-              <p className="lead mb-4" style={{ fontSize: '1.1rem', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>
-                Selamat datang di Aplikasi Computer Based Test (CBT) resmi Kelompok Kerja Guru Madrasah Ibtidaiyah (KKGMI) Kota Surabaya 10.
-              </p>
+          {/* Header Title Offline Screen */}
+          <div className="text-white mb-4">
+            <p className="m-0" style={{ fontSize: '1.2rem', textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+              Selamat datang di Aplikasi Computer Based Test (CBT) resmi Kabupaten Tangerang.
+            </p>
+          </div>
+
+          <div className="row g-4">
+            {/* BAGIAN KIRI (INFO & JADWAL) */}
+            <div className="col-lg-7 d-flex flex-column gap-4">
               
-              {/* --- KOTAK ATURAN --- */}
-              <div className="bg-white text-dark p-4 rounded-4 shadow-sm mb-4" style={{ opacity: 0.95 }}>
-                <h5 className="fw-bold text-success mb-3"><i className="fas fa-list-check me-2"></i>Aturan & Cara Mengerjakan</h5>
-                <ol className="mb-0 small text-muted" style={{ paddingLeft: '1.2rem', lineHeight: '1.7' }}>
-                  <li className="mb-1">Pastikan koneksi internet Anda stabil sebelum mulai ujian.</li>
-                  <li className="mb-1">Sistem akan otomatis beralih ke mode <strong className="text-dark">Layar Penuh (Fullscreen)</strong>.</li>
-                  <li className="mb-1"><strong className="text-danger">DILARANG</strong> membuka tab baru, aplikasi lain, atau membagi layar (Split Screen). Pelanggaran maksimal 3 kali akan membuat jawaban otomatis terkirim.</li>
+              {/* Box Aturan */}
+              <div className="bg-white text-dark p-4 rounded-4 shadow-sm" style={{ opacity: 0.98 }}>
+                <h5 className="fw-bold mb-3" style={{ color: '#115e3c' }}><i className="fas fa-list-check me-2"></i>Aturan & Cara Mengerjakan</h5>
+                <ul className="mb-0 small text-muted" style={{ paddingLeft: '1.2rem', lineHeight: '1.8' }}>
+                  <li className="mb-2">Pastikan koneksi internet Anda stabil sebelum mulai ujian.</li>
+                  <li className="mb-2">Sistem akan otomatis beralih ke mode <strong className="text-dark">Layar Penuh (Fullscreen)</strong>.</li>
+                  <li className="mb-2"><strong className="text-danger">DILARANG</strong> membuka tab baru, aplikasi lain, atau membagi layar (Split Screen). Pelanggaran maksimal 3 kali akan membuat jawaban otomatis terkirim.</li>
                   <li>Tombol <strong className="text-dark">Selesai Ujian</strong> hanya akan muncul di soal nomor terakhir. Gunakan tombol <strong className="text-warning text-darken">Ragu-ragu</strong> jika ingin menandai soal yang belum yakin.</li>
-                </ol>
+                </ul>
               </div>
 
-              {/* --- KOTAK JADWAL --- */}
-              <div className="bg-white text-dark p-4 rounded-4 shadow-sm" style={{ opacity: 0.95 }}>
-                <h5 className="fw-bold text-success mb-3"><i className="fas fa-calendar-alt me-2"></i>Jadwal Pelaksanaan</h5>
+              {/* Box Jadwal & Countdown */}
+              <div className="bg-white text-dark p-4 rounded-4 shadow-sm" style={{ opacity: 0.98 }}>
+                <h5 className="fw-bold mb-4" style={{ color: '#115e3c' }}><i className="fas fa-calendar-alt me-2"></i>Jadwal Pelaksanaan</h5>
                 
-                <div className="row g-3 mb-3">
-                  {/* Blok Tryout 1 */}
-                  <div className="col-md-6">
-                    <div className="p-3 bg-light rounded-3 border h-100 shadow-sm">
-                      <h6 className="fw-bold text-primary mb-2 border-bottom pb-2">
-                        Tryout 1 <br/>
-                        <small className="text-muted fw-normal" style={{fontSize: '12px'}}>14 - 17 Des 2026</small>
-                      </h6>
-                      <div className="small text-muted" style={{ lineHeight: '1.6' }}>
-                        <div className="mb-2"><strong className="text-dark"><i className="fas fa-angle-right text-success me-1"></i>Gelombang 1:</strong><br/>14 - 15 Desember 2026</div>
-                        <div><strong className="text-dark"><i className="fas fa-angle-right text-success me-1"></i>Gelombang 2:</strong><br/>16 - 17 Desember 2026</div>
-                      </div>
+                <div className="border border-success rounded-4 p-4 text-center mx-auto" style={{ maxWidth: '500px' }}>
+                    <h5 className="fw-bold text-primary mb-3">PELAKSANAAN UJIAN (1 HARI)</h5>
+                    
+                    <div className="d-flex justify-content-center gap-3 mb-4">
+                        <div className="text-center">
+                            <div className="bg-success text-white rounded-3 d-flex align-items-center justify-content-center shadow-sm" style={{ width: '60px', height: '60px', fontSize: '24px', fontWeight: 'bold' }}>{String(timeLeft.d).padStart(2, '0')}</div>
+                            <small className="text-muted fw-bold d-block mt-1" style={{fontSize: '10px'}}>HARI</small>
+                        </div>
+                        <div className="text-center">
+                            <div className="bg-success text-white rounded-3 d-flex align-items-center justify-content-center shadow-sm" style={{ width: '60px', height: '60px', fontSize: '24px', fontWeight: 'bold' }}>{String(timeLeft.h).padStart(2, '0')}</div>
+                            <small className="text-muted fw-bold d-block mt-1" style={{fontSize: '10px'}}>JAM</small>
+                        </div>
+                        <div className="text-center">
+                            <div className="bg-success text-white rounded-3 d-flex align-items-center justify-content-center shadow-sm" style={{ width: '60px', height: '60px', fontSize: '24px', fontWeight: 'bold' }}>{String(timeLeft.m).padStart(2, '0')}</div>
+                            <small className="text-muted fw-bold d-block mt-1" style={{fontSize: '10px'}}>MENIT</small>
+                        </div>
+                        <div className="text-center">
+                            <div className="bg-success text-white rounded-3 d-flex align-items-center justify-content-center shadow-sm" style={{ width: '60px', height: '60px', fontSize: '24px', fontWeight: 'bold' }}>{String(timeLeft.s).padStart(2, '0')}</div>
+                            <small className="text-muted fw-bold d-block mt-1" style={{fontSize: '10px'}}>DETIK</small>
+                        </div>
                     </div>
-                  </div>
-                  
-                  {/* Blok Tryout 2 */}
-                  <div className="col-md-6">
-                    <div className="p-3 bg-light rounded-3 border h-100 shadow-sm">
-                      <h6 className="fw-bold text-primary mb-2 border-bottom pb-2">
-                        Tryout 2 <br/>
-                        <small className="text-muted fw-normal" style={{fontSize: '12px'}}>25 - 28 Jan 2027</small>
-                      </h6>
-                      <div className="small text-muted" style={{ lineHeight: '1.6' }}>
-                        <div className="mb-2"><strong className="text-dark"><i className="fas fa-angle-right text-success me-1"></i>Gelombang 1:</strong><br/>25 - 26 Januari 2027</div>
-                        <div><strong className="text-dark"><i className="fas fa-angle-right text-success me-1"></i>Gelombang 2:</strong><br/>27 - 28 Januari 2027</div>
-                      </div>
+
+                    <hr className="text-muted my-4" />
+                    
+                    <h6 className="fw-bold text-dark mb-3">Rundown Sesi Ujian:</h6>
+                    <div className="d-flex flex-wrap justify-content-center gap-2">
+                        {sessions.length > 0 ? (
+                            sessions.map((s, idx) => (
+                                <span key={idx} className="badge bg-success py-2 px-3 fs-6 shadow-sm rounded-pill">
+                                    Sesi {s.SesiID}: {s.JamMulai} - {s.JamSelesai}
+                                </span>
+                            ))
+                        ) : (
+                            <div className="spinner-border spinner-border-sm text-success"></div>
+                        )}
                     </div>
-                  </div>
                 </div>
 
-                {/* Blok Sesi */}
-                <div className="p-3 rounded-3 border" style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }}>
-                  <div className="fw-bold text-success mb-2 small"><i className="fas fa-clock me-1"></i> Waktu Sesi (Berlaku Semua Gelombang):</div>
-                  <div className="d-flex flex-wrap gap-2 small">
-                    <span className="badge bg-white text-success border border-success px-3 py-2 shadow-sm" style={{ fontSize: '13px' }}>Sesi 1: 07.30 - 09.00</span>
-                    <span className="badge bg-white text-success border border-success px-3 py-2 shadow-sm" style={{ fontSize: '13px' }}>Sesi 2: 09.30 - 11.00</span>
-                    <span className="badge bg-white text-success border border-success px-3 py-2 shadow-sm" style={{ fontSize: '13px' }}>Sesi 3: 11.30 - 13.00</span>
-                  </div>
-                </div>
               </div>
             </div>
 
-            {/* --- BAGIAN KANAN (LOGIN) --- */}
+            {/* BAGIAN KANAN (LOGIN FORM) */}
             <div className="col-lg-5">
               <div style={{
-                background: 'white',
-                borderRadius: '20px',
-                boxShadow: '0 15px 35px rgba(0,0,0,0.3)',
-                width: '100%',
-                padding: '40px',
-                zIndex: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'stretch'
+                background: 'white', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                padding: '40px', width: '100%', position: 'relative'
               }}>
                 
                 <div className="text-center mb-4">
                   <img 
                     src="https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq" 
-                    className="mx-auto d-block mb-3 rounded" 
-                    width="90" 
-                    alt="Logo KKGMI" 
+                    className="mx-auto d-block mb-2" 
+                    width="100" 
+                    alt="Logo Daerah" 
                   />
-                  <h4 className="fw-bold text-center" style={{ color: '#064e3b', fontSize: '22px' }}>
+                  <h4 className="fw-bold text-center mt-3" style={{ color: '#115e3c', fontSize: '20px' }}>
                     MASUK UJIAN
                   </h4>
                 </div>
 
                 <form onSubmit={handleLogin} style={{ width: '100%' }}>
-                  <div className="form-floating mb-3">
-                    <input 
-                      type="text" 
-                      className="form-control bg-light border-0" 
-                      placeholder="User" 
-                      required 
-                      value={username} 
-                      onChange={(e) => setUsername(e.target.value)} 
-                    />
-                    <label>Username</label>
+                  
+                  <div className="mb-3">
+                    <div className="form-floating shadow-sm rounded-4 overflow-hidden">
+                      <input 
+                        type="text" 
+                        className="form-control border-0" 
+                        style={{ backgroundColor: '#f1f5f9' }}
+                        placeholder="User" 
+                        required 
+                        value={username} 
+                        onChange={(e) => setUsername(e.target.value)} 
+                      />
+                      <label className="text-muted small">Username</label>
+                    </div>
                   </div>
 
-                  <div className="form-floating mb-3 position-relative">
-                    <input 
-                      type={showPassword ? "text" : "password"} 
-                      className="form-control bg-light border-0" 
-                      placeholder="Pass" 
-                      required 
-                      value={password} 
-                      onChange={(e) => setPassword(e.target.value)} 
-                    />
-                    <label>Password</label>
-                    <i 
-                      className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'} position-absolute top-50 end-0 translate-middle-y me-3 text-muted`} 
-                      style={{ cursor: 'pointer', zIndex: 10, fontSize: '1.2rem' }}
-                      onClick={() => setShowPassword(!showPassword)}
-                    ></i>
+                  <div className="mb-3">
+                    <div className="form-floating shadow-sm rounded-4 overflow-hidden position-relative">
+                      <input 
+                        type={showPassword ? "text" : "password"} 
+                        className="form-control border-0" 
+                        style={{ backgroundColor: '#f1f5f9' }}
+                        placeholder="Pass" 
+                        required 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
+                      />
+                      <label className="text-muted small">Password</label>
+                      <i 
+                        className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'} position-absolute top-50 end-0 translate-middle-y me-3 text-muted`} 
+                        style={{ cursor: 'pointer', zIndex: 10, fontSize: '1.2rem' }}
+                        onClick={() => setShowPassword(!showPassword)}
+                      ></i>
+                    </div>
                   </div>
 
-                  <div className="form-floating mb-4">
-                    <input 
-                      type="date" 
-                      className="form-control bg-light border-0" 
-                      value={tglLahir} 
-                      onChange={(e) => setTglLahir(e.target.value)} 
-                    />
-                    <label>Tanggal Lahir (Siswa Wajib Isi)</label>
+                  <div className="mb-4">
+                    <div className="form-floating shadow-sm rounded-4 overflow-hidden">
+                      <input 
+                        type="date" 
+                        className="form-control border-0 text-muted" 
+                        style={{ backgroundColor: '#f1f5f9' }}
+                        value={tglLahir} 
+                        onChange={(e) => setTglLahir(e.target.value)} 
+                      />
+                      <label className="text-muted small">Tanggal Lahir (Peserta Wajib Isi)</label>
+                    </div>
                   </div>
 
                   <button 
                     type="submit" 
                     disabled={loading} 
-                    className="btn w-100 py-3 fw-bold shadow-sm text-white"
-                    style={{ background: 'linear-gradient(90deg, #064e3b 0%, #15803d 100%)', border: 'none', fontSize: '16px', borderRadius: '10px' }}
+                    className="btn w-100 py-3 fw-bold shadow text-white mt-2"
+                    style={{ background: '#115e3c', border: 'none', fontSize: '16px', borderRadius: '12px' }}
                   >
                     {loading ? 'MEMPROSES...' : 'MASUK SEKARANG'}
                   </button>
                 </form>
 
-                <div className="text-center mt-4 small text-muted">
-                  © 2026 KKGMI SURABAYA 10<br/>@support by Belajar Inovasi
+                <div className="text-center mt-5 small text-muted">
+                  © 2026 CATBCKS - KAB. TANGERANG<br/>@support by Belajar Inovasi
                 </div>
               </div>
             </div>
             
           </div>
         </div>
-
       </div>
     </>
   );
