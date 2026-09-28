@@ -49,7 +49,9 @@
     display: flex !important;
     align-items: center !important;
     gap: 12px !important;
-    padding-left: 0 !important;
+    
+    /* UBAH DI SINI: Tambahkan padding kiri agar bulatan masuk ke dalam kotak */
+    padding-left: 16px !important; 
     margin-left: 0 !important;
 }
 
@@ -63,7 +65,8 @@
     min-width: 28px !important;
     min-height: 28px !important;
 
-    margin: 0 !important;              /* INI PENTING */
+    /* Pastikan tidak ada margin negatif dari bawaan framework */
+    margin: 0 !important;              
     padding: 0 !important;
 
     border: 2px solid #0d6efd !important;
@@ -92,7 +95,8 @@
 /* Area jawaban jangan memotong bulatan */
 .clickable-opt {
     overflow: visible !important;
-    padding-left: 20px !important;
+    /* Pastikan kontainer utama juga memberi ruang yang cukup */
+    padding-left: 10px !important; 
 }
         .loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 10000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .spinner { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
