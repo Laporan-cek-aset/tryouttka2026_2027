@@ -8,24 +8,24 @@ export async function POST(req) {
   try {
     const { action, args } = await req.json();
 
-    // ENDPOINT BARU UNTUK LANDING PAGE & DASHBOARD SETTINGS
-    if (action === 'getSettings') {
-        try {
-            const res = await turso.execute("SELECT * FROM AppSettings");
-            let settings = {};
-            res.rows.forEach(r => { settings[r.SettingKey] = r.SettingValue; });
-            return NextResponse.json({ status: 'success', data: settings });
-        } catch(e) {
-            return NextResponse.json({ status: 'error', msg: e.message });
-        }
+    // ENDPOINT BARU UNTUK LANDING PAGE
+    if (action === 'getPublicData') {
+        const sessions = await turso.execute("SELECT * FROM Sessions ORDER BY SesiID ASC");
+        return NextResponse.json({ status: 'success', data: { sessions: sessions.rows } });
     }
 
-    if (action === 'saveSettings') {
-        const d = args[0];
-        for (const [k, v] of Object.entries(d)) {
+    // ENDPOINT BARU UNTUK MENU JAM SESI
+    if (action === 'getSessions') {
+        const sessions = await turso.execute("SELECT * FROM Sessions ORDER BY SesiID ASC");
+        return NextResponse.json({ status: 'success', data: sessions.rows });
+    }
+
+    if (action === 'adminSaveSessions') {
+        const payload = args[0]; 
+        for (const s of payload) {
             await turso.execute({ 
-                sql: "INSERT INTO AppSettings (SettingKey, SettingValue) VALUES (?, ?) ON CONFLICT(SettingKey) DO UPDATE SET SettingValue=excluded.SettingValue", 
-                args: [k, String(v)] 
+                sql: "UPDATE Sessions SET JamMulai=?, JamSelesai=? WHERE SesiID=?", 
+                args: [s.mulai, s.selesai, s.id] 
             });
         }
         return NextResponse.json({ status: 'success', msg: 'Pengaturan Jam Sesi Berhasil Disimpan!' });
@@ -44,13 +44,6 @@ export async function POST(req) {
       }
       
       let output = { logo: 'https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq' };
-
-      // Tarik juga AppSettings ke Dashboard
-      try {
-          const setRes = await turso.execute("SELECT * FROM AppSettings");
-          output.settings = {};
-          setRes.rows.forEach(r => { output.settings[r.SettingKey] = r.SettingValue; });
-      } catch(e) { output.settings = {}; }
       
       if (role === 'admin' || role === 'guru') {
         output.exams = exams.rows;
@@ -94,10 +87,28 @@ export async function POST(req) {
         const userQ = await turso.execute({ sql: "SELECT Sesi FROM Users WHERE ID = ?", args: [userId] });
         const userSesi = userQ.rows.length > 0 ? userQ.rows[0].Sesi : '1';
 
-        output.availableExams = exams.rows.filter(e => 
-            e.Status === 'Aktif' && 
-            (e.ActiveSession === 'ALL' || e.ActiveSession === userSesi)
-        );
+        // Pengecekan Jam Sesi Siswa (Waktu WIB)
+        const sesiQ = await turso.execute({ sql: "SELECT JamMulai, JamSelesai FROM Sessions WHERE SesiID = ?", args: [userSesi] });
+        let isSessionActive = false;
+        let sessionInfo = { JamMulai: '00:00', JamSelesai: '23:59' };
+        
+        if (sesiQ.rows.length > 0) {
+            sessionInfo = sesiQ.rows[0];
+            const formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', hour12: false });
+            const currTimeStr = formatter.format(new Date()); 
+            
+            if (currTimeStr >= sessionInfo.JamMulai && currTimeStr <= sessionInfo.JamSelesai) {
+                isSessionActive = true;
+            }
+        }
+
+        output.availableExams = exams.rows.filter(e => e.Status === 'Aktif').map(e => ({
+            ...e,
+            IsLockedBySession: !isSessionActive,
+            SesiMulai: sessionInfo.JamMulai,
+            SesiSelesai: sessionInfo.JamSelesai
+        }));
+
         const history = await turso.execute({ 
           sql: "SELECT r.ResultID, r.ExamID, r.WaktuSubmit, r.TotalNilai as Nilai, e.Judul, e.AllowDownloadR, e.AllowDownloadQ, e.ShowStats, r.Pelanggaran FROM Results r JOIN Exams e ON r.ExamID = e.ExamID WHERE r.SiswaID = ? AND e.Mapel != 'SURVEY'", 
           args: [userId] 
@@ -105,11 +116,6 @@ export async function POST(req) {
         output.history = history.rows;
       }
       return NextResponse.json({ status: 'success', data: output });
-    }
-
-    if (action === 'adminToggleSession') {
-      await turso.execute({ sql: "UPDATE Exams SET ActiveSession=? WHERE ExamID=?", args: [args[1], args[0]] });
-      return NextResponse.json({ status: 'success', msg: 'Sesi Aktif Ujian Diperbarui!' });
     }
 
     if (action === 'getAdminData') {
@@ -156,7 +162,7 @@ export async function POST(req) {
       if (cek.rows.length > 0) {
         await turso.execute({ sql: "UPDATE Exams SET Judul=?, Mapel=?, TargetKelas=?, Durasi=?, Token=?, StartDate=?, EndDate=?, LimitTries=?, ShowStats=?, RandomQ=?, AllowDownloadQ=?, AllowDownloadR=? WHERE ExamID=?", args: [d.judul, d.mapel, d.targetKelas, d.durasi, d.token || '', d.start, d.end, d.limit || 1, d.showStats, d.randomQ, d.dlSoal, d.dlHasil, id] });
       } else {
-        await turso.execute({ sql: "INSERT INTO Exams (ExamID, Judul, Mapel, TargetKelas, Durasi, Token, StartDate, EndDate, LimitTries, ShowStats, RandomQ, AllowDownloadQ, AllowDownloadR, PembuatID, ActiveSession) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ALL')", args: [id, d.judul, d.mapel, d.targetKelas, d.durasi, d.token || '', d.start, d.end, d.limit || 1, d.showStats, d.randomQ, d.dlSoal, d.dlHasil, d.userId] });
+        await turso.execute({ sql: "INSERT INTO Exams (ExamID, Judul, Mapel, TargetKelas, Durasi, Token, StartDate, EndDate, LimitTries, ShowStats, RandomQ, AllowDownloadQ, AllowDownloadR, PembuatID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", args: [id, d.judul, d.mapel, d.targetKelas, d.durasi, d.token || '', d.start, d.end, d.limit || 1, d.showStats, d.randomQ, d.dlSoal, d.dlHasil, d.userId] });
       }
       return NextResponse.json({ status: 'success', msg: 'Jadwal Ujian berhasil dibuat!' });
     }
@@ -203,7 +209,7 @@ export async function POST(req) {
       if (cek.rows.length > 0) {
           await turso.execute({ sql: "UPDATE Exams SET Judul=?, TargetKelas=?, ShowStats=?, Token=? WHERE ExamID=?", args: [d.judul, d.desc, d.status, d.linkedExam, id] });
       } else {
-          await turso.execute({ sql: "INSERT INTO Exams (ExamID, Judul, Mapel, TargetKelas, Durasi, Token, StartDate, EndDate, LimitTries, ShowStats, RandomQ, AllowDownloadQ, AllowDownloadR, PembuatID, ActiveSession) VALUES (?, ?, 'SURVEY', ?, 0, ?, '', '', 1, ?, 'No', 'No', 'No', ?, 'ALL')", args: [id, d.judul, d.desc, d.linkedExam, d.status, d.userId] });
+          await turso.execute({ sql: "INSERT INTO Exams (ExamID, Judul, Mapel, TargetKelas, Durasi, Token, StartDate, EndDate, LimitTries, ShowStats, RandomQ, AllowDownloadQ, AllowDownloadR, PembuatID) VALUES (?, ?, 'SURVEY', ?, 0, ?, '', '', 1, ?, 'No', 'No', 'No', ?)", args: [id, d.judul, d.desc, d.linkedExam, d.status, d.userId] });
       }
       return NextResponse.json({ status: 'success', msg: 'Survey ditautkan & disimpan!' });
     }
