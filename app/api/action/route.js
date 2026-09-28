@@ -8,6 +8,29 @@ export async function POST(req) {
   try {
     const { action, args } = await req.json();
 
+    // ENDPOINT BARU UNTUK LANDING PAGE & DASHBOARD SETTINGS
+    if (action === 'getSettings') {
+        try {
+            const res = await turso.execute("SELECT * FROM AppSettings");
+            let settings = {};
+            res.rows.forEach(r => { settings[r.SettingKey] = r.SettingValue; });
+            return NextResponse.json({ status: 'success', data: settings });
+        } catch(e) {
+            return NextResponse.json({ status: 'error', msg: e.message });
+        }
+    }
+
+    if (action === 'saveSettings') {
+        const d = args[0];
+        for (const [k, v] of Object.entries(d)) {
+            await turso.execute({ 
+                sql: "INSERT INTO AppSettings (SettingKey, SettingValue) VALUES (?, ?) ON CONFLICT(SettingKey) DO UPDATE SET SettingValue=excluded.SettingValue", 
+                args: [k, String(v)] 
+            });
+        }
+        return NextResponse.json({ status: 'success', msg: 'Pengaturan Jam Sesi Berhasil Disimpan!' });
+    }
+
     if (action === 'getDashboardData') {
       const [role, userId, , sekolah] = args; 
       let exams, users;
@@ -21,6 +44,13 @@ export async function POST(req) {
       }
       
       let output = { logo: 'https://lh3.googleusercontent.com/d/1SCvmdQxuqmX_f0gBaYt0Ob53Tws97Hnq' };
+
+      // Tarik juga AppSettings ke Dashboard
+      try {
+          const setRes = await turso.execute("SELECT * FROM AppSettings");
+          output.settings = {};
+          setRes.rows.forEach(r => { output.settings[r.SettingKey] = r.SettingValue; });
+      } catch(e) { output.settings = {}; }
       
       if (role === 'admin' || role === 'guru') {
         output.exams = exams.rows;
