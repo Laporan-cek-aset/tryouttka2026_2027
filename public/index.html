@@ -308,6 +308,19 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalKoreksi" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-info text-white"><h5 class="modal-title fw-bold"><i class="fas fa-edit me-2"></i>Koreksi Jawaban Siswa</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body bg-light" id="kor-body"></div>
+            <div class="modal-footer bg-white border-top">
+                <button class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">Tutup</button>
+                <button class="btn btn-info text-white px-4 shadow-sm rounded-pill fw-bold" id="btn-save-kor" onclick="saveKoreksi()">Simpan Nilai Baru</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -702,6 +715,7 @@ function renderAdministrasi() {
     $('#content-area').html(h);
 }
 
+// ---------------- CETAK ADMINISTRASI DENGAN KOP ----------------
 function printKartuLogin() {
     const kls = $('#adm-kls-kartu').val(); const sesi = $('#adm-sesi-kartu').val();
     let usersToPrint = gAdminData.users;
@@ -789,6 +803,13 @@ function printBeritaAcara() {
     const win = window.open('', '', 'width=800,height=600'); win.document.write(html); win.document.close();
 }
 
+function updateExamSession(eid, session) {
+    showLoad(true);
+    google.script.run.withSuccessHandler(res => {
+        showLoad(false); toast('success', res.msg); loadPage('admin-home');
+    }).adminToggleSession(eid, session);
+}
+
 function renderContent(page) {
     const area = $('#content-area'); let h = '';
     const isGuru = String(user.Role).trim().toLowerCase() === 'guru';
@@ -801,42 +822,93 @@ function renderContent(page) {
                 if (myRankIndex !== -1) {
                     const mySchool = gData.schoolRanks[myRankIndex];
                     schoolTable += `<tr class="bg-warning bg-opacity-25 fw-bold"><td>${myRankIndex + 1}</td><td class="text-start">${mySchool.Sekolah}</td><td><span class="badge bg-primary rounded-pill">${Number(mySchool.RataRata).toFixed(2)}</span></td></tr>`;
-                } else { schoolTable += `<tr><td colspan="3" class="text-muted py-3"><i class="fas fa-lock text-secondary fa-2x mb-2 opacity-50"></i><br>Tunggu Admin merilis nilai.</td></tr>`; }
+                } else {
+                    schoolTable += `<tr><td colspan="3" class="text-muted py-3"><i class="fas fa-lock text-secondary fa-2x mb-2 opacity-50"></i><br>Tunggu Admin merilis nilai.</td></tr>`;
+                }
             } else {
                 gData.schoolRanks.forEach((s, i) => {
                     let isMySchool = (s.Sekolah === user.Sekolah) ? 'bg-warning bg-opacity-25 fw-bold' : '';
                     schoolTable += `<tr class="${isMySchool}"><td>${i+1}</td><td class="text-start">${s.Sekolah}</td><td><span class="badge bg-primary rounded-pill">${Number(s.RataRata).toFixed(2)}</span></td></tr>`;
                 });
             }
-        } else { schoolTable += `<tr><td colspan="3" class="text-muted py-3"><i class="fas fa-lock text-secondary fa-2x mb-2 opacity-50"></i><br>Tunggu Admin merilis nilai.</td></tr>`; }
+        } else {
+            schoolTable += `<tr><td colspan="3" class="text-muted py-3"><i class="fas fa-lock text-secondary fa-2x mb-2 opacity-50"></i><br>Tunggu Admin merilis nilai.</td></tr>`;
+        }
         schoolTable += `</tbody></table></div>`;
 
         let extraWidget = '';
         if(isGuru && gData.studentRanks) {
             const uniqueMapels = [...new Set(gData.studentRanks.map(st => st.Mapel))];
             let mapelFilterOptions = `<option value="">Semua Mapel</option>` + uniqueMapels.map(m => `<option value="${m}">${m}</option>`).join('');
+            
             window.allStudentRanks = gData.studentRanks;
-            extraWidget = `<div class="col-md-7"><div class="card shadow-sm border-0 rounded-4 h-100"><div class="card-body p-4"><div class="d-flex justify-content-between align-items-center mb-3"><h5 class="fw-bold text-success m-0"><i class="fas fa-medal me-2"></i>Peringkat Siswa (${user.Sekolah})</h5><select id="filter-dash-mapel" class="form-select form-select-sm w-auto rounded-pill border-success shadow-sm" onchange="filterDashStudentRanks()">${mapelFilterOptions}</select></div><div class="table-responsive" style="max-height: 300px; overflow-y: auto;"><table class="table table-sm table-hover"><thead><tr class="table-light"><th>Mapel TKA</th><th>Nama</th><th>Kelas</th><th>Skor</th></tr></thead><tbody id="dash-student-tbody"></tbody></table></div></div></div></div>`;
+
+            extraWidget = `
+            <div class="col-md-7">
+                <div class="card shadow-sm border-0 rounded-4 h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold text-success m-0"><i class="fas fa-medal me-2"></i>Peringkat Siswa (${user.Sekolah})</h5>
+                            <select id="filter-dash-mapel" class="form-select form-select-sm w-auto rounded-pill border-success shadow-sm" onchange="filterDashStudentRanks()">
+                                ${mapelFilterOptions}
+                            </select>
+                        </div>
+                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr class="table-light"><th>Mapel TKA</th><th>Nama</th><th>Kelas</th><th>Skor</th></tr>
+                                </thead>
+                                <tbody id="dash-student-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
         }
 
         let schoolWidgetClass = isGuru ? `col-md-5` : `col-md-12`;
         let cardTitleSekolah = isGuru ? 'Peringkat Sekolah Anda' : 'Peringkat Sekolah (Global)';
+
+        let sessionWidget = '';
+        if (isGuru || String(user.Role).trim().toLowerCase() === 'admin') {
+            let trs = '';
+            gData.exams.forEach(e => {
+                trs += `<tr>
+                    <td class="fw-bold">${e.Judul}</td>
+                    <td><span class="badge bg-dark font-monospace px-3 py-2 fs-6 shadow-sm"><i class="fas fa-key text-warning me-1"></i> ${e.Token || '-'}</span></td>
+                    <td>
+                        <select class="form-select form-select-sm shadow-sm border-primary fw-bold text-primary" onchange="updateExamSession('${e.ExamID}', this.value)">
+                            <option value="ALL" ${e.ActiveSession==='ALL'?'selected':''}>Semua Sesi Aktif</option>
+                            <option value="1" ${e.ActiveSession==='1'?'selected':''}>Hanya Sesi 1</option>
+                            <option value="2" ${e.ActiveSession==='2'?'selected':''}>Hanya Sesi 2</option>
+                            <option value="3" ${e.ActiveSession==='3'?'selected':''}>Hanya Sesi 3</option>
+                            <option value="4" ${e.ActiveSession==='4'?'selected':''}>Hanya Sesi 4</option>
+                        </select>
+                    </td>
+                </tr>`;
+            });
+            sessionWidget = `<div class="col-md-12 mt-4"><div class="card shadow-sm border-0 rounded-4 border-top border-primary border-4"><div class="card-body p-4"><h5 class="fw-bold text-primary mb-3"><i class="fas fa-sliders-h me-2"></i>Pengaturan Sesi & Token Ujian</h5><p class="small text-muted mb-3">Pilih sesi mana yang diizinkan untuk login dan mengerjakan ujian saat ini. Token dibagikan kepada siswa untuk verifikasi pengiriman jawaban akhir.</p><div class="table-responsive"><table class="table table-hover align-middle"><thead class="table-light"><tr><th>Nama Ujian / Mapel</th><th>Token Akses (Submit)</th><th width="250">Kontrol Sesi Aktif</th></tr></thead><tbody>${trs || '<tr><td colspan="3" class="text-center text-muted">Belum ada jadwal ujian.</td></tr>'}</tbody></table></div></div></div></div>`;
+        }
 
         h = `<div class="row g-4 mb-4">
                 <div class="col-md-6"><div class="card p-4 shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, #0f5132, #15803d); color: white;"><div class="d-flex justify-content-between align-items-center"><div><h1 class="fw-bold display-4 m-0">${gData.stats.totalSiswa}</h1><p class="m-0 fs-5">Total Siswa Terdaftar</p></div><i class="fas fa-users fa-4x opacity-50"></i></div></div></div>
                 <div class="col-md-6"><div class="card p-4 shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7); color: white;"><div class="d-flex justify-content-between align-items-center"><div><h1 class="fw-bold display-4 m-0">${gData.stats.totalUjian}</h1><p class="m-0 fs-5">Total Ujian Aktif</p></div><i class="fas fa-folder-open fa-4x opacity-50"></i></div></div></div>
              </div>
              <div class="row g-4">
-                <div class="${schoolWidgetClass}"><div class="card shadow-sm border-0 rounded-4 h-100"><div class="card-body p-4"><h5 class="fw-bold text-primary mb-3"><i class="fas fa-trophy me-2"></i>${cardTitleSekolah}</h5>${schoolTable}</div></div></div>
+                <div class="${schoolWidgetClass}">
+                    <div class="card shadow-sm border-0 rounded-4 h-100"><div class="card-body p-4"><h5 class="fw-bold text-primary mb-3"><i class="fas fa-trophy me-2"></i>${cardTitleSekolah}</h5>${schoolTable}</div></div>
+                </div>
                 ${extraWidget}
-             </div>`;
+             </div>
+             ${sessionWidget}`;
              
         area.html(h);
         if (isGuru) setTimeout(() => filterDashStudentRanks(), 50);
         return; 
     }
     
-    // RENDER HALAMAN ADMIN SESI
+    // RENDER HALAMAN ADMIN SESI (PERBAIKAN DESAIN SESUAI REFERENSI GAMBAR 2)
     else if (page === 'admin-sesi') {
         let sessions = gData.sessions || [];
         h = `<div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white shadow-sm border rounded-4">
@@ -913,7 +985,6 @@ function renderContent(page) {
             gData.availableExams.forEach(e => {
                 let btnState = '', btnText = '<i class="fas fa-play-circle me-2"></i> MULAI UJIAN', btnClass = 'btn-primary';
                 
-                // Cek PENGUNCIAN SESI
                 if (e.IsFinished) { btnState = 'disabled'; btnText = '<i class="fas fa-check me-2"></i> SUDAH DIKERJAKAN'; btnClass = 'btn-secondary'; }
                 else if (e.IsLockedBySession) { 
                     btnState = 'disabled'; 
@@ -1400,7 +1471,7 @@ function runExam(qs, dur, isResume) {
             inp += `</tbody></table>`;
         } else if(q.Tipe==='Menjodohkan') {
             const lItems = JSON.parse(q.Options||"[]"); const rItems = q.Extra || [];
-            inp = `<div class="match-container" id="match-area-${i}"><input type="hidden" id="ans-in-${i}" onchange="saveAnsLocal('${q.QID}', 'MATCH', ${i})"><svg class="match-svg" id="svg-${i}"></svg><div class="match-col" id="col-l-${i}">${lItems.map((t,Idx)=>`<div class="match-item match-left" data-idx="${Idx}" onclick="matchClick(${i}, 'l', ${Idx}, this)"><div class="opt-content">${t}</div></div>`).join('')}</div><div class="match-col" id="col-r-${i}">${rItems.map((t,Idx)=>`<div class="match-item match-right" data-idx="${Idx}" data-val="${encodeURIComponent(t)}" onclick="matchClick(${i}, 'r', ${Idx}, this)"><div class="opt-content">${t}</div></div>`).join('')}</div></div><div class="text-end mt-2"><button class="btn btn-sm btn-outline-warning" onclick="resetMatch(${i})">Reset Garis</button></div>`;
+            inp = `<div class="match-container" id="match-area-${i}"><input type="hidden" id="ans-in-${i}" onchange="saveAnsLocal('${q.QID}', 'MATCH', ${i})"><svg class="match-svg" id="svg-${i}"></svg><div class="match-col" id="col-l-${i}">${lItems.map((t,Idx)=>`<div class="match-item match-left" data-idx="${Idx}" onclick="matchClick(${i}, 'l',${Idx}, this)"><div class="opt-content">${t}</div></div>`).join('')}</div><div class="match-col" id="col-r-${i}">${rItems.map((t,Idx)=>`<div class="match-item match-right" data-idx="${Idx}" data-val="${encodeURIComponent(t)}" onclick="matchClick(${i}, 'r',${Idx}, this)"><div class="opt-content">${t}</div></div>`).join('')}</div></div><div class="text-end mt-2"><button class="btn btn-sm btn-outline-warning" onclick="resetMatch(${i})">Reset Garis</button></div>`;
         } else if(q.Tipe.includes('PG')) {
             const opts = JSON.parse(q.Options||"[]");
             opts.forEach(o => inp += `<label class="form-check p-3 border mb-3 rounded-4 bg-white shadow-sm clickable-opt d-flex align-items-center w-100"><input class="form-check-input flex-shrink-0" type="${q.Tipe==='PGK'?'checkbox':'radio'}" name="ans-${q.QID}" value="${encodeURIComponent(o)}" onchange="saveAnsLocal('${q.QID}', '${q.Tipe}', ${i})"><div class="ms-3 flex-grow-1 opt-content mb-0 fs-6">${o}</div></label>`);
@@ -1463,8 +1534,8 @@ function toggleRagu() { $(`#nb-${currentQIdx}`).toggleClass('btn-ragu'); jump(cu
 
 function jump(i) { 
     currentQIdx = i; 
-    $('.q-slide').addClass('hidden'); $(`#sl-${i}`).removeClass('hidden'); 
-    $('.q-nav-btn').removeClass('active-q'); $(`#nb-${i}`).addClass('active-q'); 
+    $('.q-slide').addClass('hidden');$(`#sl-${i}`).removeClass('hidden'); 
+    $('.q-nav-btn').removeClass('active-q');$(`#nb-${i}`).addClass('active-q'); 
     $('#q-number-title').text('Soal nomor ' + (i + 1));
     $('#btn-prev').css('visibility', i === 0 ? 'hidden' : 'visible');
     
@@ -1506,8 +1577,8 @@ function processSubmission(retryCount = 0) {
     let ans = [];
     try {
         $('.q-slide').each(function(idx) {
-            const qid = $(this).data('qid'); const t = $(this).data('type'); let v = null;
-            if (t.includes('PG') && t !== 'PGKK') { if (t === 'PGK') { v = []; $(this).find('input:checked').each(function() { v.push(decodeURIComponent($(this).val())) }); } else { const checked = $(this).find('input:checked').val(); if(checked) v = decodeURIComponent(checked); } }
+            const qid = $(this).data('qid'); const t =$(this).data('type'); let v = null;
+            if (t.includes('PG') && t !== 'PGKK') { if (t === 'PGK') { v = []; $(this).find('input:checked').each(function() { v.push(decodeURIComponent($(this).val())) }); } else { const checked =$(this).find('input:checked').val(); if(checked) v = decodeURIComponent(checked); } }
             else if (t === 'PGKK') { v = []; $(this).find('tbody tr').each(function(x) { v.push($(this).find('input:checked').val() || null) }); }
             else if (t === 'Menjodohkan') { const raw = $(`#ans-in-${idx}`).val(); v = raw ? JSON.parse(raw) : []; }
             else { v = $(this).find('textarea').val(); }
