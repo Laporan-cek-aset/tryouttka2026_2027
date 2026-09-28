@@ -217,7 +217,7 @@ export default function Page() {
                 </form>
 
                 <div className="text-center mt-4 small text-muted">
-                  © 2026 CATBCKS - KAB. TANGERANG<br/>@support by Belajar Inovasi
+                  © 2026 CATBCKS - KAB. TANGERANG<br/>@support by PTKBS DISDIK 2026
                 </div>
               </div>
             </div>
