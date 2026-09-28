@@ -8,16 +8,20 @@ export default function Page() {
   const [tglLahir, setTglLahir] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // State Sesi tersinkron dengan Turso Database
   const [activeSession, setActiveSession] = useState('Memuat...');
+  const [jamSesi1, setJamSesi1] = useState('07.30 - 09.00');
+  const [jamSesi2, setJamSesi2] = useState('09.30 - 11.00');
+  const [jamSesi3, setJamSesi3] = useState('11.30 - 13.00');
 
-  // Mencegah login ulang jika sesi masih aktif saat direload & Ambil Sesi Aktif
   useEffect(() => {
     const savedUser = localStorage.getItem('cbt_user');
     if (savedUser) {
       window.location.href = '/index.html';
     }
 
-    // Ambil Pengaturan Sesi Aktif dari server
+    // Ambil Pengaturan Sesi Aktif & Jam Sesi dari server Turso
     fetch('/api/action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -25,7 +29,12 @@ export default function Page() {
     })
     .then(r => r.json())
     .then(res => {
-      if(res.status === 'success') setActiveSession(res.data.SesiAktif);
+      if(res.status === 'success') {
+         setActiveSession(res.data.SesiAktif || '1');
+         setJamSesi1(res.data.JamSesi1 || '07.30 - 09.00');
+         setJamSesi2(res.data.JamSesi2 || '09.30 - 11.00');
+         setJamSesi3(res.data.JamSesi3 || '11.30 - 13.00');
+      }
     })
     .catch(err => console.log('Gagal memuat sesi aktif'));
   }, []);
@@ -108,7 +117,6 @@ export default function Page() {
                 </div>
                 
                 <div className="row g-3 mb-3">
-                  {/* Blok Tryout 1 */}
                   <div className="col-md-6">
                     <div className="p-3 bg-light rounded-3 border h-100 shadow-sm">
                       <h6 className="fw-bold text-primary mb-2 border-bottom pb-2">
@@ -122,7 +130,6 @@ export default function Page() {
                     </div>
                   </div>
                   
-                  {/* Blok Tryout 2 */}
                   <div className="col-md-6">
                     <div className="p-3 bg-light rounded-3 border h-100 shadow-sm">
                       <h6 className="fw-bold text-primary mb-2 border-bottom pb-2">
@@ -137,13 +144,13 @@ export default function Page() {
                   </div>
                 </div>
 
-                {/* Blok Sesi */}
+                {/* Blok Sesi (Dinamis dari Database) */}
                 <div className="p-3 rounded-3 border" style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }}>
                   <div className="fw-bold text-success mb-2 small"><i className="fas fa-clock me-1"></i> Waktu Sesi (Berlaku Semua Gelombang):</div>
                   <div className="d-flex flex-wrap gap-2 small">
-                    <span className={`badge border px-3 py-2 shadow-sm ${activeSession === '1' ? 'bg-success text-white border-success' : 'bg-white text-success border-success'}`} style={{ fontSize: '13px' }}>Sesi 1: 07.30 - 09.00</span>
-                    <span className={`badge border px-3 py-2 shadow-sm ${activeSession === '2' ? 'bg-success text-white border-success' : 'bg-white text-success border-success'}`} style={{ fontSize: '13px' }}>Sesi 2: 09.30 - 11.00</span>
-                    <span className={`badge border px-3 py-2 shadow-sm ${activeSession === '3' ? 'bg-success text-white border-success' : 'bg-white text-success border-success'}`} style={{ fontSize: '13px' }}>Sesi 3: 11.30 - 13.00</span>
+                    <span className={`badge border px-3 py-2 shadow-sm ${activeSession === '1' ? 'bg-success text-white border-success' : 'bg-white text-success border-success'}`} style={{ fontSize: '13px' }}>Sesi 1: {jamSesi1}</span>
+                    <span className={`badge border px-3 py-2 shadow-sm ${activeSession === '2' ? 'bg-success text-white border-success' : 'bg-white text-success border-success'}`} style={{ fontSize: '13px' }}>Sesi 2: {jamSesi2}</span>
+                    <span className={`badge border px-3 py-2 shadow-sm ${activeSession === '3' ? 'bg-success text-white border-success' : 'bg-white text-success border-success'}`} style={{ fontSize: '13px' }}>Sesi 3: {jamSesi3}</span>
                   </div>
                 </div>
               </div>
