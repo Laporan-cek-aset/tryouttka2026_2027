@@ -44,16 +44,34 @@
         .q-nav-btn.answered { background-color: #0d6efd !important; color: white !important; border-color: #0d6efd !important; }
         .q-nav-btn.btn-ragu { background: #ffc107 !important; color: #000 !important; border-color: #ffc107 !important; }
         /* ---- PERBAIKAN BULATAN OPSI JAWABAN ---- */
+/* BULATAN PILIHAN JAWABAN */
 .form-check-input {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+
     width: 1.8em !important;
     height: 1.8em !important;
     margin-top: 0 !important;
-    border: 2px solid #0d6efd !important; /* Warna biru mencolok garis tepinya */
+
+    border: 2px solid #0d6efd !important;
+    border-radius: 50% !important;
+
+    background-color: #fff !important;
     cursor: pointer;
+
+    display: inline-block;
+    position: relative;
 }
+
+/* Saat dipilih: BULATAN PENUH */
 .form-check-input:checked {
-    background-color: #198754 !important; /* Warna hijau mencolok saat dipilih */
+    background-color: #198754 !important;
     border-color: #198754 !important;
+}
+
+/* Hilangkan efek/titik bawaan browser */
+.form-check-input:checked::after {
+    content: none !important;
 }
 .clickable-opt {
     cursor: pointer;
