@@ -4,7 +4,7 @@
     <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TES BCKS Kab. Tangerang - Dashboard</title>
+    <title>CATBCKS Kab. Tangerang - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -74,6 +74,8 @@
             .exam-container-split { flex-direction: column; overflow-y: auto; padding: 10px; gap: 15px; }
             .q-main-area, .q-nav-area { height: auto; flex: none; overflow: visible; padding: 15px; }
             .q-grid { grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); }
+            .btn-nav-exam { width: 100%; margin-bottom: 10px; }
+            #btn-nav-container { flex-direction: column; }
         }
     </style>
 </head>
@@ -85,7 +87,7 @@
     <nav id="sidebar">
         <div class="sidebar-header d-flex flex-column align-items-center justify-content-center p-4 border-bottom" style="border-color: rgba(255,255,255,0.1) !important;">
             <div id="logo-container" class="mb-3 bg-white p-2 rounded-circle shadow-sm"><img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" class="rounded-circle" width="70" alt="Logo"></div>
-            <h5 class="fw-bold mb-0 text-white text-center">TES BCKS</h5>
+            <h5 class="fw-bold mb-0 text-white text-center">CATBCKS</h5>
             <small class="text-warning text-center fw-bold" id="user-role-disp"></small>
         </div>
         <ul class="list-unstyled components hidden" id="menu-admin">
@@ -860,7 +862,7 @@ function downloadUserTemplate() {
 }
 
 function getKopHTML(title) {
-    return `<div class="kop" style="display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #064e3b; padding-bottom: 20px; margin-bottom: 30px; position: relative; text-align: center;"><img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 100px; height: 100px; position: absolute; left: 10px; top: 0;"><div style="width: 100%; padding-left: 90px;"><h2 style="margin: 0; font-size: 26px; color: #064e3b; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">TES BCKS - KABUPATEN TANGERANG</h2><p style="margin: 0; color: #64748b; font-size: 14px; font-style: italic;">Aplikasi Computer Based Test (CBT) Inovasi - ${title}</p></div></div>`;
+    return `<div class="kop" style="display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #064e3b; padding-bottom: 20px; margin-bottom: 30px; position: relative; text-align: center;"><img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 100px; height: 100px; position: absolute; left: 10px; top: 0;"><div style="width: 100%; padding-left: 90px;"><h2 style="margin: 0; font-size: 26px; color: #064e3b; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">CATBCKS - KABUPATEN TANGERANG</h2><p style="margin: 0; color: #64748b; font-size: 14px; font-style: italic;">Aplikasi Computer Based Test (CBT) Inovasi - ${title}</p></div></div>`;
 }
 
 function downloadHTMLToPDF(filename, htmlContent) {
@@ -1378,7 +1380,7 @@ function printKartuLogin() {
         html += `<div class="card">
             <div style="display:flex; align-items:center; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px;">
                 <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width:50px; height:50px; margin-right:15px;">
-                <div><h3 style="margin:0; font-size:15px; text-transform:uppercase;">KARTU LOGIN TES BCKS</h3><p style="margin:0; font-size:11px;">KAB. TANGERANG</p></div>
+                <div><h3 style="margin:0; font-size:15px; text-transform:uppercase;">KARTU LOGIN CATBCKS</h3><p style="margin:0; font-size:11px;">KAB. TANGERANG</p></div>
             </div>
             <div style="display:flex; gap:15px; align-items:center;">
                 <div style="flex-shrink:0;">
@@ -1417,7 +1419,7 @@ function printDaftarHadir() {
     <div class="no-print" style="margin-bottom: 15px; text-align:right;"><button onclick="window.print()" style="padding:10px 20px; font-size:16px; background:#0dcaf0; color:white; border:none; border-radius:5px; cursor:pointer;">Cetak Dokumen</button></div>
     <div style="display: flex; align-items: center; justify-content: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; text-align: center; position: relative;">
         <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 80px; height: 80px; position: absolute; left: 10px;">
-        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">DAFTAR HADIR PESERTA UJIAN</h2><p style="margin: 5px 0 0; font-size: 14px;">TES BCKS - KAB. TANGERANG</p></div>
+        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">DAFTAR HADIR PESERTA UJIAN</h2><p style="margin: 5px 0 0; font-size: 14px;">CATBCKS - KAB. TANGERANG</p></div>
     </div>
     <h3>DAFTAR HADIR PESERTA</h3>
     <table class="info-table">
@@ -1465,7 +1467,7 @@ function printBeritaAcara() {
     <div class="no-print" style="margin-bottom: 15px; text-align:right;"><button onclick="window.print()" style="padding:10px 20px; font-size:16px; background:#198754; color:white; border:none; border-radius:5px; cursor:pointer;">Cetak Dokumen</button></div>
     <div style="display: flex; align-items: center; justify-content: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 30px; text-align: center; position: relative;">
         <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" alt="Logo" style="width: 80px; height: 80px; position: absolute; left: 20px;">
-        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">PANITIA PELAKSANAAN UJIAN CBT</h2><p style="margin: 5px 0 0; font-size: 14px;">TES BCKS - KAB. TANGERANG</p></div>
+        <div><h2 style="margin: 0; font-size: 22px; text-transform: uppercase;">PANITIA PELAKSANAAN UJIAN CBT</h2><p style="margin: 5px 0 0; font-size: 14px;">CATBCKS - KAB. TANGERANG</p></div>
     </div>
     <h3>BERITA ACARA PELAKSANAAN UJIAN</h3>
     <div class="content">
@@ -1504,11 +1506,19 @@ function printBeritaAcara() {
 
 function openExamModal(str) {
   $('#modalExam').modal('show'); let d = null;
+  
   if(str) {
     d = JSON.parse(decodeURIComponent(str));
-    $('#ex-id').val(d.ExamID); $('#ex-judul').val(d.Judul); $('#ex-mapel').val(d.Mapel); $('#ex-durasi').val(d.Durasi);
-    $('#ex-limit').val(d.Limit); $('#ex-start').val(d.StartDate.replace(' ','T')); $('#ex-end').val(d.EndDate.replace(' ','T'));
+    $('#ex-id').val(d.ExamID); 
+    $('#ex-judul').val(d.Judul); 
+    $('#ex-mapel').val(d.Mapel); 
+    $('#ex-durasi').val(d.Durasi);
+    $('#ex-limit').val(d.LimitTries || 1); 
+    $('#ex-start').val(d.StartDate ? d.StartDate.replace(' ','T') : ''); 
+    $('#ex-end').val(d.EndDate ? d.EndDate.replace(' ','T') : '');
     $('#ex-token').val(d.Token || ''); 
+    
+    // Perbaikan Toggle Update dari Database (Memastikan toggle bisa ON/OFF mengikuti data)
     $('#ex-randomQ').prop('checked', d.RandomQ === 'Yes'); 
     $('#ex-showStats').prop('checked', d.ShowStats === 'Yes' || d.ShowStats === 'Aktif');
     $('#ex-dlSoal').prop('checked', d.AllowDownloadQ === 'Yes'); 
@@ -1522,8 +1532,10 @@ function openExamModal(str) {
         $('#ex-jenis').val(d.JenisPeserta);
     }
   } else { 
+      // Reset Default Modal Tambah Ujian Baru
       $('#modalExam form')[0].reset(); 
-      $('#ex-id').val(''); $('#ex-token').val(''); 
+      $('#ex-id').val(''); 
+      $('#ex-token').val(''); 
       $('#ex-randomQ').prop('checked', true); 
       $('#ex-showStats').prop('checked', false);
       $('#ex-dlSoal').prop('checked', false);
@@ -1548,12 +1560,17 @@ function saveExam() {
   };
   
   d.examId = $('#ex-id').val();
+  
+  // Mengambil Data True / False Dari Toggle HTML
   d.showStats = $('#ex-showStats').is(':checked') ? 'Yes' : 'No'; 
   d.randomQ = $('#ex-randomQ').is(':checked') ? 'Yes' : 'No'; 
   d.dlSoal = $('#ex-dlSoal').is(':checked') ? 'Yes' : 'No'; 
   d.dlHasil = $('#ex-dlHasil').is(':checked') ? 'Yes' : 'No';
+  
   d.jenisPeserta = $('#ex-jenis').length ? $('#ex-jenis').val() : 'ALL';
-  d.userRole = user.Role; d.userId = user.ID; d.userClass = user.Kelas;
+  d.userRole = user.Role; 
+  d.userId = user.ID; 
+  d.userClass = user.Kelas;
   
   if (!d.judul || !d.mapel || !d.start || !d.end) { return Swal.fire('Error', 'Lengkapi data wajib!', 'error'); }
   
@@ -1561,7 +1578,16 @@ function saveExam() {
   google.script.run.withSuccessHandler((res) => {
     if(res.status === 'success') {
       $('#modalExam').modal('hide');
-      google.script.run.withSuccessHandler(res2 => { showLoad(false); if (res2.status === 'success') { gData = res2.data; renderContentSafe('admin-ujian'); toast('success', 'Jadwal Disimpan!'); } else { Swal.fire('Gagal', res2.msg, 'error'); } }).getDashboardData(user.Role, user.ID, user.Kelas, user.Sekolah);
+      google.script.run.withSuccessHandler(res2 => { 
+          showLoad(false); 
+          if (res2.status === 'success') { 
+              gData = res2.data; 
+              renderContentSafe('admin-ujian'); 
+              toast('success', 'Jadwal Disimpan!'); 
+          } else { 
+              Swal.fire('Gagal', res2.msg, 'error'); 
+          } 
+      }).getDashboardData(user.Role, user.ID, user.Kelas, user.Sekolah);
     } else { showLoad(false); Swal.fire('Gagal', res.msg, 'error'); }
   }).adminSaveExam(d);
 }
@@ -1939,18 +1965,32 @@ function executeStartExam(eid) {
             activeExamId = eid; 
             
             let qs = res.data;
-            let randomQ = res.randomQ === true;
-            let grouped = { 'Kepribadian': [], 'Profesional': [], 'Sosial': [] };
+            let randomQ = res.randomQ === 'Yes'; 
+            
+            let categories = [...new Set(qs.map(q => q.Kategori || 'Profesional'))];
+            let grouped = {};
+            categories.forEach(c => grouped[c] = []);
             
             qs.forEach(q => {
                 let k = q.Kategori || 'Profesional';
-                if(grouped[k]) grouped[k].push(q);
-                else grouped['Profesional'].push(q);
+                grouped[k].push(q);
             });
             
+            function shuffle(array) {
+                let currentIndex = array.length, randomIndex;
+                while (currentIndex != 0) {
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+                    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+                }
+                return array;
+            }
+            
             let finalQs = [];
-            ['Kepribadian', 'Profesional', 'Sosial'].forEach(k => {
-                if(randomQ) grouped[k].sort(() => Math.random() - 0.5);
+            categories.forEach(k => {
+                if(randomQ) {
+                    grouped[k] = shuffle(grouped[k]);
+                }
                 finalQs.push(...grouped[k]);
             });
             
@@ -2171,7 +2211,7 @@ function processSubmission(retryCount = 0) {
         if (res.status === 'success') {
             localStorage.removeItem('cbt_active_exam'); localStorage.removeItem(`ANS_${user.ID}_${activeExamId}`);
             
-            // KEMBALI KE DASHBOARD PESERTA SECARA LANGSUNG (TANPA SURVEI)
+            // KEMBALI KE DASHBOARD PESERTA SECARA LANGSUNG
             $('body').removeClass('exam-mode'); 
             try { document.exitFullscreen().catch(()=>{}) } catch (e) {};
             
