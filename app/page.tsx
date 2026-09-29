@@ -122,7 +122,7 @@ export default function Page() {
           <div className="row g-4 align-items-center">
             
             <div className="col-lg-7 text-white pe-lg-4 mb-4 mb-lg-0">
-              <h2 className="fw-bold mb-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>CATBCKS - Kab. Tangerang</h2>
+              <h2 className="fw-bold mb-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>TES BCKS - Kab. Tangerang</h2>
               <p className="lead mb-4" style={{ fontSize: '1.1rem', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>
                 Selamat datang di Aplikasi Computer Based Test (CBT) resmi Kabupaten Tangerang.
               </p>
@@ -190,7 +190,7 @@ export default function Page() {
               }}>
                 
                 <div className="text-center mb-4">
-                  <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" className="mx-auto d-block mb-3 rounded" width="90" alt="Logo CATBCKS" />
+                  <img src="https://lh3.googleusercontent.com/d/1IWNmSpAZfMOYOU0uNK2RIiD83Zr63ye9" className="mx-auto d-block mb-3 rounded" width="90" alt="Logo TES BCKS" />
                   <h4 className="fw-bold text-center" style={{ color: '#064e3b', fontSize: '22px' }}>MASUK UJIAN</h4>
                 </div>
 
@@ -217,7 +217,7 @@ export default function Page() {
                 </form>
 
                 <div className="text-center mt-4 small text-muted">
-                  © 2026 CATBCKS - KAB. TANGERANG<br/>@support by PTKBS DISDIK 2026
+                  © 2026 TES BCKS - KAB. TANGERANG<br/>@support by PTKBS DISDIK 2026
                 </div>
               </div>
             </div>
